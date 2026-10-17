@@ -41,10 +41,10 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 | D-29 | Authorization | Enforced in the handlers by ownership, never by the page alone. `ARCHITECTURE.md` §4 |
 | D-30 | Demo panel | A small "Demo" control (bottom-left, collapsed) lists the scenarios and resets the state, on the deployed build too, so an evaluator does not need the URL parameters. Scenarios not wired yet are listed as "em breve" and disabled |
 | D-31 | Wallets screen | The principal wallet form is always open, as in the frame, so the "Adicionar" link next to its title is not reproduced; "Adicionar" for the secondary wallet is. "Igual à carteira principal" starts the new wallet from the principal's data |
-| D-32 | Visitor cart | Adding to the cart needs a session: an anonymous visitor is sent to sign in and returns to the NFT. The server merge rule exists and is tested; the client-side visitor cart (CART-3) moves to M4 |
+| D-32 | Visitor cart | An anonymous visitor's cart lives in this browser (`kurio.visitor.cart`); "COMPRAR" then sends them to sign in and on to the cart. The first sign-in claims it and merges it once (CART-3). Favorites still need a session: the heart sends a visitor to sign in and back |
 | D-33 | Wallet connection | Connecting, refusing and disconnecting a wallet app are simulated by `POST /api/wallet-connections` (the `wallet-refused` scenario makes it refuse); the client holds the connected state. Real wallet extensions are out of scope (§1) |
 | D-34 | Payment screen | One screen for both sizes: saved wallets (those on another network are disabled with the reason), the read-only "Perfil do colecionador" fields on desktop, "Usar outra carteira?" for a one-off wallet, a review dialog before the order is sent |
-| D-35 | Detail screen | The NFT has one artwork, so the gallery thumbnails repeat it and are decorative; rating, attributes and the reviews tab of the frame are not reproduced because the data does not exist. Favorites stay disabled until M4 |
+| D-35 | Detail screen | The NFT has one artwork, so the gallery thumbnails repeat it and are decorative; rating, attributes and the reviews tab of the frame are not reproduced because the data does not exist. |
 | D-25 | Copy language | Strings left in English in the frames (profile tabs, "Transaction confirmed on Ethereum…", "User Name") are written in pt-BR |
 
 ## 3. Optional (never blocking)

@@ -169,6 +169,14 @@ export interface Wallets {
   secondary: Wallet | null
 }
 
+export type ProfileInput = Partial<Pick<Profile, 'displayName' | 'username' | 'email'>>
+
+export interface PasswordInput {
+  currentPassword: string
+  newPassword: string
+  confirmNewPassword: string
+}
+
 export interface Profile {
   displayName: string
   username: string

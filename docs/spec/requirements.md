@@ -65,12 +65,12 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | CAT-1 | M1 | req | §3 | Search, filters, sort and page live in the URL and survive refresh and history. Accept: each control writes its param; reload restores it; back and forward restore the earlier result; invalid params are ignored | test | done | Search term untested |
 | CAT-2 | M1 | req | §3 | Filters combine; a filter change resets to page 1. Accept: collection plus network plus price narrows results; changing any removes `page` | test | done | Combination untested |
-| CAT-3 | M4 | req | §3 | The query reflects the parameters sent to the API. Accept: the request URL contains exactly the active params | test | todo | |
+| CAT-3 | M4 | req | §3 | The query reflects the parameters sent to the API. Accept: the request URL contains exactly the active params | test | done | |
 | CAT-4 | M1 | req | §3 | Empty results and failures are handled with a retry. Accept: empty shows a message and "Limpar filtros"; a 5xx shows an alert and "Tentar novamente" that recovers | test | done | Failure untested |
 | CAT-5 | M5 | req | §3, §6 | An older response never overwrites a newer one. Accept: with the out-of-order scenario, the last typed search wins | test | done | |
 | CAT-6 | M1 | req | §3 | Home shows highlights, catalog, search, filters, sort and a link to the NFT. Accept: hero, 9 cards, sidebar and sort render; a card opens its detail | test | done | Detail is a stub until M2; highlights are the hero and the featured banner |
-| CAT-7 | M4 | req | §3 | Sort options are defined and documented. Accept: each option orders results as labelled | test | part | D-07 |
-| CAT-8 | M4 | req | §3 | Pagination offers previous and next. Accept: previous appears from page 2; links keep other params | test | part | D-08 |
+| CAT-7 | M4 | req | §3 | Sort options are defined and documented. Accept: each option orders results as labelled | test | done | D-07 |
+| CAT-8 | M4 | req | §3 | Pagination offers previous and next. Accept: previous appears from page 2; links keep other params | test | done | D-08 |
 | CAT-9 | M4 | opt | none | The price filter accepts exact min and max values. Accept: typing `0.10` and `2.00` filters inclusively | test | todo | Slider today; D-06 |
 | CAT-10 | M5 | opt | none | Active filters show as removable chips. Accept: removing a chip removes its param | test | todo | D-20 |
 | DET-1 | M2 | req | §3 | Detail opens by direct URL; a missing NFT shows not-found. Accept: `/nfts/nft-001` loads; `/nfts/nope` shows not-found | test | done | Stub route |
@@ -78,8 +78,8 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | DET-3 | M2 | req | §3 | A sold-out edition cannot be bought. Accept: the tier is marked unavailable and buy is disabled for it | test | done | |
 | DET-4 | M2 | req | §3 | Quantity is an integer limited by stock. Accept: stepper stops at stock; decrement is disabled at 1; the server rejects more | test | done | |
 | ED-1 | M2 | req | §3 | Edition, unit and token id follow one definition from detail to receipt. Accept: the token id on detail, cart, payment and receipt is identical and equals the NFT number padded to 4 | test | done | See `ARCHITECTURE.md` §1 |
-| FAV-1 | M4 | req | §3 | Favorites persist per user. Accept: a favorite survives reload and is not visible to another user | test | todo | |
-| FAV-2 | M4 | req | §4 | Favorite toggles optimistically and rolls back on failure. Accept: the heart changes at once; on a 5xx it returns and an error is announced | test | todo | |
+| FAV-1 | M4 | req | §3 | Favorites persist per user. Accept: a favorite survives reload and is not visible to another user | test | done | |
+| FAV-2 | M4 | req | §4 | Favorite toggles optimistically and rolls back on failure. Accept: the heart changes at once; on a 5xx it returns and an error is announced | test | done | |
 
 ## 5. Cart, quote, money
 
@@ -87,7 +87,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | CART-1 | M2 | req | §3 | Add, change and remove items respecting stock per NFT and edition. Accept: add creates a line; set changes quantity; remove deletes; above stock returns `availability_conflict` and the cart is unchanged | test | done | |
 | CART-2 | M2 | req | §3 | The cart persists after refresh. Accept: after reload the same lines show for the same user | test | done | |
-| CART-3 | M4 | req | §3 | Visitor items merge once on login. Accept: items appear after login; a replayed merge adds nothing; another user logging in receives none; lines of another network are skipped and listed | test | todo | The server merge rule is unit-tested (`mergeVisitorCart`); the visitor cart on the client and the claim on login are still to build |
+| CART-3 | M4 | req | §3 | Visitor items merge once on login. Accept: items appear after login; a replayed merge adds nothing; another user logging in receives none; lines of another network are skipped and listed | test | done | |
 | CART-4 | M2 | req | §3 | A coupon can be applied and removed; invalid and expired codes are handled. Accept: valid code lowers the total; invalid and expired codes show their reason and no discount; removal restores the total | test | done | |
 | CART-5 | M2 | req | §3 | Subtotal, discount, network fee and total are exactly the quote. Accept: the four values on screen equal the quote response | test | done | |
 | CART-6 | M3 | req | §3, §7 | A price or stock change received while the cart is open updates the summary and informs the user. Accept: after the event the total changes without reload; a status message names the NFT; checkout is blocked until the new quote is confirmed | test | done | |
@@ -124,10 +124,10 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | WAL-1 | M1 | req | §3 | Register and edit primary and secondary wallets with validation. Accept: required fields error; EVM address format enforced; saved wallets appear on reload | test | done | Validation rules shared by the form and the mock (`src/lib/wallet-rules.ts`); the mock has the last word |
 | WAL-2 | M4 | req | §3 | Confirmed wallet changes survive a refresh. Accept: edit, reload, same values | test | done | |
-| PRO-1 | M4 | req | §3 | Edit profile data and avatar; changes survive a refresh. Accept: name, username, e-mail and avatar persist; conflicts show on the field | test | todo | |
-| PRO-2 | M4 | req | §3 | Change password with validation. Accept: wrong current password errors; success lets the user log in with the new one only | test | todo | |
-| FRM-1 | M4 | req | §3 | Forms show validation errors, including API errors. Accept: errors are linked to fields and announced | test | todo | |
-| FRM-2 | M4 | req | §3 | Profile, wallets and confirmation work on mobile. Accept: the three screens work at 390 | test | todo | No mobile frame; D-12 |
+| PRO-1 | M4 | req | §3 | Edit profile data and avatar; changes survive a refresh. Accept: name, username, e-mail and avatar persist; conflicts show on the field | test | done | |
+| PRO-2 | M4 | req | §3 | Change password with validation. Accept: wrong current password errors; success lets the user log in with the new one only | test | done | |
+| FRM-1 | M4 | req | §3 | Forms show validation errors, including API errors. Accept: errors are linked to fields and announced | test | done | |
+| FRM-2 | M4 | req | §3 | Profile, wallets and confirmation work on mobile. Accept: the three screens work at 390 | test | done | No mobile frame; D-12 |
 | WAL-3 | M5 | opt | none | The ENS name is required only on Ethereum. Accept: it is hidden for other networks | test | todo | D-11 |
 
 ## 8. Data layer
@@ -143,7 +143,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | API-7 | M1 | req | §4 | Stale responses are cancelled or discarded. Accept: changing params aborts the older request | test | part | `signal` passed |
 | API-8 | M3 | req | §4 | Data is isolated per user and per query parameters. Accept: query keys include the user id; a user switch shows no old data | test | done | |
 | API-9 | M3 | req | §4 | Failures recover without duplicating operations. Accept: retries of idempotent calls do not duplicate | test | done | |
-| API-10 | M4 | req | §4 | At least one optimistic update with rollback. Accept: FAV-2 | test | todo | |
+| API-10 | M4 | req | §4 | At least one optimistic update with rollback. Accept: FAV-2 | test | done | |
 | API-11 | M6 | req | §4 | Cache, retry and sync policy is documented. Accept: `ARCHITECTURE.md` §6 matches the code | manual | part | |
 | API-12 | M2 | req | §5 | The REST resources exist: session, NFTs, favorites, cart, quote, orders, profile, wallets. Accept: one handler test per row of `ARCHITECTURE.md` §2 | test | part | NFTs, auth and wallets exist; favorites, cart, quote, orders and profile follow |
 | API-13 | M2 | req | §5 | Errors cover validation, session, forbidden, not found, availability conflict and transient failure. Accept: each code is returned by a scenario and shown by the UI | test | part | |
@@ -207,7 +207,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | A11Y-3 | each | req | §8 | Labels, semantics and field errors linked. Accept: every input has a label; errors use `aria-describedby` | test | part | |
 | A11Y-4 | each | req | §8 | Relevant images have text alternatives. Accept: NFT art has alt text; decorative images are hidden | test | part | |
 | A11Y-5 | each | req | §8 | Readable contrast and states not by color alone. Accept: selected, error and sold-out carry text or icon | manual | part | |
-| A11Y-6 | M3 | req | §8 | Mutations and real-time changes are announced. Accept: a `role="status"` message appears for cart, favorite and event changes | test | todo | |
+| A11Y-6 | M3 | req | §8 | Mutations and real-time changes are announced. Accept: a `role="status"` message appears for cart, favorite and event changes | test | done | |
 | A11Y-7 | each | req | §8 | No horizontal overflow; no loss at zoom. Accept: UI-2 plus 200% zoom keeps content | test | part | |
 | A11Y-8 | M5 | opt | none | An axe scan finds no serious or critical issue per screen. Accept: zero violations | test | todo | |
 | TEST-1 | M5 | req | §9 | The 12 scenarios of §9 pass. Accept: each maps to the rows in `design-decisions.md` appendix | test | part | |

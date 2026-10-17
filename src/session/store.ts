@@ -41,6 +41,17 @@ export const getToken = () => current?.session.token ?? null
 export const sessionSignal = () => controller.signal
 export const setSession = (next: StoredSession) => change(next)
 export const clearSession = () => change(null)
+/** The same session with fresher account data; requests in flight are not aborted. */
+export function updateSessionUser(user: User) {
+  if (!current) return
+  current = { ...current, user }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(current))
+  } catch {
+    // Storage may be unavailable; the in-memory session still works for this tab.
+  }
+  listeners.forEach((l) => l())
+}
 
 /** Called by the HTTP layer when a request made with the current token is refused as expired or unknown. */
 export const onSessionLost = (handler: typeof lostHandler) => {

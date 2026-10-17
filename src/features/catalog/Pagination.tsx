@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const box = 'grid size-[35px] place-items-center rounded border text-lg'
@@ -14,6 +14,16 @@ export function Pagination({ page, total }: { page: number; total: number }) {
   if (total <= 1) return null
   return (
     <nav aria-label="Paginação" className="flex items-center justify-center gap-2">
+      {page > 1 && (
+        <Link
+          to="/"
+          search={(prev) => ({ ...prev, page: page - 1 > 1 ? page - 1 : undefined })}
+          aria-label="Página anterior"
+          className={cn(box, 'border-border')}
+        >
+          <ChevronLeft aria-hidden className="size-[18px]" />
+        </Link>
+      )}
       {pageList(page, total).map((p, i, all) => (
         <span key={p} className="flex items-center gap-2">
           {i > 0 && all[i - 1]! < p - 1 && <span aria-hidden>…</span>}

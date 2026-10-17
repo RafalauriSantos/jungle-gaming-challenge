@@ -1,12 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import type { Nft } from '@/api/types'
+import { FavoriteButton } from '@/features/favorites/FavoriteButton'
 import { formatEth } from '@/lib/eth'
 import { totalAvailable } from '@/lib/nft'
 
 export function NftCard({ nft }: { nft: Nft }) {
   const soldOut = totalAvailable(nft) === 0
   return (
-    <li data-testid="nft-card">
+    <li data-testid="nft-card" className="relative">
       <Link to="/nfts/$id" params={{ id: nft.id }} className="group block rounded-[20px]">
         <div className="relative rounded-[20px] bg-gradient-to-br from-surface-card from-10% to-surface-raised p-1 pb-3 pt-3 md:pb-7 md:pt-5">
           <img
@@ -41,6 +42,8 @@ export function NftCard({ nft }: { nft: Nft }) {
           </p>
         </div>
       </Link>
+      {/* The mobile frame draws a heart on the card; the desktop card has none (D-16). */}
+      <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="absolute right-3 top-5 md:hidden" />
     </li>
   )
 }

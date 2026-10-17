@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { signIn } from './support'
+import { ANA, signIn } from './support'
 
 // nft-004 "Cosmic Bloom #412" (Ethereum, 1.61): tiers 1/1 (1 left), 1/10 (9), 1/50 (21).
 // nft-001 "Emerald Ape #001" is sold out in every tier. nft-003 "Neon Vessel #275" is on Polygon.
@@ -173,6 +173,7 @@ test('RT-1#1 API-6#1: one price event changes the catalog, the detail and the ca
   await expect(page.locator('a[href="/nfts/nft-004"]').first()).toContainText('2.00 ETH')
   await page.locator('a[href="/nfts/nft-004"]').first().click()
   await expect(page.getByText('2.00 ETH').first()).toBeVisible()
+  await page.waitForLoadState('networkidle') // the detail's own read must not land after the event
   await mock(page, "updateNft('nft-004', { price: '2.5' })")
   await expect(page.getByText('2.50 ETH').first()).toBeVisible()
 })
@@ -202,4 +203,48 @@ test('AUTH-12#1 AUTH-12#2 AUTH-12#3: another user cannot read an order, whatever
   // And the page says so.
   await page.goto('/pedido/ord_000001')
   await expect(page.getByRole('heading', { name: 'Você não tem acesso a este pedido' })).toBeVisible()
+})
+
+async function visitorBuys(page: Page, nftId: string, tier = 'Edição 1/10') {
+  await page.goto(`/nfts/${nftId}`)
+  await page.getByRole('radio', { name: tier }).click()
+  await page.getByRole('button', { name: 'COMPRAR' }).click()
+  await expect(page).toHaveURL(/\/entrar\?redirect=%2Fcarrinho/)
+}
+const SIGN_IN = '/entrar?redirect=/carrinho'
+
+test('CART-3#1: items a visitor adds appear in the cart after signing in', async ({ page }) => {
+  await visitorBuys(page, 'nft-004')
+  await signIn(page, ANA, SIGN_IN)
+  await expect(page).toHaveURL('/carrinho')
+  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
+})
+
+test('CART-3#2: the visitor cart is handed over once and is gone after that', async ({ page }) => {
+  await visitorBuys(page, 'nft-004')
+  await signIn(page, ANA, SIGN_IN)
+  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('kurio.visitor.cart'))).toBeNull()
+  await page.reload()
+  await expect(page.getByRole('main').getByText('ID do token: #0412')).toHaveCount(1)
+  await expect(page.getByRole('main').getByText('Total da linha')).toHaveCount(1)
+})
+
+test('CART-3#3: another user who signs in does not receive a cart someone else claimed', async ({ page }) => {
+  await visitorBuys(page, 'nft-004')
+  await page.evaluate(() => {
+    const cart = JSON.parse(localStorage.getItem('kurio.visitor.cart')!)
+    localStorage.setItem('kurio.visitor.cart', JSON.stringify({ ...cart, claimedBy: 'u_ana' }))
+  })
+  await signIn(page, { email: 'bruno@kurio.test', password: 'Colecionar#2027', username: 'bruno' }, SIGN_IN)
+  await expect(page.getByText('Seu carrinho está vazio.')).toBeVisible()
+})
+
+test('CART-3#4: a visitor line from another network is skipped and listed', async ({ page }) => {
+  await visitorBuys(page, 'nft-004')
+  await visitorBuys(page, 'nft-003')
+  await signIn(page, ANA, SIGN_IN)
+  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
+  await expect(page.getByRole('main').getByText('ID do token: #0275')).toHaveCount(0)
+  await expect(page.getByRole('status').filter({ hasText: 'é de outra rede' })).toContainText('Neon Vessel')
 })

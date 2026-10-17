@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { announce } from '@/lib/announce'
 import { Stepper } from '@/features/nft/Stepper'
 import { formatEth } from '@/lib/eth'
+import { MergeSkipped } from './MergeSkipped'
 import { useQuoteNotice } from './quoteNotice'
 import { useCoupon } from './useCoupon'
 import { useCart, useQuote, useRemoveItem, useSetQuantity } from './useCart'
@@ -125,6 +126,7 @@ export function CartPage() {
         <Link to="/">Início</Link> / <span>Mercado</span> / <span aria-current="page">Carrinho</span>
       </nav>
       <h1 className="sr-only md:not-sr-only md:mb-4 md:text-base md:font-bold">Carrinho</h1>
+      <MergeSkipped />
 
       {empty ? (
         <div className="flex flex-col items-start gap-3 rounded-lg bg-surface-card p-6">

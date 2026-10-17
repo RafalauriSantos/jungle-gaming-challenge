@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { api } from './client'
-import type { Cart, Quote } from './types'
+import type { Cart, Quote, SkippedLine } from './types'
 
 /** Private query keys start with the user id, so one user's cache never answers for another. */
 export const cartKeys = {
@@ -31,3 +31,6 @@ export const quoteOptions = (userId: string, cartVersion: number, coupon: string
     // While a new version is priced, the previous numbers stay on screen, marked as updating.
     placeholderData: (previous) => previous,
   })
+
+export const mergeCartRequest = (input: { mergeId: string; items: { nftId: string; editionId: string; quantity: number }[] }) =>
+  api.post<{ cart: Cart; skipped: SkippedLine[] }>('/cart/merge', input).then((r) => r.data)

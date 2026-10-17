@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { isAxiosError } from 'axios'
-import { ArrowLeft, Heart, ShoppingCart } from 'lucide-react'
+import { ArrowLeft, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
 import { errorBodyOf } from '@/api/client'
 import { nftDetailOptions, nftListOptions } from '@/api/nfts'
@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAddToCart, useCart, useRemoveItem } from '@/features/cart/useCart'
+import { FavoriteButton } from '@/features/favorites/FavoriteButton'
+import { addVisitorItem } from '@/features/cart/visitorCart'
 import { COLLECTION_LABELS, NETWORK_LABELS } from '@/features/catalog/search'
 import { formatEth } from '@/lib/eth'
 import { cn } from '@/lib/utils'
@@ -56,7 +58,10 @@ function Buy({ nft }: { nft: Nft }) {
 
   async function addToCart(goToCart: boolean) {
     if (!user) {
-      await router.navigate({ to: '/entrar', search: { redirect: router.state.location.href } })
+      // A visitor keeps the item in this browser; the first sign-in hands it to the account.
+      addVisitorItem({ nftId: nft.id, editionId, quantity })
+      if (goToCart) await router.navigate({ to: '/entrar', search: { redirect: '/carrinho' } })
+      else setMessage({ kind: 'ok', text: 'Adicionado ao carrinho. Entre para finalizar a compra.' })
       return
     }
     setMessage(null)
@@ -115,10 +120,7 @@ function Buy({ nft }: { nft: Nft }) {
         <Button type="button" disabled={soldOut || add.isPending} onClick={() => void addToCart(true)} className="h-9 rounded-md px-6 font-bold">
           COMPRAR
         </Button>
-        <Button type="button" variant="outline" disabled title="Em breve" className="h-9 gap-2">
-          <Heart aria-hidden className="size-4" />
-          Favoritar
-        </Button>
+        <FavoriteButton nftId={nft.id} name={nft.name} />
         <Button type="button" variant="outline" size="icon" aria-label="Adicionar ao carrinho" disabled={soldOut || add.isPending} onClick={() => void addToCart(false)} className="md:hidden">
           <ShoppingCart aria-hidden />
         </Button>

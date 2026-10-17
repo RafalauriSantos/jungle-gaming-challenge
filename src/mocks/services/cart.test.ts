@@ -93,7 +93,7 @@ describe('visitor cart merge', () => {
     { ...ETH_50, quantity: 99 },
   ]
 
-  it('adds the visitor items, caps them by stock, and lists what it skipped', () => {
+  it('CART-3#4: adds the visitor items, caps them by stock, and lists what it skipped', () => {
     const { ctx } = testContext()
     addItem(ctx.db, ANA, { ...ETH_10, quantity: 1 })
     const { cart, skipped } = mergeVisitorCart(ctx.db, ANA, { mergeId: 'm1', items: visitor })
@@ -105,7 +105,7 @@ describe('visitor cart merge', () => {
     ])
   })
 
-  it('does nothing when the same merge is replayed', () => {
+  it('CART-3#2: does nothing when the same merge is replayed', () => {
     const { ctx } = testContext()
     const first = mergeVisitorCart(ctx.db, ANA, { mergeId: 'm1', items: visitor })
     const again = mergeVisitorCart(ctx.db, ANA, { mergeId: 'm1', items: visitor })
@@ -113,7 +113,7 @@ describe('visitor cart merge', () => {
     expect(again.skipped).toEqual([])
   })
 
-  it('gives nothing to another user who presents a merge that was already claimed', () => {
+  it('CART-3#3: gives nothing to another user who presents a merge that was already claimed', () => {
     const { ctx } = testContext()
     mergeVisitorCart(ctx.db, ANA, { mergeId: 'm1', items: visitor })
     const other = mergeVisitorCart(ctx.db, 'u_bruno', { mergeId: 'm1', items: visitor })

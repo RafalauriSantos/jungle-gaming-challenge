@@ -80,3 +80,56 @@ test('CAT-6#1 CAT-6#2: the home page shows the hero, nine NFTs and the sort cont
   await first.click()
   await expect(page).toHaveURL(href!)
 })
+
+test('CAT-3#1: the request carries exactly the active parameters', async ({ page }) => {
+  const queries: string[] = []
+  page.on('request', (r) => {
+    const url = new URL(r.url())
+    if (url.pathname === '/api/nfts') queries.push(url.searchParams.toString())
+  })
+  await page.goto('/?q=ape&network=%5B%22polygon%22%5D&sort=name&page=2')
+  await expect.poll(() => queries.at(-1)).toBeDefined()
+  const params = new URLSearchParams(queries.at(-1))
+  expect(Object.fromEntries(params)).toEqual({ q: 'ape', network: 'polygon', sort: 'name', page: '2' })
+
+  queries.length = 0
+  await page.goto('/')
+  await expect.poll(() => queries.at(-1)).toBeDefined()
+  expect(queries.at(-1)).toBe('')
+})
+
+test('CAT-7#1: every sort option orders the cards as its label says', async ({ page }) => {
+  const prices = async () => (await page.getByTestId('nft-card').locator('p').allTextContents()).map((t) => parseFloat(t))
+  const names = () => page.getByTestId('nft-card').locator('h2').allTextContents()
+  const ordered = <T,>(values: T[], cmp: (a: T, b: T) => number) => values.length === 9 && values.every((v, i) => i === 0 || cmp(values[i - 1]!, v) <= 0)
+  await page.goto('/')
+  await expect(page.getByLabel('Ordenar por:')).toHaveValue('recent')
+
+  await page.getByLabel('Ordenar por:').selectOption('price-asc')
+  await expect(page).toHaveURL(/sort=price-asc/)
+  await expect.poll(async () => ordered(await prices(), (a, b) => a - b)).toBe(true)
+
+  await page.getByLabel('Ordenar por:').selectOption('price-desc')
+  await expect(page).toHaveURL(/sort=price-desc/)
+  await expect.poll(async () => ordered(await prices(), (a, b) => b - a)).toBe(true)
+
+  await page.getByLabel('Ordenar por:').selectOption('name')
+  await expect(page).toHaveURL(/sort=name/)
+  await expect.poll(async () => ordered(await names(), (a, b) => a.localeCompare(b))).toBe(true)
+})
+
+test('CAT-8#1 CAT-8#2: previous appears from page 2 and page links keep the other parameters', async ({ page }) => {
+  await page.goto('/?sort=name')
+  await expect(page.getByTestId('nft-card')).toHaveCount(9)
+  await expect(page.getByRole('link', { name: 'Página anterior' })).toHaveCount(0)
+
+  await page.getByRole('link', { name: 'Próxima página' }).click()
+  await expect(page).toHaveURL(/sort=name/)
+  await expect(page).toHaveURL(/page=2/)
+  await expect(page.getByRole('link', { name: 'Página anterior' })).toBeVisible()
+
+  await page.getByRole('link', { name: 'Página anterior' }).click()
+  await expect(page).toHaveURL(/sort=name/)
+  await expect(page).not.toHaveURL(/page=/)
+  await expect(page.getByRole('link', { name: 'Página anterior' })).toHaveCount(0)
+})
