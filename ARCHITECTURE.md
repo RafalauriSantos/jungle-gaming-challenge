@@ -335,9 +335,26 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 
 ## 9. Operational notes
 
-**Deploy.** Cloudflare Pages project `jungle-gaming-challenge`, direct upload of `dist` built from the commit being published:
-`pnpm build && pnpm dlx wrangler@4.20.0 pages deploy dist --project-name=jungle-gaming-challenge --branch=main --commit-hash=$(git rev-parse HEAD)`.
-Public URL: https://jungle-gaming-challenge.pages.dev. Check it with `BASE_URL=<url> pnpm test:e2e`.
+**Deploy.** Production is published only by the CI pipeline (`.github/workflows/ci.yml`), never by hand. Cloudflare Pages project `jungle-gaming-challenge`, direct upload, production branch `main`. Public URL: https://jungle-gaming-challenge.pages.dev.
+
+```
+verify -> e2e -> preview -> preview-e2e -> promote -> smoke
+```
+
+1. `verify`: audit of production dependencies, types, lint, unit tests with coverage floors, build, `spec:check`. The `dist` built here is stored and is the only build used afterwards.
+2. `e2e`: the full suite on that `dist`, desktop and mobile, no retries.
+3. `preview`: the same `dist` is published under the branch `ci-<commit>`, which Cloudflare serves as a test copy at `https://ci-<commit>.jungle-gaming-challenge.pages.dev`. The served `index.html` must be byte-identical to the tested one.
+4. `preview-e2e`: the full suite again on the test copy, over HTTPS, before production changes.
+5. `promote`: only if 1 to 4 passed, only on `main`, in the `production` environment, one at a time. The same `dist` is published with `--branch=main`, and the served `index.html` is compared again.
+6. `smoke`: deep links, mocked API, a real socket event, sign-in and a purchase, run on production.
+
+Secrets (repository): `CLOUDFLARE_API_TOKEN` (permission Cloudflare Pages: Edit, one account) and `CLOUDFLARE_ACCOUNT_ID`. They are read only by the two publishing steps. `wrangler@4.20.0` is pinned (see the observation below). Check any URL by hand with `BASE_URL=<url> pnpm test:e2e`.
+
+**Rollback.** If `smoke` fails after a promotion: Cloudflare dashboard, Workers & Pages, `jungle-gaming-challenge`, Deployments, choose the last good production deployment and roll back to it. Then fix forward through the pipeline. This step has not been exercised yet.
+
+**Manual publication** only with the owner's explicit approval, in the same message: `pnpm build && pnpm dlx wrangler@4.20.0 pages deploy dist --project-name=jungle-gaming-challenge --branch=main --commit-hash=$(git rev-parse HEAD)`.
+
+**Not proven yet.** Cloudflare documents branch test copies for Git-connected projects. That a direct-upload project serves `--branch=ci-<commit>` as a test copy, and that `deployment_trigger.metadata.commit_hash` is filled for direct uploads, are unconfirmed until the first pipeline run.
 
 **Observed with `wrangler@latest` (not reproduced, cause not established).**
 - Command: `pnpm dlx wrangler@latest pages project create jungle-gaming-challenge --production-branch main`, run in the repository root on 2026-10-16.

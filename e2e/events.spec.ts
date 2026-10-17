@@ -32,6 +32,9 @@ test('RT-4#1 RT-4#2 CART-6#1 CART-6#2: a duplicate event changes nothing and an 
   await expect(summary(page).getByText('2.016 ETH')).toBeVisible()
   const notice = page.getByRole('main').getByRole('status').filter({ hasText: 'mudou' })
   await expect(notice).toHaveCount(1)
+  // The live region is written 50 ms after the visible notice (see `announce`). Wait for the first message to land,
+  // or a slow runner starts counting before it and sees it twice.
+  await expect(page.getByTestId('announcer')).toContainText('2.00 ETH')
   // From here on, count every message the app announces to assistive technology.
   await page.evaluate(() => {
     const w = window as unknown as { __announced: string[] }

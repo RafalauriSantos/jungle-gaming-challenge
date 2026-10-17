@@ -1,5 +1,13 @@
 name: CI
 
+# One pipeline: build once, test that build, publish that same build as a test copy, test the copy,
+# and only then publish the same build to production. Each job runs only if the previous ones passed.
+#
+#   verify -> e2e -> preview -> preview-e2e -> promote -> smoke
+#
+# Production only ever receives a build that already passed the full suite on a real HTTPS URL.
+# If `smoke` fails after the promotion, roll back from the Cloudflare dashboard (see ARCHITECTURE.md).
+
 on:
   push:
     branches: [main]
@@ -7,71 +15,270 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Run the smoke subset against this deployed URL (DEL-10) instead of the full suite'
+        description: 'Run the full suite against this deployed URL instead of the pipeline'
         required: false
         default: ''
 
 permissions:
   contents: read
 
+env:
+  PROJECT: jungle-gaming-challenge
+  SITE: https://jungle-gaming-challenge.pages.dev
+  WRANGLER: wrangler@4.20.0
+
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  checks:
-    name: Verify and E2E
+  verify:
+    name: Verify (types, lint, unit and coverage, build, spec)
     if: ${{ github.event.inputs.base_url == '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Types, lint, unit tests, build and the requirements-versus-tests check.
+      # Known-vulnerable runtime dependencies stop the pipeline.
+      - run: pnpm audit --prod --audit-level=high
+      # Types, lint, unit tests with coverage floors, build, and requirements versus tests.
       - run: pnpm verify
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
+  e2e:
+    name: E2E on the build (${{ matrix.project }})
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
+    env:
+      PREBUILT: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
-      - uses: actions/upload-artifact@v4
+      - run: pnpm exec playwright test --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: |
             playwright-report
             test-results
           retention-days: 14
 
-  public-smoke:
-    name: Smoke on the deployed URL
-    if: ${{ github.event.inputs.base_url != '' }}
+  # Publishes the tested build under a branch name that is not production, so Cloudflare serves it as a
+  # test copy at https://ci-<commit>.<project>.pages.dev. Production is not touched here.
+  preview:
+    name: Publish a test copy
+    needs: [verify, e2e]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      BASE_URL: ${{ github.event.inputs.base_url }}
+    timeout-minutes: 10
+    outputs:
+      url: ${{ steps.copy.outputs.url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist
+      - name: Name the test copy
+        id: copy
+        run: |
+          branch="ci-${GITHUB_SHA::12}"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "url=https://$branch.$PROJECT.pages.dev" >> "$GITHUB_OUTPUT"
+      - name: Publish the tested build as a test copy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ steps.copy.outputs.branch }}
+        run: |
+          pnpm dlx "$WRANGLER" pages deploy dist \
+            --project-name="$PROJECT" --branch="$BRANCH" \
+            --commit-hash="$GITHUB_SHA" --commit-message="CI run $GITHUB_RUN_ID (test copy)"
+      - name: The test copy is the tested build
+        env:
+          URL: ${{ steps.copy.outputs.url }}
+        run: |
+          expected=$(sha256sum dist/index.html | cut -d' ' -f1)
+          for attempt in $(seq 1 18); do
+            actual=$(curl -fsS -H 'Cache-Control: no-cache' "$URL/?check=$attempt" | sha256sum | cut -d' ' -f1) && [ "$actual" = "$expected" ] && echo "index.html matches ($expected)" && exit 0
+            echo "attempt $attempt: the test copy is not served yet"; sleep 10
+          done
+          echo "::error::The test copy at $URL does not serve the tested index.html"; exit 1
+
+  # The full suite again, on the test copy, over real HTTPS and before production changes (DEL-10).
+  preview-e2e:
+    name: E2E on the test copy (${{ matrix.project }})
+    needs: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
+    env:
+      BASE_URL: ${{ needs.preview.outputs.url }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-copy-${{ matrix.project }}
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+  # Production receives the same `dist` that passed both suites. Nothing is rebuilt.
+  promote:
+    name: Promote the tested build to production
+    needs: [preview, preview-e2e]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish to production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx "$WRANGLER" pages deploy dist \
+            --project-name="$PROJECT" --branch=main \
+            --commit-hash="$GITHUB_SHA" --commit-message="CI run $GITHUB_RUN_ID"
+      - name: Production serves the tested build
+        run: |
+          expected=$(sha256sum dist/index.html | cut -d' ' -f1)
+          for attempt in $(seq 1 18); do
+            actual=$(curl -fsS -H 'Cache-Control: no-cache' "$SITE/?check=$attempt" | sha256sum | cut -d' ' -f1) && [ "$actual" = "$expected" ] && echo "index.html matches ($expected)" && exit 0
+            echo "attempt $attempt: production does not serve it yet"; sleep 10
+          done
+          echo "::error::Production does not serve the tested index.html"; exit 1
+      - name: Record what was published
+        env:
+          COPY_URL: ${{ needs.preview.outputs.url }}
+        run: |
+          {
+            echo "### Published to production"
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Run: $GITHUB_RUN_ID by @$GITHUB_ACTOR"
+            echo "- Tested copy: $COPY_URL"
+            echo "- Production: $SITE"
+            echo "- index.html sha256: $(sha256sum dist/index.html | cut -d' ' -f1)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # A short run on production itself. The full suite already passed on an identical copy.
+  smoke:
+    name: Production smoke (${{ matrix.project }})
+    needs: promote
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
+    env:
+      BASE_URL: https://jungle-gaming-challenge.pages.dev
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       # Deep links, the mocked API, a real socket event, a sign-in and a full purchase, on the public site.
-      - run: pnpm exec playwright test e2e/smoke.spec.ts e2e/realtime.spec.ts e2e/auth.spec.ts e2e/purchase.spec.ts
-      - uses: actions/upload-artifact@v4
+      - run: pnpm exec playwright test --project=${{ matrix.project }} e2e/smoke.spec.ts e2e/realtime.spec.ts e2e/auth.spec.ts e2e/purchase.spec.ts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report-public
+          name: playwright-report-production-${{ matrix.project }}
           path: |
             playwright-report
             test-results
           retention-days: 14
+
+  manual-public-run:
+    name: Full suite on a chosen URL (${{ matrix.project }})
+    if: ${{ github.event.inputs.base_url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
+    env:
+      BASE_URL: ${{ github.event.inputs.base_url }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --project=${{ matrix.project }}
