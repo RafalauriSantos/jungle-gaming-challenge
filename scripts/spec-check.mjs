@@ -84,6 +84,29 @@ for (const r of rows) {
 }
 for (const g of gates) for (const p of g.provenBy) if (!byId.has(p)) errors.push(`${g.id}: proven by unknown ${p}`)
 
+// --- README: the scenario table must list every MOCK-S requirement and every scenario the mock can run (DEL-3)
+{
+  let readme = ''
+  try {
+    readme = readFileSync('README.md', 'utf8')
+  } catch {
+    errors.push('README.md is missing (DEL-3)')
+  }
+  if (readme) {
+    const table = readme.split('<!-- scenarios:start -->')[1]?.split('<!-- scenarios:end -->')[0]
+    if (table === undefined) errors.push('README.md has no scenario table between <!-- scenarios:start --> and <!-- scenarios:end -->')
+    else {
+      for (const r of rows.filter((r) => /^MOCK-S\d+$/.test(r.id))) {
+        if (!table.includes(`\`${r.id}\``)) errors.push(`README.md: scenario table does not list ${r.id}`)
+      }
+      const names = [...readFileSync('src/mocks/scenarios.ts', 'utf8').matchAll(/name: '([a-z0-9-]+)'/g)].map((m) => m[1])
+      for (const name of names) {
+        if (!table.includes(`?scenario=${name}\``)) errors.push(`README.md: scenario table does not list ?scenario=${name}`)
+      }
+    }
+  }
+}
+
 // --- report
 console.log(`Requirements: ${rows.length} (${rows.filter((r) => r.kind === 'req').length} required), tests: ${testFiles.length} file(s)`)
 for (const m of MILESTONES) {
