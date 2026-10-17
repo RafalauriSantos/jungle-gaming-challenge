@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { isAxiosError } from 'axios'
-import { CheckCircle2, Clock, XCircle } from 'lucide-react'
+import { Clock, X, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { orderOptions } from '@/api/orders'
 import type { Order } from '@/api/types'
+import thankYou from '@/assets/icons/thank-you.svg'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PROVIDER_LABELS } from '@/features/wallets/WalletFields'
@@ -19,12 +20,22 @@ const REASONS = {
 } as const
 
 const shortRef = (tx: string) => `${tx.slice(0, 6)}…${tx.slice(-4)}`
-const day = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+/** "29 Jul, 2026", as the frame writes it. */
+const day = (iso: string) => {
+  const d = new Date(iso)
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}, ${d.getFullYear()}`
+}
+
+const LINE = 'h-px bg-border'
 
 function Card({ children, label }: { children: React.ReactNode; label: string }) {
   return (
     <main className="mx-auto grid min-h-[70dvh] max-w-[1232px] place-items-center px-4 py-10">
-      <section aria-label={label} className="w-full max-w-[500px] overflow-hidden bg-surface-card">
+      <section aria-label={label} className="relative w-full max-w-[578px] overflow-hidden bg-surface-card">
+        <Link to="/" aria-label="Fechar" className="absolute right-[14px] top-[15px] text-text-accent">
+          <X aria-hidden className="size-4" />
+        </Link>
         {children}
         <div aria-hidden className="h-[10px] bg-primary" />
       </section>
@@ -32,30 +43,38 @@ function Card({ children, label }: { children: React.ReactNode; label: string })
   )
 }
 
+/** The lines, the fee and the total of the order, as the receipt keeps them. */
 function Items({ order }: { order: Order }) {
   return (
-    <div className="px-8 pb-6">
-      <h2 className="mb-2 mt-4 text-xs font-bold">Detalhes da transação</h2>
-      <div aria-hidden className="grid grid-cols-[1fr_auto_auto] gap-x-6 border-b border-border pb-1 text-xs font-bold"><span>NFTs</span><span>Edições</span><span>Subtotal</span></div>
-      <ul className="mt-2 flex flex-col gap-3">
+    <div className="flex flex-col gap-3 px-11 pb-6 pt-5">
+      <h2 className="text-[15px] font-bold leading-4">Detalhes da transação</h2>
+      <div aria-hidden className="flex items-center justify-between text-base leading-4">
+        <span className="font-bold">NFTs</span>
+        <span className="flex gap-12"><span className="font-bold">Edições</span><span className="font-medium">Subtotal</span></span>
+      </div>
+      <div aria-hidden className={LINE} />
+      <ul className="flex flex-col gap-3">
         {order.quote.lines.map((l) => (
-          <li key={l.lineId} className="grid grid-cols-[1fr_auto_auto] items-center gap-x-6">
-            <div className="flex items-center gap-2">
-              <img src={l.image} alt="" width={36} height={44} className="h-11 w-9 rounded-sm object-cover" />
-              <div className="min-w-0">
-                <p className="truncate text-xs font-bold">{l.name}</p>
-                <p className="text-[11px] text-text-secondary">ID do token: {l.tokenId}</p>
+          <li key={l.lineId} className="flex h-[70px] items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={l.image} alt={`Arte do NFT ${l.name}`} width={70} height={70} className="size-[70px] shrink-0 rounded-lg object-cover" />
+              <div className="flex w-[154px] flex-col gap-1.5 leading-4">
+                <p className="break-words text-base font-bold">{l.name}</p>
+                <p className="text-sm text-tone">ID do token: {l.tokenId}</p>
               </div>
             </div>
-            <span className="text-xs text-text-secondary">(x {l.quantity})</span>
-            <span className="text-sm font-bold text-text-accent">{formatEth(l.lineTotal)}</span>
+            <div className="flex w-[194px] items-center justify-end gap-12 leading-4">
+              <span className="text-sm text-text-secondary">(x {l.quantity})</span>
+              <span className="whitespace-nowrap text-lg font-bold text-text-accent">{formatEth(l.lineTotal)}</span>
+            </div>
           </li>
         ))}
       </ul>
-      <dl className="mt-3 grid grid-cols-[1fr_auto] gap-y-1 text-xs">
-        <dt className="text-right">Taxa de rede</dt><dd className="pl-6 text-right">{formatEth(order.quote.networkFee)}</dd>
-        <dt className="text-right font-bold">Total</dt><dd className="pl-6 text-right font-bold text-text-accent">{formatEth(order.quote.total)}</dd>
+      <dl className="ml-auto grid w-[321px] grid-cols-[1fr_auto] items-center gap-y-3">
+        <dt className="text-[15px]">Taxa de rede</dt><dd className="text-right text-lg leading-4">{formatEth(order.quote.networkFee)}</dd>
+        <dt className="text-base font-bold leading-4">Total</dt><dd className="text-right text-lg font-bold leading-4 text-text-accent">{formatEth(order.quote.total)}</dd>
       </dl>
+      <div aria-hidden className={LINE} />
     </div>
   )
 }
@@ -134,25 +153,39 @@ export function OrderPage({ id }: { id: string }) {
   }
 
   const receipt = order.receipt!
+  const network = order.wallet.network === 'ethereum' ? 'Ethereum' : order.wallet.network === 'polygon' ? 'Polygon' : 'Solana'
+  const meta: [string, string, boolean][] = [
+    ['ID da transação', shortRef(receipt.txRef), true],
+    ['Data', day(receipt.confirmedAt), false],
+    ['Total', formatEth(order.quote.total), false],
+    ['Carteira', PROVIDER_LABELS[order.provider], true],
+  ]
   return (
     <Card label="Recibo do pedido">
-      <div className="flex flex-col items-center gap-3 border-b border-primary px-8 pb-5 pt-8 text-center">
-        <CheckCircle2 aria-hidden className="size-14 text-text-accent" />
-        <h1 className="text-sm text-text-secondary">Seus NFTs agora estão na sua carteira</h1>
+      <div className="flex h-[156px] flex-col items-center justify-center gap-4">
+        <img src={thankYou} alt="" aria-hidden className="size-20" />
+        <h1 className="text-base font-bold leading-4 text-text-secondary">Seus NFTs agora estão na sua carteira</h1>
       </div>
-      <dl className="grid grid-cols-2 gap-4 border-b-2 border-primary px-8 py-4 text-xs md:grid-cols-4">
-        <div><dt className="font-bold">ID da transação</dt><dd className="text-text-secondary">{shortRef(receipt.txRef)}</dd></div>
-        <div><dt className="text-text-secondary">Data</dt><dd className="text-text-secondary">{day(receipt.confirmedAt)}</dd></div>
-        <div><dt className="text-text-secondary">Total</dt><dd className="text-text-secondary">{formatEth(order.quote.total)}</dd></div>
-        <div><dt className="font-bold">Carteira</dt><dd className="text-text-secondary">{PROVIDER_LABELS[order.provider]}</dd></div>
+      <div aria-hidden className="h-px bg-primary" />
+      <dl className="flex h-[65px] items-center justify-between px-9 py-1 text-text-secondary">
+        {meta.map(([label, value, bold], i) => (
+          <div key={label} className="contents">
+            {i > 0 && <span aria-hidden className="h-[31px] w-px bg-primary" />}
+            <div className="flex flex-col">
+              <dt className={bold ? 'text-sm font-bold leading-4' : 'text-sm leading-4'}>{label}</dt>
+              <dd className="text-[15px]">{value}</dd>
+            </div>
+          </div>
+        ))}
       </dl>
+      <div aria-hidden className="h-px bg-primary" />
       <Items order={order} />
-      <p className="px-8 pb-4 text-center text-[11px] text-text-secondary">
-        Transação confirmada na {order.wallet.network === 'ethereum' ? 'Ethereum' : order.wallet.network === 'polygon' ? 'Polygon' : 'Solana'}. A propriedade foi transferida para sua carteira conectada e registrada na rede. A referência da transação é simulada.
-      </p>
-      <div className="flex justify-center pb-6">
+      <div className="flex flex-col items-center gap-6 px-11 pb-12">
+        <p className="text-center text-sm leading-[22px] text-text-secondary">
+          Transação confirmada na {network}. A propriedade foi transferida para sua carteira conectada e registrada na rede. A referência da transação é simulada.
+        </p>
         {/* Explorer links are simulated, so the control does not pretend to open anything. */}
-        <Button disabled title="Link de exploração simulado" className="h-8 text-xs font-bold">Ver no Etherscan</Button>
+        <Button disabled title="Link de exploração simulado" className="h-auto rounded-[5px] p-4 text-base font-bold leading-4 disabled:opacity-60">Ver no Etherscan</Button>
       </div>
     </Card>
   )
