@@ -24,7 +24,7 @@ beforeEach(() => {
 
 const nft = (id: string) => t.db.state.nfts.find((n) => n.id === id)!
 const stock = (nftId: string, editionId: string) => nft(nftId).editions.find((e) => e.id === editionId)!.available
-const place = (key = 'key-1', over: Partial<{ wallet: object; provider: string }> = {}, couponCode?: string) => {
+const place = (key = 'key-1', over: Partial<{ wallet: object; provider: string; note: string }> = {}, couponCode?: string) => {
   const quote = createQuote(t.db, ANA, couponCode)
   return createOrder(t.ctx, ANA, key, { quoteId: quote.id, wallet: PRINCIPAL, provider: 'metamask', ...over } as never)
 }
@@ -58,6 +58,23 @@ describe('creating an order', () => {
     expect(() => createOrder(t.ctx, ANA, 'key-1', { quoteId: first.order.quote.id, wallet: PRINCIPAL, provider: 'coinbase' })).toThrowError(
       expect.objectContaining({ status: 409, body: expect.objectContaining({ code: 'idempotency_conflict' }) }),
     )
+  })
+
+  it('CHK-1#1: keeps the optional collector note with the order', () => {
+    expect(place('key-note', { note: 'Entregar na carteira principal.' }).order.note).toBe('Entregar na carteira principal.')
+  })
+
+  it('CHK-1#1: an order without a note carries no note', () => {
+    expect(place('key-none').order.note).toBeUndefined()
+  })
+
+  it('CHK-1#1: refuses a note longer than 280 characters on its own field', () => {
+    expect(() => place('key-long', { note: 'x'.repeat(281) })).toThrowError(expect.objectContaining({ status: 422, body: expect.objectContaining({ fields: { note: expect.any(String) } }) }))
+  })
+
+  it('ORD-8#1: the same key with another note is a conflict', () => {
+    const first = place('key-note', { note: 'um' })
+    expect(() => createOrder(t.ctx, ANA, 'key-note', { quoteId: first.order.quote.id, wallet: PRINCIPAL, provider: 'metamask', note: 'dois' })).toThrowError(expect.objectContaining({ status: 409 }))
   })
 
   it('needs an idempotency key', () => {

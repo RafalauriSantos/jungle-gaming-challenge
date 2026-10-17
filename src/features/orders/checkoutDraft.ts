@@ -6,6 +6,7 @@ export interface CheckoutDraft {
   other: boolean
   inline: Values
   provider?: Provider
+  note?: string
 }
 
 const slot = (userId: string) => `kurio.${userId}.checkout`

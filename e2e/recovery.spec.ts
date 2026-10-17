@@ -15,8 +15,8 @@ async function placeOrder(page: Page) {
   await page.getByRole('radio', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
 }
 
 test('ORD-9#1 ORD-9#2 ORD-9#3 ORD-9#4 MOCK-S15#1 API-9#1: a lost answer is recovered with the same key, and one order exists', async ({ page }) => {
@@ -62,6 +62,6 @@ test('ORD-2#2 ORD-2#3 ORD-2#4: a pending order is found again, even without loca
   await page.clock.fastForward(61_000)
   await expect(page.getByText('Ainda estamos processando.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Atualizar' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Confirmar compra|Tentar novamente/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Confirmar compra|Enviar pedido|Tentar novamente/ })).toHaveCount(0)
   expect(await mock<number>(page, 'orders()')).toBe(1)
 })

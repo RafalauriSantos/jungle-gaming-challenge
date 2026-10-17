@@ -111,21 +111,29 @@ async function toPayment(page: Page) {
 }
 
 test('CHK-1#1: fields of a one-off wallet are validated before the review', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The one-off wallet is drawn on the desktop frame only (D-04)')
   await toPayment(page)
   await page.getByRole('radio', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
   await page.getByRole('checkbox', { name: 'Usar outra carteira?' }).check()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
   await expect(page.getByText('Campo obrigatório.').first()).toBeVisible()
   await expect(page.getByRole('dialog', { name: 'Revise seu pedido' })).toHaveCount(0)
 })
 
 test('CHK-2#1 CHK-2#2 CHK-2#3: only same-network wallets can be picked; a refusal can be retried; disconnecting returns to the choice', async ({ page }) => {
   await toPayment(page)
-  // Ana's secondary wallet is on Polygon and the cart is on Ethereum.
-  await expect(page.getByRole('radio', { name: /Reserva/ })).toBeDisabled()
-  await expect(page.getByRole('radio', { name: /Principal/ })).toBeEnabled()
+  // Ana's secondary wallet is on Polygon and the cart is on Ethereum. Desktop picks from a list, mobile from cards (D-04).
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    await page.getByRole('combobox', { name: 'Carteira salva' }).click()
+    await expect(page.getByRole('option', { name: /Reserva/ })).toHaveAttribute('aria-disabled', 'true')
+    await expect(page.getByRole('option', { name: /Principal/ })).not.toHaveAttribute('aria-disabled', 'true')
+    await page.keyboard.press('Escape')
+  } else {
+    await expect(page.getByRole('radio', { name: /Reserva/ })).toBeDisabled()
+    await expect(page.getByRole('radio', { name: /Principal/ })).toBeEnabled()
+  }
 
   await mock(page, "setScenario('wallet-refused')")
   await page.getByRole('radio', { name: 'MetaMask' }).click()
@@ -187,8 +195,8 @@ test('AUTH-12#1 AUTH-12#2 AUTH-12#3: another user cannot read an order, whatever
   await page.getByRole('radio', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
 
   await page.evaluate(() => localStorage.removeItem('kurio.session'))

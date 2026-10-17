@@ -58,7 +58,7 @@ test('AUTH-7#1: an expiry during checkout keeps the cart and what was chosen', a
   await authRoot(page).getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL('/pagamento')
   await expect(page.getByRole('radio', { name: 'WalletConnect' })).toBeChecked() // the choice came back
-  await expect(page.getByText('Cosmic Bloom #412')).toBeVisible() // and so did the cart
+  await expect(page.getByText('1.626 ETH')).toBeVisible() // and so did the cart, as its total
 })
 
 test('AUTH-5#1 AUTH-5#3 RT-6#1 API-8#2: after a switch of user nothing of the previous one is seen or received', async ({ page }, info) => {
@@ -70,8 +70,8 @@ test('AUTH-5#1 AUTH-5#3 RT-6#1 API-8#2: after a switch of user nothing of the pr
   await page.getByRole('radio', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
   await page.goto('/')
   await logOut(page, mobile)
