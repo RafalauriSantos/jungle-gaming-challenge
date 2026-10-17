@@ -20,7 +20,7 @@ const SUPPLY = { '1/1': 1, '1/10': 10, '1/50': 50 } as const
 /** Stock per tier varies with the index so filters and sold-out states have data. */
 const stock = (i: number) => ({ '1/1': i % 5 === 0 ? 0 : 1, '1/10': (i * 3) % 11, '1/50': (i * 7) % 51 })
 
-/** Deterministic: same list on every run so filters, pages and snapshots are stable. */
+/** Deterministic: same list on every run so filters, pages and snapshots are stable. Collection and network vary independently, so combined filters narrow differently. */
 export const NFT_FIXTURES: Nft[] = Array.from({ length: 48 }, (_, i) => {
   const id = `nft-${String(i + 1).padStart(3, '0')}`
   const number = ((i * 137) % 900) + 1
@@ -36,7 +36,7 @@ export const NFT_FIXTURES: Nft[] = Array.from({ length: 48 }, (_, i) => {
     name: `${NAMES[i % NAMES.length]} #${String(number).padStart(3, '0')}`,
     creator: CREATORS[i % CREATORS.length]!,
     collection: COLLECTIONS[i % COLLECTIONS.length]!,
-    network: NETWORKS[Math.floor(i / 3) % NETWORKS.length]!,
+    network: NETWORKS[(i * 2 + Math.floor(i / 9)) % NETWORKS.length]!,
     price: centiToEth(centi),
     previousPrice: i % 7 === 2 ? centiToEth(Number((BigInt(centi) * 115n) / 100n)) : undefined,
     image: `/nfts/art-${(i % 4) + 1}.webp`,

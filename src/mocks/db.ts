@@ -75,6 +75,7 @@ export function createDb(storage: KeyValueStorage = memoryStorage()) {
   }
 
   let state = load()
+  const resetListeners = new Set<() => void>()
   const save = () => storage.setItem(STORAGE_KEY, JSON.stringify(state))
 
   return {
@@ -86,6 +87,11 @@ export function createDb(storage: KeyValueStorage = memoryStorage()) {
     reset() {
       state = initialState(state.generation + 1)
       save()
+      resetListeners.forEach((l) => l())
+    },
+    /** Lets timers and queues drop their work when the state is wiped. */
+    onReset(listener: () => void) {
+      resetListeners.add(listener)
     },
     isCurrent: (generation: number) => generation === state.generation,
     /** Mock time: wall clock (or a frozen instant) plus a controllable offset. */

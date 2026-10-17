@@ -19,6 +19,7 @@ function AccountMenu({ username }: { username: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem render={<Link to="/perfil" />}>Perfil</DropdownMenuItem>
+        <DropdownMenuItem render={<Link to="/carteiras" />}>Carteiras</DropdownMenuItem>
         <DropdownMenuItem onClick={leave}>Sair</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

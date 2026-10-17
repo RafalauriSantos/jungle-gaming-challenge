@@ -10,7 +10,8 @@ const ROUTES = [
   ['/cadastrar', /^Criar (conta|perfil de colecionador)$/, false],
   ['/carrinho', /^Carrinho$/, true],
   ['/favoritos', /^Favoritos$/, true],
-  ['/perfil', /^Perfil$/, true],
+  ['/perfil', /^Perfil do colecionador$/, true],
+  ['/carteiras', /^Carteira principal$/, true],
 ] as const
 
 for (const [path, heading, private_] of ROUTES) {

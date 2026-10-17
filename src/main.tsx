@@ -19,8 +19,18 @@ declare module '@tanstack/react-router' {
 
 async function enableMocks() {
   if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
+  const [{ db }, { applyBootParams }] = await Promise.all([import('./mocks/db'), import('./mocks/boot')])
+  const { search, reset } = applyBootParams(db, location.search, localStorage)
+  if (reset) {
+    // The session store already read its storage; a fresh load starts everything clean.
+    location.replace(location.pathname + search + location.hash)
+    await new Promise<never>(() => {})
+  }
+  if (search !== location.search) history.replaceState(null, '', location.pathname + search + location.hash)
   const { worker } = await import('./mocks/browser')
   await worker.start()
+  const { mountMockPanel } = await import('./mocks/panel')
+  mountMockPanel()
 }
 
 await enableMocks()

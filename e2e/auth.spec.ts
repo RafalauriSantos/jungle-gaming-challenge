@@ -51,7 +51,7 @@ test('a new account is created and signed in', async ({ page }) => {
   await root.getByRole('button', { name: /^Criar (conta|perfil)$/ }).click()
   await expect(page).toHaveURL('/')
   await page.goto('/perfil')
-  await expect(page.getByRole('heading', { name: 'Perfil', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Perfil do colecionador' })).toBeVisible()
 })
 
 test('AUTH-2#1: wrong credentials show an error and stay on the form', async ({ page }) => {
@@ -90,7 +90,7 @@ test('AUTH-3#1: the session survives a reload', async ({ page }) => {
   await page.reload()
   await page.goto('/perfil')
   await expect(page).toHaveURL('/perfil')
-  await expect(page.getByRole('heading', { name: 'Perfil', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Perfil do colecionador' })).toBeVisible()
 })
 
 test('AUTH-10#1 AUTH-4#2: logout is reachable, ends the session and protects the private pages', async ({ page }, info) => {
@@ -100,7 +100,7 @@ test('AUTH-10#1 AUTH-4#2: logout is reachable, ends the session and protects the
     await page.getByRole('menuitem', { name: 'Sair' }).click()
     await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
   } else {
-    await page.getByRole('link', { name: 'Perfil' }).click()
+    await page.getByRole('link', { name: 'Perfil', exact: true }).click()
     await page.getByRole('button', { name: 'Sair' }).click()
   }
   await expect(page).toHaveURL('/')

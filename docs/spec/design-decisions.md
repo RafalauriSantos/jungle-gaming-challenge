@@ -39,6 +39,8 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 | D-27 | Order progression | Persisted due time and `settle(now)`, independent of the socket and the open screen. `ARCHITECTURE.md` §7 |
 | D-28 | Reset | Clears all state, timers and queued events; a generation counter drops stale ones. `ARCHITECTURE.md` §7 |
 | D-29 | Authorization | Enforced in the handlers by ownership, never by the page alone. `ARCHITECTURE.md` §4 |
+| D-30 | Demo panel | A small "Demo" control (bottom-left, collapsed) lists the scenarios and resets the state, on the deployed build too, so an evaluator does not need the URL parameters. Scenarios not wired yet are listed as "em breve" and disabled |
+| D-31 | Wallets screen | The principal wallet form is always open, as in the frame, so the "Adicionar" link next to its title is not reproduced; "Adicionar" for the secondary wallet is. "Igual à carteira principal" starts the new wallet from the principal's data |
 | D-25 | Copy language | Strings left in English in the frames (profile tabs, "Transaction confirmed on Ethereum…", "User Name") are written in pt-BR |
 
 ## 3. Optional (never blocking)

@@ -63,12 +63,12 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| CAT-1 | M1 | req | §3 | Search, filters, sort and page live in the URL and survive refresh and history. Accept: each control writes its param; reload restores it; back and forward restore the earlier result; invalid params are ignored | test | part | Search term untested |
-| CAT-2 | M1 | req | §3 | Filters combine; a filter change resets to page 1. Accept: collection plus network plus price narrows results; changing any removes `page` | test | part | Combination untested |
+| CAT-1 | M1 | req | §3 | Search, filters, sort and page live in the URL and survive refresh and history. Accept: each control writes its param; reload restores it; back and forward restore the earlier result; invalid params are ignored | test | done | Search term untested |
+| CAT-2 | M1 | req | §3 | Filters combine; a filter change resets to page 1. Accept: collection plus network plus price narrows results; changing any removes `page` | test | done | Combination untested |
 | CAT-3 | M4 | req | §3 | The query reflects the parameters sent to the API. Accept: the request URL contains exactly the active params | test | todo | |
 | CAT-4 | M1 | req | §3 | Empty results and failures are handled with a retry. Accept: empty shows a message and "Limpar filtros"; a 5xx shows an alert and "Tentar novamente" that recovers | test | part | Failure untested |
 | CAT-5 | M5 | req | §3, §6 | An older response never overwrites a newer one. Accept: with the out-of-order scenario, the last typed search wins | test | todo | |
-| CAT-6 | M1 | req | §3 | Home shows highlights, catalog, search, filters, sort and a link to the NFT. Accept: hero, 9 cards, sidebar and sort render; a card opens its detail | test | part | |
+| CAT-6 | M1 | req | §3 | Home shows highlights, catalog, search, filters, sort and a link to the NFT. Accept: hero, 9 cards, sidebar and sort render; a card opens its detail | test | done | Detail is a stub until M2; highlights are the hero and the featured banner |
 | CAT-7 | M4 | req | §3 | Sort options are defined and documented. Accept: each option orders results as labelled | test | part | D-07 |
 | CAT-8 | M4 | req | §3 | Pagination offers previous and next. Accept: previous appears from page 2; links keep other params | test | part | D-08 |
 | CAT-9 | M4 | opt | none | The price filter accepts exact min and max values. Accept: typing `0.10` and `2.00` filters inclusively | test | todo | Slider today; D-06 |
@@ -122,8 +122,8 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| WAL-1 | M1 | req | §3 | Register and edit primary and secondary wallets with validation. Accept: required fields error; EVM address format enforced; saved wallets appear on reload | test | todo | Needed by checkout |
-| WAL-2 | M4 | req | §3 | Confirmed wallet changes survive a refresh. Accept: edit, reload, same values | test | todo | |
+| WAL-1 | M1 | req | §3 | Register and edit primary and secondary wallets with validation. Accept: required fields error; EVM address format enforced; saved wallets appear on reload | test | done | Validation rules shared by the form and the mock (`src/lib/wallet-rules.ts`); the mock has the last word |
+| WAL-2 | M4 | req | §3 | Confirmed wallet changes survive a refresh. Accept: edit, reload, same values | test | done | |
 | PRO-1 | M4 | req | §3 | Edit profile data and avatar; changes survive a refresh. Accept: name, username, e-mail and avatar persist; conflicts show on the field | test | todo | |
 | PRO-2 | M4 | req | §3 | Change password with validation. Accept: wrong current password errors; success lets the user log in with the new one only | test | todo | |
 | FRM-1 | M4 | req | §3 | Forms show validation errors, including API errors. Accept: errors are linked to fields and announced | test | todo | |
@@ -154,16 +154,16 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MOCK-1 | M1 | req | §6 | Mocks live in the network layer; no fake data in components, hooks or the Axios client. Accept: no import of `src/mocks` outside the mock entry | test | part | |
 | MOCK-2 | M1 | req | §6 | State is consistent across catalog, favorites, cart, profile, wallets and orders. Accept: a purchase lowers stock seen by the catalog | test | todo | |
-| MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | part | Unit-tested reset of all state and generation; the `?reset=1` entry and client storage clearing are still to build |
+| MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | done | Reset on boot (`?reset=1`) wipes the mock state and the app storage, then reloads without the parameter |
 | MOCK-12 | M2 | req | §7 | Order progression is stored in the mock state with a due time and settles on its own, independent of the socket and the open screen. Accept: an order created, then the socket dropped or the page reloaded before its due time, reaches its final state; the result is the same without any connection | test | todo | Settle on read and on boot; `ARCHITECTURE.md` §7 |
-| MOCK-13 | M1 | req | §6, §9 | Reset also cancels pending events and timers. Accept: an event or transition scheduled before `?reset=1` never fires afterward; a test that resets between runs sees no leftover | test | todo | Generation counter |
-| MOCK-14 | M1 | req | §6, §12 | An evaluator can activate, observe and reset each scenario on the deployed build without code or hidden test setup. Accept: opening `?scenario=<name>` on the public URL reproduces it; a visible reset exists; the README states the exact steps | manual | todo | |
+| MOCK-13 | M1 | req | §6, §9 | Reset also cancels pending events and timers. Accept: an event or transition scheduled before `?reset=1` never fires afterward; a test that resets between runs sees no leftover | test | done | Generation counter plus a scheduler that cancels on reset (`src/mocks/scheduler.ts`); orders will use it in M2 |
+| MOCK-14 | M1 | req | §6, §12 | An evaluator can activate, observe and reset each scenario on the deployed build without code or hidden test setup. Accept: opening `?scenario=<name>` on the public URL reproduces it; a visible reset exists; the README states the exact steps | manual | part | Parameters and the Demo panel work on the deployed build; the README steps come with DEL-3 |
 | MOCK-4 | M3 | req | §6 | Latency, timeouts, offline and HTTP errors are configurable and reproducible. Accept: a scenario name yields the same behavior on every run | test | todo | |
 | MOCK-5 | M1 | req | §6 | Fixtures vary enough and include two users. Accept: 48+ NFTs across collections and networks; two seeded users | test | done | 48 NFTs over 9 collections and 3 networks; users `ana` and `bruno` (credentials in `src/mocks/fixtures/users.ts`) |
 | MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16). Limits in `ARCHITECTURE.md` §5 |
 | MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 | MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | todo | |
-| MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | todo | |
+| MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | part | Dev, preview and the deployed build run the same handler module; a test that proves it is still to write |
 | MOCK-11 | M1 | req | §9 | Ids, timestamps and transaction refs are deterministic. Accept: two runs produce identical order ids and refs | test | todo | |
 | MOCK-S01 | M1 | req | §6 | Scenario success. Accept: default flows work | test | todo | |
 | MOCK-S02 | M5 | req | §6 | Scenario empty result. Accept: catalog empty state shows | test | todo | |
