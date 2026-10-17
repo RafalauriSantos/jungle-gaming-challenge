@@ -11,21 +11,29 @@ interface Props {
   onChange: (value: number) => void
   disabled?: boolean
   className?: string
+  /** `pill` and `round` are the two cart frames; `default` is the detail page. */
+  variant?: 'default' | 'pill' | 'round'
 }
 
 /** A whole-number quantity with limits. Each button is disabled at its limit, so the state is not just a color. */
-export function Stepper({ label, value, min = 1, max, onChange, disabled, className }: Props) {
-  const button = 'size-6 rounded-full bg-primary text-ink disabled:bg-surface-raised disabled:text-tone disabled:opacity-100'
+const BUTTON = {
+  default: 'size-6 rounded-full bg-primary text-ink disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
+  pill: 'h-[30px] w-5 rounded-[20px] border border-ink bg-primary text-ink shadow-[0_4px_6px_rgba(20,13,10,0.15)] disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
+  round: 'size-6 rounded-full border border-border bg-surface-raised text-foreground disabled:text-tone disabled:opacity-100',
+} as const
+
+export function Stepper({ label, value, min = 1, max, onChange, disabled, className, variant = 'default' }: Props) {
+  const button = BUTTON[variant]
   return (
     <div role="group" aria-label={label} className={cn('flex items-center gap-3', className)}>
       <Button type="button" size="icon-sm" className={button} aria-label="Diminuir quantidade" disabled={disabled || value <= min} onClick={() => onChange(value - 1)}>
-        <Minus aria-hidden className="size-3.5" />
+        <Minus aria-hidden className={variant === 'pill' ? 'size-4' : 'size-3.5'} />
       </Button>
-      <output aria-live="polite" className="min-w-4 text-center text-sm">
+      <output aria-live="polite" className={cn('min-w-4 text-center', variant === 'pill' ? 'text-[17px]' : variant === 'round' ? 'text-base' : 'text-sm')}>
         {value}
       </output>
       <Button type="button" size="icon-sm" className={button} aria-label="Aumentar quantidade" disabled={disabled || value >= max} onClick={() => onChange(value + 1)}>
-        <Plus aria-hidden className="size-3.5" />
+        <Plus aria-hidden className={variant === 'pill' ? 'size-4' : 'size-3.5'} />
       </Button>
     </div>
   )

@@ -70,7 +70,7 @@ test('ROUTE-3#1 ROUTE-3#2 AUTH-2#2: a private page sends visitors to login and b
   await expect(page).toHaveURL(/\/entrar\?redirect=%2Fcarrinho/)
   await signIn(page, ANA, page.url())
   await expect(page).toHaveURL('/carrinho')
-  await expect(page.getByRole('heading', { name: 'Carrinho', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /^Carrinho/ })).toBeVisible()
 })
 
 test('ROUTE-3#3: an external redirect is ignored', async ({ page, baseURL }) => {

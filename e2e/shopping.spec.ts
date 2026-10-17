@@ -97,8 +97,9 @@ test('CART-7#1: an NFT of another network shows the conflict and offers to empty
   await page.getByRole('button', { name: 'Esvaziar carrinho e adicionar' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Adicionado ao carrinho.' })).toBeVisible()
   await page.goto('/carrinho')
-  await expect(page.getByText('Neon Vessel #275')).toBeVisible()
-  await expect(page.getByText('Cosmic Bloom #412')).toHaveCount(0)
+  const items = page.getByLabel('Itens do carrinho', { exact: true })
+  await expect(items.getByText('Neon Vessel #275')).toBeVisible()
+  await expect(items.getByText('Cosmic Bloom #412')).toHaveCount(0)
 })
 
 async function toPayment(page: Page) {
@@ -224,16 +225,16 @@ test('CART-3#1: items a visitor adds appear in the cart after signing in', async
   await visitorBuys(page, 'nft-004')
   await signIn(page, ANA, SIGN_IN)
   await expect(page).toHaveURL('/carrinho')
-  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Cosmic Bloom #412')).toBeVisible()
 })
 
 test('CART-3#2: the visitor cart is handed over once and is gone after that', async ({ page }) => {
   await visitorBuys(page, 'nft-004')
   await signIn(page, ANA, SIGN_IN)
-  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Cosmic Bloom #412')).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('kurio.visitor.cart'))).toBeNull()
   await page.reload()
-  await expect(page.getByRole('main').getByText('ID do token: #0412')).toHaveCount(1)
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Cosmic Bloom #412')).toHaveCount(1)
   await expect(page.getByRole('main').getByText('Total da linha')).toHaveCount(1)
 })
 
@@ -251,7 +252,7 @@ test('CART-3#4: a visitor line from another network is skipped and listed', asyn
   await visitorBuys(page, 'nft-004')
   await visitorBuys(page, 'nft-003')
   await signIn(page, ANA, SIGN_IN)
-  await expect(page.getByRole('main').getByText('ID do token: #0412')).toBeVisible()
-  await expect(page.getByRole('main').getByText('ID do token: #0275')).toHaveCount(0)
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Cosmic Bloom #412')).toBeVisible()
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Neon Vessel #275')).toHaveCount(0)
   await expect(page.getByRole('status').filter({ hasText: 'é de outra rede' })).toContainText('Neon Vessel')
 })

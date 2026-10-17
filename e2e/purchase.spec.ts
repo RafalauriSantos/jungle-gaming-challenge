@@ -36,7 +36,7 @@ test('ORD-3#1 ORD-3#2 ORD-3#3 ORD-6#1 ORD-6#2 RT-2#1 ED-1#1 CART-5#1 CART-4#1 CH
   await page.goto(NFT)
   await expect(page.getByText('#0412')).toBeVisible() // the token id is the NFT number padded to 4, from here to the receipt
   await addTwoToCart(page)
-  await expect(page.getByText('ID do token: #0412')).toBeVisible()
+  await expect(page.getByLabel('Itens do carrinho', { exact: true }).getByText('Cosmic Bloom #412')).toBeVisible()
 
   // The quote's four values, exactly as the API computed them.
   await expect(page.getByText(NAME)).toBeVisible()

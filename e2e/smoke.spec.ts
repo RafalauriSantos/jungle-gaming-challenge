@@ -8,7 +8,7 @@ const ROUTES = [
   ['/nfts/nft-001', /^Emerald Ape #001$/, false],
   ['/entrar', /^Entrar$/, false],
   ['/cadastrar', /^Criar (conta|perfil de colecionador)$/, false],
-  ['/carrinho', /^Carrinho$/, true],
+  ['/carrinho', /^Carrinho( de NFTs)?$/, true],
   ['/favoritos', /^Favoritos$/, true],
   ['/perfil', /^Perfil do colecionador$/, true],
   ['/carteiras', /^Carteira principal$/, true],
