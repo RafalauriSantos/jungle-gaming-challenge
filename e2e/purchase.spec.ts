@@ -128,7 +128,7 @@ test('CHK-5#1 CHK-5#2: repeated clicks and a direct second call create one order
   expect(await mock<number>(page, 'orders()')).toBe(1)
 })
 
-test('MOCK-9#1: a price change while paying blocks the checkout until the new total is confirmed', async ({ page }) => {
+test('MOCK-9#1 CART-6#3 RT-8#1: a price change while paying blocks the checkout until the new total is confirmed', async ({ page }) => {
   await signIn(page)
   await addTwoToCart(page)
   await page.getByRole('link', { name: 'Conectar e finalizar' }).click()

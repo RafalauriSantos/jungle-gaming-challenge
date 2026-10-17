@@ -6,8 +6,10 @@ import type { Quote, QuoteLine } from '@/api/types'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { announce } from '@/lib/announce'
 import { Stepper } from '@/features/nft/Stepper'
 import { formatEth } from '@/lib/eth'
+import { useQuoteNotice } from './quoteNotice'
 import { useCoupon } from './useCoupon'
 import { useCart, useQuote, useRemoveItem, useSetQuantity } from './useCart'
 
@@ -90,6 +92,7 @@ export function CartPage() {
   const setQuantity = useSetQuantity()
   const remove = useRemoveItem()
   const [error, setError] = useState<string>()
+  const notice = useQuoteNotice(quote.data)
 
   const act = (run: Promise<unknown>) => {
     setError(undefined)
@@ -150,12 +153,13 @@ export function CartPage() {
                     key={line.lineId}
                     line={line}
                     disabled={setQuantity.isPending || remove.isPending}
-                    onQuantity={(q) => act(setQuantity.mutateAsync({ nftId: line.nftId, editionId: line.editionId, quantity: q }))}
-                    onRemove={() => act(remove.mutateAsync({ nftId: line.nftId, editionId: line.editionId }))}
+                    onQuantity={(q) => act(setQuantity.mutateAsync({ nftId: line.nftId, editionId: line.editionId, quantity: q }).then(() => announce(`Quantidade de ${line.name}: ${q}.`)))}
+                    onRemove={() => act(remove.mutateAsync({ nftId: line.nftId, editionId: line.editionId }).then(() => announce(`${line.name} removido do carrinho.`)))}
                   />
                 ))}
               </ul>
             )}
+            {notice && <p role="status" className="mt-3 rounded-md border border-primary p-3 text-sm">{notice}</p>}
             <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>
             {quote.data?.issues.map((issue) => (
               <p key={issue.editionId} role="alert" className="mt-2 text-sm text-destructive">

@@ -1,4 +1,5 @@
 import type { Cart, Nft, Order, Profile, Quote, Wallets } from '@/api/types'
+import { SETTLE_AFTER_MS } from './fixtures/commerce'
 import { NFT_FIXTURES } from './fixtures/nfts'
 import { SEED_PROFILES, SEED_USERS, SEED_WALLETS } from './fixtures/users'
 
@@ -47,6 +48,8 @@ export interface MockState {
   counters: Record<string, number>
   clock: { fixedAt: number | null; offset: number }
   scenario: string
+  /** How long a new order stays pending. Tests stretch it to keep an order pending. */
+  settleAfterMs: number
   nfts: Nft[]
   users: StoredUser[]
   sessions: StoredSession[]
@@ -70,6 +73,7 @@ function initialState(generation: number): MockState {
     counters: {},
     clock: { fixedAt: null, offset: 0 },
     scenario: 'success',
+    settleAfterMs: SETTLE_AFTER_MS,
     nfts: NFT_FIXTURES,
     users: SEED_USERS,
     sessions: [],
@@ -88,7 +92,8 @@ export function createDb(storage: KeyValueStorage = memoryStorage()) {
   const load = (): MockState => {
     try {
       const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? 'null') as MockState | null
-      if (saved?.schema === 1) return saved
+      // Fields added after a state was saved take their default instead of being missing.
+      if (saved?.schema === 1) return { ...initialState(saved.generation), ...saved }
     } catch {
       // Corrupt or foreign data: start from the known scenario.
     }

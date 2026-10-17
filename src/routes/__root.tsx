@@ -1,4 +1,5 @@
 import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
+import { Announcer } from '@/components/layout/Announcer'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
@@ -14,6 +15,7 @@ function Root() {
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-primary focus:p-2 focus:text-ink">
         Ir para o conteúdo
       </a>
+      <Announcer />
       <Header />
       <div id="conteudo" className="pt-4 md:pt-0">
         <Outlet />

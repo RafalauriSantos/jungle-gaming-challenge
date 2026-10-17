@@ -45,12 +45,17 @@ export function NftCard({ nft }: { nft: Nft }) {
   )
 }
 
+/** Same box as an NFT card, so the page does not move when the cards arrive. */
 export function NftCardSkeleton() {
   return (
     <li aria-hidden="true">
-      <div className="skeleton h-[200px] rounded-[20px] md:h-[300px]" />
-      <div className="skeleton mt-3 h-4 w-3/4 rounded" />
-      <div className="skeleton mt-2 h-4 w-1/3 rounded" />
+      <div className="rounded-[20px] bg-surface-card p-1 pb-3 pt-3 md:pb-7 md:pt-5">
+        <div className="skeleton aspect-square w-full rounded-2xl" />
+      </div>
+      <div className="mt-2 flex flex-col gap-1.5 pl-2 md:mt-3">
+        <div className="skeleton h-[22.5px] w-3/4 rounded md:h-6" />
+        <div className="skeleton h-6 w-1/3 rounded md:h-7" />
+      </div>
     </li>
   )
 }

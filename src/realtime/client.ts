@@ -20,6 +20,14 @@ export async function connectRealtime(queryClient: QueryClient) {
     auth: (cb) => cb({ token: getToken() }),
   })
 
+  // After a drop, whatever was missed is read again from the API; the version gate keeps older
+  // answers and final orders as they are.
+  let connectedBefore = false
+  socket.on('connect', () => {
+    if (connectedBefore) void queryClient.invalidateQueries()
+    connectedBefore = true
+  })
+
   socket.on('nft.updated', ({ data }: NftUpdated) => {
     queryClient.setQueriesData<NftListResponse>({ queryKey: [...nftKeys.all, 'list'] }, (old) =>
       old && { ...old, items: old.items.map((n) => (n.id === data.id ? onlyNewer(n, data) : n)) },
@@ -55,6 +63,7 @@ export async function connectRealtime(queryClient: QueryClient) {
   return () => {
     stopWatching()
     socket.off('nft.updated')
+    socket.off('connect')
     socket.off('order.updated')
     socket.disconnect()
   }

@@ -2,7 +2,6 @@ import { PROVIDERS, type Order, type Provider, type Wallet, type WalletInput, ty
 import { validateWallet } from '@/lib/wallet-rules'
 import type { StoredOrder } from '../db'
 import { nftEvent, orderEvent } from '../events'
-import { SETTLE_AFTER_MS } from '../fixtures/commerce'
 import { fail } from '../failure'
 import type { Ctx } from './context'
 import { requireCurrentQuote } from './quote'
@@ -96,7 +95,7 @@ export function createOrder(ctx: Ctx, userId: string, key: string, body: OrderBo
     quote: structuredClone(stored.quote),
     wallet: { label: wallet.nickname || wallet.displayName, address: short(wallet.address), network: wallet.network },
     provider: body.provider,
-    dueAt: now + SETTLE_AFTER_MS,
+    dueAt: now + db.state.settleAfterMs,
     outcome: db.state.scenario === 'payment-refused' ? 'refused' : 'confirmed',
     lines: stored.quote.lines.map(({ lineId, nftId, editionId, quantity }) => ({ lineId, nftId, editionId, quantity })),
   }
@@ -104,7 +103,7 @@ export function createOrder(ctx: Ctx, userId: string, key: string, body: OrderBo
   db.state.idempotency[`${userId}:${key}`] = { userId, bodyHash, orderId: order.id }
   db.save()
   ctx.publish(orderEvent(order, now))
-  ctx.schedule(SETTLE_AFTER_MS, () => settleDue(ctx))
+  ctx.schedule(db.state.settleAfterMs, () => settleDue(ctx))
   return { order: publicOrder(order), replayed: false }
 }
 

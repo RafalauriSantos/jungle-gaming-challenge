@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { AppEvent, OrderUpdated } from '@/api/events'
 import type { Order, WalletInput } from '@/api/types'
 import { createDb } from '../db'
+import { NETWORK_FEES } from '../fixtures/commerce'
 import { addItem, getCart, removeItem, setQuantity } from './cart'
 import type { Ctx } from './context'
 import { createOrder, getOrder, listPendingOrders, settleDue } from './orders'
@@ -80,6 +81,29 @@ describe('creating an order', () => {
     expect(t.db.state.orders).toHaveLength(0)
     expect(stock('nft-004', A.editionId)).toBe(9)
   })
+
+  const CHANGES: [string, () => unknown][] = [
+    ['a price', () => Object.assign(nft('nft-004'), { price: '1.7', version: 2 })],
+    ['the stock', () => (nft('nft-004').editions.find((e) => e.id === A.editionId)!.available = 5)],
+    ['the coupon status', () => (t.db.state.scenario = 'coupon-expired')],
+    ['the network fee', () => Object.assign(NETWORK_FEES, { ethereum: '0.02' })],
+    ['the cart network', () => (t.db.state.carts[ANA]!.network = 'polygon')],
+    ['the cart lines', () => addItem(t.db, ANA, { ...A, quantity: 1 })],
+  ]
+  for (const [name, change] of CHANGES) {
+    it(`CHK-3#1: a change of ${name} between the review and the click creates nothing`, () => {
+      const quote = createQuote(t.db, ANA, 'KURIO10')
+      try {
+        change()
+        expect(() => createOrder(t.ctx, ANA, 'key-1', { quoteId: quote.id, wallet: PRINCIPAL, provider: 'metamask' })).toThrowError(
+          expect.objectContaining({ status: 409, body: expect.objectContaining({ code: 'quote_stale' }) }),
+        )
+        expect(t.db.state.orders).toHaveLength(0)
+      } finally {
+        NETWORK_FEES.ethereum = '0.016'
+      }
+    })
+  }
 
   it('refuses a quote that already lists stock issues', () => {
     nft('nft-004').editions.find((e) => e.id === A.editionId)!.available = 1

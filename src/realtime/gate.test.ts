@@ -19,7 +19,7 @@ describe('order gate', () => {
     expect(shouldApplyOrder(pending(2), pending(1))).toBe(false)
   })
 
-  it('lets a final status reach a pending order whatever its version', () => {
+  it('ORD-10#2: lets a final status reach a pending order whatever its version', () => {
     expect(shouldApplyOrder(pending(5), { status: 'confirmed', version: 2 })).toBe(true)
     expect(shouldApplyOrder(pending(1), { status: 'refused', version: 2 })).toBe(true)
   })

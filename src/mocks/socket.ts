@@ -9,20 +9,25 @@ import { authenticate } from './services/auth'
 interface Connection {
   userId: string | null
   emit: (event: string, payload: unknown) => void
+  close: () => void
 }
 const live = new Set<Connection>()
-/** Ids of the events sent to at least one connection, for tests and demos. */
-const sent: string[] = []
+/** The events sent to at least one connection, for tests and demos. */
+const sent: AppEvent[] = []
 
 export const realtime = {
   connections: () => live.size,
-  sent: () => [...sent],
+  sent: () => sent.map((e) => e.eventId),
+  /** The event as it was sent, to deliver it again. */
+  find: (eventId: string) => sent.find((e) => e.eventId === eventId),
+  /** Closes every socket, as a network drop would. The client reconnects on its own. */
+  dropAll: () => [...live].forEach((c) => c.close()),
   /** Public events go to everyone; an event for a user goes only to connections authenticated as that user. */
   publish(event: AppEvent) {
     for (const c of live) {
       if (event.scope === 'public' || c.userId === event.scope.userId) {
         c.emit(event.type, event)
-        sent.push(event.eventId)
+        sent.push(event)
       }
     }
   },
@@ -45,7 +50,7 @@ function tokenOf(raw: unknown): string | null {
 export const socketHandlers = [
   socketLink.addEventListener('connection', (connection) => {
     const io = toSocketIo(connection)
-    const entry: Connection = { userId: null, emit: (event, payload) => io.client.emit(event, payload) }
+    const entry: Connection = { userId: null, emit: (event, payload) => io.client.emit(event, payload), close: () => connection.client.close() }
     live.add(entry)
 
     connection.client.addEventListener('message', (event) => {

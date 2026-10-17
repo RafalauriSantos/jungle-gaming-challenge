@@ -4,13 +4,18 @@ import type { ErrorBody } from './types'
 
 export const api = axios.create({ baseURL: '/api', timeout: 10_000 })
 
-api.interceptors.request.use((config) => {
-  const token = getToken()
-  if (token) config.headers.set('Authorization', `Bearer ${token}`)
-  // Tie every request to the session that made it, next to the caller's own signal (Query's).
-  config.signal = config.signal ? AbortSignal.any([config.signal as AbortSignal, sessionSignal()]) : sessionSignal()
-  return config
-})
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken()
+    if (token) config.headers.set('Authorization', `Bearer ${token}`)
+    // Tie every request to the session that made it, next to the caller's own signal (Query's).
+    config.signal = config.signal ? AbortSignal.any([config.signal as AbortSignal, sessionSignal()]) : sessionSignal()
+    return config
+  },
+  null,
+  // Run at the moment of the call, not a tick later: a session change in between must not move the request to the new session.
+  { synchronous: true },
+)
 
 api.interceptors.response.use(undefined, (error: unknown) => {
   const body = errorBodyOf(error)

@@ -72,7 +72,7 @@ export const catalogHandlers = [
       facets.network[n.network]++
     }
 
-    const filtered = base
+    const filtered = (db.state.scenario === 'empty' ? [] : base)
       .filter((n) => !collections.length || collections.includes(n.collection))
       .filter((n) => !networks.length || networks.includes(n.network))
       .sort(sorters[sort])

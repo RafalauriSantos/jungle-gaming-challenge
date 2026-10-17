@@ -1,10 +1,10 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cartKeys } from '@/api/cart'
 import { errorBodyOf } from '@/api/client'
-import { connectWalletRequest, createOrderRequest, type OrderBody } from '@/api/orders'
+import { connectWalletRequest, createOrderRequest, pendingOrdersOptions, type OrderBody } from '@/api/orders'
 import { PROVIDERS, type Provider, type Quote, type QuoteChange, type Wallet, type WalletInput } from '@/api/types'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -20,6 +20,7 @@ import { formatEth } from '@/lib/eth'
 import { validateWallet } from '@/lib/wallet-rules'
 import { useUser } from '@/session/store'
 import { attemptKey } from './attempt'
+import { clearDraft, loadDraft, saveDraft } from './checkoutDraft'
 
 function QuoteLines({ quote }: { quote: Quote }) {
   return (
@@ -71,20 +72,30 @@ export function PaymentPage() {
   const quote = useQuote(cart.data?.version, coupon)
   const wallets = useWallets()
 
-  const [walletId, setWalletId] = useState<string>()
-  const [other, setOther] = useState(false)
-  const [inline, setInline] = useState<Values>(EMPTY)
+  const [draft] = useState(() => loadDraft(user.id))
+  const [walletId, setWalletId] = useState(draft?.walletId)
+  const [other, setOther] = useState(draft?.other ?? false)
+  const [inline, setInline] = useState<Values>(draft?.inline ?? EMPTY)
   const [inlineErrors, setInlineErrors] = useState<Record<string, string>>({})
-  const [provider, setProvider] = useState<Provider>()
+  const [provider, setProvider] = useState<Provider | undefined>(draft?.provider)
   const [connection, setConnection] = useState<'idle' | 'connecting' | 'connected'>('idle')
   const [connectError, setConnectError] = useState<string>()
   const [problem, setProblem] = useState<string>()
   const [reviewing, setReviewing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const sending = useRef(false)
+  const [checking, setChecking] = useState(false)
   // The quote the user has seen and accepted. One with different terms must be confirmed again.
   const [accepted, setAccepted] = useState<Quote>()
   const [changes, setChanges] = useState<QuoteChange[]>([])
+  const sending = useRef(false)
+  // One order at a time: with one still pending, going to payment opens it instead of starting another.
+  const pending = useQuery(pendingOrdersOptions(user.id))
+  // Only an answer from this visit counts: a cached list may name an order that has since settled.
+  const pendingId = pending.isFetchedAfterMount ? pending.data?.[0]?.id : undefined
+  useEffect(() => {
+    // While this page is the one sending an order, it finds the order itself; no redirect from the side.
+    if (pendingId && !sending.current) void router.navigate({ to: '/pedido/$id', params: { id: pendingId }, replace: true })
+  }, [pendingId, router])
   const q = quote.data
   const settled = !!q && !quote.isPlaceholderData
 
@@ -93,6 +104,10 @@ export function PaymentPage() {
     // Asking again for the same terms gives a new id but nothing to confirm.
     if (!accepted || sameTerms(accepted, q)) setAccepted(q)
   }, [settled, q, accepted])
+
+  useEffect(() => {
+    saveDraft(user.id, { walletId, other, inline, provider })
+  }, [user.id, walletId, other, inline, provider])
 
   const saved = [wallets.data?.primary, wallets.data?.secondary].filter((w): w is Wallet => !!w)
   const compatible = saved.filter((w) => w.network === q?.network)
@@ -141,7 +156,8 @@ export function PaymentPage() {
     setSubmitting(true)
     setProblem(undefined)
     try {
-      const { order } = await createOrderRequest(key, body)
+      const order = await sendWithRecovery(key, body)
+      clearDraft(user.id)
       await router.navigate({ to: '/pedido/$id', params: { id: order.id } })
     } catch (error) {
       const err = errorBodyOf(error)
@@ -165,6 +181,23 @@ export function PaymentPage() {
     } finally {
       sending.current = false
       setSubmitting(false)
+      setChecking(false)
+    }
+  }
+
+  /**
+   * Sends the order. If no answer comes back (the request may or may not have created it), the same
+   * key is sent again, which returns the order if it exists. A new attempt is never offered meanwhile.
+   */
+  async function sendWithRecovery(key: string, body: OrderBody) {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return (await createOrderRequest(key, body)).order
+      } catch (error) {
+        if (errorBodyOf(error) || attempt >= 4) throw error // an answer, or too many silent tries
+        setChecking(true)
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
+      }
     }
   }
 
@@ -328,6 +361,9 @@ export function PaymentPage() {
           <div className="flex justify-end gap-2">
             <Button variant="outline" disabled={submitting} onClick={() => setReviewing(false)}>Voltar</Button>
             <Button disabled={submitting} onClick={() => void confirm()}>{submitting ? 'Enviando…' : 'Confirmar compra'}</Button>
+          </div>
+          <div aria-live="polite" className="min-h-5 text-sm">
+            {checking && <p role="status">Verificando seu pedido… Não foi possível ler a resposta, mas o envio não será duplicado.</p>}
           </div>
         </DialogContent>
       </Dialog>

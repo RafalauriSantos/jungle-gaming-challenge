@@ -156,7 +156,7 @@ test('MOCK-S11#1 MOCK-S12#1: the coupon scenarios make every code invalid or exp
   }
 })
 
-test('RT-1#1: one price event changes the catalog, the detail and the cart without a reload', async ({ page }) => {
+test('RT-1#1 API-6#1: one price event changes the catalog, the detail and the cart without a reload', async ({ page }) => {
   await signIn(page)
   await page.goto('/nfts/nft-004')
   await page.getByRole('radio', { name: 'Edição 1/10' }).click()
