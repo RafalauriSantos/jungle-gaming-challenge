@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { PRIVATE_API } from './private-api'
 import { ANA, authRoot, signIn } from './support'
 
 const desktopOnly = (name: string) => name === 'desktop'
@@ -131,4 +132,24 @@ test('the password can be revealed and hidden by keyboard', async ({ page }) => 
   await page.keyboard.press('Enter')
   await expect(password).toHaveAttribute('type', 'text')
   await expect(root.getByRole('button', { name: 'Ocultar senha' })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('AUTH-9#1: every private API refuses a request without a token, and every private route sends the visitor to sign in', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForFunction('!!window.__mock && !!navigator.serviceWorker.controller') // the mock backend answers from here on
+  const answers = await page.evaluate(async (endpoints) => {
+    const out: string[] = []
+    for (const [method, path] of endpoints) {
+      const url = path.replace(/:\w+/g, 'x')
+      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: method === 'GET' || method === 'DELETE' ? undefined : '{}' })
+      out.push(`${method} ${path} ${response.status}`)
+    }
+    return out
+  }, PRIVATE_API)
+  expect(answers).toEqual(PRIVATE_API.map(([method, path]) => `${method} ${path} 401`))
+
+  for (const route of ['/carrinho', '/pagamento', '/favoritos', '/perfil', '/carteiras', '/pedido/ord_x']) {
+    await page.goto(route)
+    await expect(page).toHaveURL(new RegExp(`/entrar\\?redirect=${encodeURIComponent(route)}`))
+  }
 })

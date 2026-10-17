@@ -84,6 +84,28 @@ for (const r of rows) {
 }
 for (const g of gates) for (const p of g.provenBy) if (!byId.has(p)) errors.push(`${g.id}: proven by unknown ${p}`)
 
+// --- Statement section 9: each of the 12 scenarios (Appendix A of design-decisions.md) maps to existing requirements,
+// and TEST-1 ("the 12 scenarios pass") can only be done when every requirement they map to is done.
+const scenarios = []
+{
+  const appendix = readFileSync('docs/spec/design-decisions.md', 'utf8').split('## Appendix A')[1] ?? ''
+  const expand = (token) => {
+    const range = token.match(/^([A-Z][A-Z0-9]*-[A-Z]?)(\d+)\.\.[A-Z]?(\d+)$/)
+    if (!range) return [token]
+    const [, prefix, from, to] = range
+    return Array.from({ length: Number(to) - Number(from) + 1 }, (_, i) => `${prefix}${String(Number(from) + i).padStart(from.length, '0')}`)
+  }
+  for (const line of appendix.split('\n')) {
+    const cells = line.split('|').slice(1, -1).map((c) => c.trim())
+    if (cells.length !== 3 || !/^(E\d+|none)$/.test(cells[0])) continue
+    const ids = cells[2].split(',').map((t) => t.trim()).filter(Boolean).flatMap(expand)
+    for (const id of ids) if (!byId.has(id)) errors.push(`design-decisions.md Appendix A: ${cells[0]} maps to unknown ${id}`)
+    scenarios.push({ key: cells[0], name: cells[1], open: ids.filter((id) => byId.get(id) && byId.get(id).status !== 'done') })
+  }
+  const test1 = byId.get('TEST-1')
+  if (test1?.status === 'done') for (const sc of scenarios.filter((x) => x.open.length)) errors.push(`TEST-1 is done, but scenario ${sc.key} still has open requirements: ${sc.open.join(', ')}`)
+}
+
 // --- README: the scenario table must list every MOCK-S requirement and every scenario the mock can run (DEL-3)
 {
   let readme = ''
@@ -118,6 +140,11 @@ for (const m of MILESTONES) {
 for (const g of gates) {
   const done = g.provenBy.filter((p) => byId.get(p)?.status === 'done').length
   console.log(`  gate ${g.id}: ${done === g.provenBy.length ? 'closed' : 'OPEN'} (${done}/${g.provenBy.length} proofs done)`)
+}
+{
+  const open = scenarios.filter((x) => x.open.length)
+  console.log(`  statement section 9: ${scenarios.length - open.length}/${scenarios.length} scenarios fully done`)
+  for (const sc of open) console.log(`    ${sc.key} ${sc.name}: open ${sc.open.join(', ')}`)
 }
 for (const w of warnings) console.warn(`warning: ${w}`)
 for (const e of errors) console.error(`error: ${e}`)
