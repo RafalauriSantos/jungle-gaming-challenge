@@ -260,6 +260,7 @@ export interface Order {
   quote: Quote
   wallet: { label: string; address: string; network: Network }
   provider: Provider
+  note?: string
   refusalReason?: 'payment_refused' | 'insufficient_funds' | 'stock_lost'
   receipt?: Receipt
 }

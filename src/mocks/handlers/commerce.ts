@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from 'msw'
-import type { OrderBody } from '../services/orders'
+import type { OrderBody } from '@/api/orders'
 import { db } from '../db'
 import { ctx } from '../runtime'
 import { addItem, getCart, mergeVisitorCart, removeItem, setQuantity } from '../services/cart'

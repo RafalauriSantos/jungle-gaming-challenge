@@ -19,7 +19,7 @@ async function toReview(page: Page) {
   await page.getByRole('radio', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
 }
 
 const summary = (page: Page) => page.getByRole('region', { name: 'Resumo da carteira' })
@@ -68,7 +68,7 @@ test('RT-5#1 RT-9#1: after a dropped connection the page catches up, and a pendi
   await mock(page, 'setSettleDelay(5000)')
   await toCart(page)
   await toReview(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
   await expect(page.getByRole('heading', { name: 'Aguardando a confirmação do pagamento' })).toBeVisible()
 
@@ -84,7 +84,7 @@ test('RT-5#2 ORD-10#1 ORD-10#3: a confirmed order is not undone by a late pendin
   await signIn(page)
   await toCart(page)
   await toReview(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 6000 })
 
   // Each event makes the page read the order again; waiting for that read means the event was handled.
@@ -102,16 +102,16 @@ test('MOCK-S13#1 CHK-4#1 CHK-4#2: a price that changes between the review and th
   await toCart(page)
   await toReview(page)
   await mock(page, "setScenario('price-changed')")
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
 
   await expect(page.getByRole('alert').filter({ hasText: 'A cotação mudou' })).toBeVisible()
   expect(await mock<number>(page, 'orders()')).toBe(0)
-  await expect(page.getByRole('button', { name: 'Revisar pedido' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeDisabled()
 
   await page.getByRole('button', { name: 'Confirmar nova cotação' }).click()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
-  await expect(page.getByRole('dialog', { name: 'Revise seu pedido' }).getByText('1.726 ETH')).toBeVisible() // 1.71 + the fee
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await expect(page.getByRole('dialog', { name: 'Revise seu pedido' }).getByText('1.726 ETH')).toBeVisible() // 1.71 + the fee
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
   expect(await mock<number>(page, 'orders()')).toBe(1)
 })
@@ -121,9 +121,9 @@ test('MOCK-S14#1: an edition that sells out between the review and the click blo
   await toCart(page)
   await toReview(page)
   await mock(page, "setScenario('sold-out')")
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
 
   await expect(page.getByRole('alert').filter({ hasText: 'Estoque insuficiente' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Revisar pedido' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeDisabled()
   expect(await mock<number>(page, 'orders()')).toBe(0)
 })

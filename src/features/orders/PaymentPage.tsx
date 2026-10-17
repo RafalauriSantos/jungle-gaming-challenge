@@ -1,26 +1,26 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useRouter } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cartKeys } from '@/api/cart'
 import { errorBodyOf } from '@/api/client'
 import { connectWalletRequest, createOrderRequest, pendingOrdersOptions, type OrderBody } from '@/api/orders'
-import { PROVIDERS, type Provider, type Quote, type QuoteChange, type Wallet, type WalletInput } from '@/api/types'
+import type { Provider, Quote, QuoteChange, Wallet, WalletInput } from '@/api/types'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useCart, useQuote } from '@/features/cart/useCart'
 import { useCoupon } from '@/features/cart/useCoupon'
 import { NETWORK_LABELS } from '@/features/catalog/search'
-import { EMPTY, fromWallet, PROVIDER_LABELS, WalletFields, type Values } from '@/features/wallets/WalletFields'
+import { EMPTY, PROVIDER_LABELS, type Values } from '@/features/wallets/WalletFields'
 import { useWallets } from '@/features/wallets/useWallets'
 import { formatEth } from '@/lib/eth'
 import { validateWallet } from '@/lib/wallet-rules'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { useUser } from '@/session/store'
 import { attemptKey } from './attempt'
 import { clearDraft, loadDraft, saveDraft } from './checkoutDraft'
+import { PaymentDesktop } from './PaymentDesktop'
+import { PaymentMobile } from './PaymentMobile'
+import type { PaymentModel } from './paymentModel'
 
 function QuoteLines({ quote }: { quote: Quote }) {
   return (
@@ -60,9 +60,6 @@ const sameTerms = (a: Quote, b: Quote) =>
   a.lines.length === b.lines.length &&
   a.lines.every((l, i) => l.lineId === b.lines[i]!.lineId && l.quantity === b.lines[i]!.quantity && l.unitPrice === b.lines[i]!.unitPrice)
 
-const describe = (c: QuoteChange) =>
-  c.type === 'price_changed' ? 'Um preço mudou.' : c.type === 'unavailable' ? 'O estoque de um item diminuiu.' : c.type === 'coupon_changed' ? 'O cupom mudou.' : c.type === 'fee_changed' ? 'A taxa de rede mudou.' : 'O carrinho mudou.'
-
 export function PaymentPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -74,9 +71,14 @@ export function PaymentPage() {
 
   const [draft] = useState(() => loadDraft(user.id))
   const [walletId, setWalletId] = useState(draft?.walletId)
-  const [other, setOther] = useState(draft?.other ?? false)
+  const desktop = useMediaQuery('(min-width: 768px)')
+  const [otherChosen, setOther] = useState(draft?.other ?? false)
+  // A one-off wallet is drawn only on desktop; on mobile the saved wallets are the choice.
+  const other = otherChosen && desktop
+  const [note, setNote] = useState(draft?.note ?? '')
   const [inline, setInline] = useState<Values>(draft?.inline ?? EMPTY)
   const [inlineErrors, setInlineErrors] = useState<Record<string, string>>({})
+  const [noteError, setNoteError] = useState<string>()
   const [provider, setProvider] = useState<Provider | undefined>(draft?.provider)
   const [connection, setConnection] = useState<'idle' | 'connecting' | 'connected'>('idle')
   const [connectError, setConnectError] = useState<string>()
@@ -106,8 +108,8 @@ export function PaymentPage() {
   }, [settled, q, accepted])
 
   useEffect(() => {
-    saveDraft(user.id, { walletId, other, inline, provider })
-  }, [user.id, walletId, other, inline, provider])
+    saveDraft(user.id, { walletId, other: otherChosen, inline, provider, note })
+  }, [user.id, walletId, otherChosen, inline, provider, note])
 
   const saved = [wallets.data?.primary, wallets.data?.secondary].filter((w): w is Wallet => !!w)
   const compatible = saved.filter((w) => w.network === q?.network)
@@ -150,7 +152,7 @@ export function PaymentPage() {
   async function confirm() {
     if (!q || !provider || sending.current) return // a second click while one is in flight does nothing
     const wallet: OrderBody['wallet'] = other ? { inline: Object.fromEntries(Object.entries(inline).filter(([, v]) => v)) as unknown as WalletInput } : { walletId: selectedId! }
-    const body: OrderBody = { quoteId: q.id, wallet, provider }
+    const body: OrderBody = { quoteId: q.id, wallet, provider, ...(note.trim() && { note: note.trim() }) }
     const key = attemptKey(localStorage, user.id, body)
     sending.current = true
     setSubmitting(true)
@@ -173,6 +175,7 @@ export function PaymentPage() {
         setProblem('Algum item não tem mais estoque suficiente. Revise o carrinho.')
         void queryClient.invalidateQueries({ queryKey: ['u', user.id, 'quote'] })
       } else if (err?.fields) {
+        setNoteError(err.fields.note)
         setInlineErrors(Object.fromEntries(Object.entries(err.fields).map(([k, v]) => [k.replace(/^wallet\./, ''), v])))
         setProblem(err.fields.wallet ?? err.message)
       } else {
@@ -219,130 +222,47 @@ export function PaymentPage() {
     )
   }
 
+  const model: PaymentModel = {
+    quote: q,
+    settled,
+    stale,
+    changes,
+    acceptNewTerms: () => {
+      setAccepted(q)
+      setChanges([])
+    },
+    coupon,
+    walletsLoading: wallets.isPending,
+    saved,
+    selectedId,
+    selected,
+    chooseWallet: setWalletId,
+    other,
+    setOther,
+    inline,
+    setInlineField: (key) => (value) => setInline((state) => ({ ...state, [key]: value })),
+    inlineErrors,
+    note,
+    setNote,
+    noteError,
+    provider,
+    chooseProvider: (next) => {
+      setProvider(next)
+      setConnection('idle') // a different wallet app has to connect on its own
+      setConnectError(undefined)
+    },
+    connection,
+    connect: () => void connect(),
+    disconnect,
+    connectError,
+    problem,
+    canReview: !!q && settled && !stale && !submitting && !q.issues.length,
+    review,
+  }
+
   return (
-    <main className="mx-auto max-w-[1232px] px-4 pb-10 pt-4">
-      <div className="mb-4 flex items-center gap-3">
-        <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="rounded-full md:hidden">
-          <ArrowLeft aria-hidden />
-        </Button>
-        <h1 className="flex-1 text-center text-xl font-bold md:text-left md:text-base">Pagamento com carteira</h1>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-[1fr_380px]">
-        <section aria-labelledby="collector" className="flex flex-col gap-5">
-          <h2 id="collector" className="font-bold">Carteira conectada</h2>
-          {wallets.isPending ? (
-            <Skeleton className="h-24 w-full" aria-label="Carregando carteiras" />
-          ) : (
-            <RadioGroup value={selectedId ?? ''} onValueChange={(v) => setWalletId(v as string)} aria-label="Carteiras salvas" className="gap-3">
-              {saved.map((w) => {
-                const ok = w.network === q?.network
-                return (
-                  <label key={w.id} className={`flex items-center gap-3 rounded-xl bg-surface-card p-4 ${ok ? '' : 'opacity-60'}`}>
-                    <RadioGroupItem value={w.id} disabled={!ok || other} />
-                    <span className="flex flex-col text-sm">
-                      <strong>{w.nickname}</strong>
-                      <span className="text-text-secondary">{w.address.slice(0, 6)}…{w.address.slice(-4)}</span>
-                      <span className="text-text-secondary">Rede {NETWORK_LABELS[w.network]}{ok ? '' : ' — diferente da rede do carrinho'}</span>
-                    </span>
-                  </label>
-                )
-              })}
-              {saved.length === 0 && (
-                <p className="text-sm text-text-secondary">
-                  Você ainda não cadastrou uma carteira. <Link to="/carteiras" className="text-text-accent underline">Cadastrar carteira</Link>
-                </p>
-              )}
-            </RadioGroup>
-          )}
-
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={other} onCheckedChange={(v) => setOther(v === true)} />
-            Usar outra carteira?
-          </label>
-
-          {other ? (
-            <fieldset className="flex flex-col gap-4">
-              <legend className="mb-2 font-bold">Perfil do colecionador</legend>
-              <p className="text-xs text-text-secondary">Esta carteira vale só para este pedido; ela não é salva.</p>
-              <WalletFields idPrefix="inline" values={inline} errors={inlineErrors} set={(k) => (v) => setInline((s) => ({ ...s, [k]: v }))} />
-            </fieldset>
-          ) : (
-            selected && (
-              <fieldset className="hidden flex-col gap-4 md:flex" disabled>
-                <legend className="mb-2 font-bold">Perfil do colecionador</legend>
-                <WalletFields idPrefix="saved" values={fromWallet(selected)} errors={{}} set={() => () => {}} readOnly />
-              </fieldset>
-            )
-          )}
-        </section>
-
-        <aside aria-labelledby="order-summary" className="flex flex-col gap-4">
-          <h2 id="order-summary" className="border-b border-border pb-2 font-bold">Seus NFTs</h2>
-          {!q ? (
-            <div role="status" aria-busy="true" aria-label="Carregando resumo" className="flex flex-col gap-3">
-              <Skeleton className="h-16 w-full" /><Skeleton className="h-28 w-full" />
-            </div>
-          ) : (
-            <div aria-busy={!settled} className={settled ? '' : 'opacity-60'}>
-              <QuoteLines quote={q} />
-              <div className="mt-4"><Totals quote={q} /></div>
-            </div>
-          )}
-
-          {stale && (
-            <div role="alert" className="rounded-md border border-primary p-3 text-sm">
-              <p className="mb-2 font-bold">A cotação mudou. Confirme o novo total antes de continuar.</p>
-              <ul className="mb-2 list-disc pl-5 text-text-secondary">{(changes.length ? changes : [{ type: 'price_changed' as const }]).map((c, i) => <li key={i}>{describe(c)}</li>)}</ul>
-              <Button size="sm" onClick={() => { setAccepted(q); setChanges([]) }}>Confirmar nova cotação</Button>
-            </div>
-          )}
-          {q?.issues.map((i) => (
-            <p key={i.editionId} role="alert" className="text-sm text-destructive">Estoque insuficiente em um item: restam {i.available}. <Link to="/carrinho" className="underline">Ajustar carrinho</Link></p>
-          ))}
-
-          <fieldset>
-            <legend className="mb-2 font-bold">Carteira e rede</legend>
-            <RadioGroup
-              value={provider ?? ''}
-              onValueChange={(v) => {
-                setProvider(v as Provider)
-                setConnection('idle') // a different wallet app has to connect on its own
-                setConnectError(undefined)
-              }}
-              disabled={connection !== 'idle'}
-              aria-label="Carteira"
-              className="gap-2"
-            >
-              {PROVIDERS.map((p) => (
-                <label key={p} className="flex items-center gap-3 rounded-md border border-border p-3 text-sm">
-                  <RadioGroupItem value={p} />
-                  {PROVIDER_LABELS[p]}
-                </label>
-              ))}
-            </RadioGroup>
-          </fieldset>
-
-          <div aria-live="polite" className="flex flex-wrap items-center gap-3 text-sm">
-            {connection === 'connected' ? (
-              <>
-                <p role="status" className="text-text-accent">Carteira conectada: {PROVIDER_LABELS[provider!]}.</p>
-                <Button type="button" variant="outline" size="sm" onClick={disconnect}>Desconectar</Button>
-              </>
-            ) : (
-              <Button type="button" variant="outline" size="sm" disabled={!provider || connection === 'connecting'} onClick={() => void connect()}>
-                {connection === 'connecting' ? 'Conectando…' : 'Conectar carteira'}
-              </Button>
-            )}
-          </div>
-          {connectError && <p role="alert" className="text-sm text-destructive">{connectError}</p>}
-          <p role="alert" className="text-sm text-destructive">{problem}</p>
-          <Button className="h-10 font-bold" disabled={!q || !settled || stale || submitting || !!q.issues.length} onClick={review}>
-            Revisar pedido
-          </Button>
-        </aside>
-      </div>
-
+    <>
+      {desktop ? <PaymentDesktop m={model} /> : <PaymentMobile m={model} />}
       <Dialog open={reviewing} onOpenChange={(open) => !submitting && setReviewing(open)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -356,17 +276,18 @@ export function PaymentPage() {
               <p className="text-sm text-text-secondary">
                 {PROVIDER_LABELS[provider ?? 'metamask']} · Rede {NETWORK_LABELS[q.network]} · {other ? 'Carteira avulsa' : selected?.nickname}
               </p>
+              {note.trim() && <p className="text-sm text-text-secondary">Observação: {note.trim()}</p>}
             </>
           )}
           <div className="flex justify-end gap-2">
             <Button variant="outline" disabled={submitting} onClick={() => setReviewing(false)}>Voltar</Button>
-            <Button disabled={submitting} onClick={() => void confirm()}>{submitting ? 'Enviando…' : 'Confirmar compra'}</Button>
+            <Button disabled={submitting} onClick={() => void confirm()}>{submitting ? 'Enviando…' : 'Enviar pedido'}</Button>
           </div>
           <div aria-live="polite" className="min-h-5 text-sm">
             {checking && <p role="status">Verificando seu pedido… Não foi possível ler a resposta, mas o envio não será duplicado.</p>}
           </div>
         </DialogContent>
       </Dialog>
-    </main>
+    </>
   )
 }

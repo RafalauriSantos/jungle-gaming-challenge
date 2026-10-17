@@ -3,7 +3,7 @@ import { searchField, signIn } from './support'
 
 // The desktop header of the Figma: one nav item marked per screen group, the divider only on the "Início" group,
 // the cart count, and a search that opens from its icon. The mobile layout has no header (tab bar instead).
-test.beforeEach(({}, info) => test.skip(info.project.name !== 'desktop', 'The header exists from tablet width up'))
+test.beforeEach(({ viewport }) => test.skip((viewport?.width ?? 0) < 768, 'The header exists from tablet width up'))
 
 const header = (page: import('@playwright/test').Page) => page.getByRole('banner')
 const nav = (page: import('@playwright/test').Page) => page.getByRole('navigation', { name: 'Principal' })

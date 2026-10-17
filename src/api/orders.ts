@@ -12,6 +12,8 @@ export interface OrderBody {
   quoteId: string
   wallet: WalletRef
   provider: Provider
+  /** Optional note of the collector, up to 280 characters. */
+  note?: string
 }
 
 /** The same key with the same body always answers with the same order. */

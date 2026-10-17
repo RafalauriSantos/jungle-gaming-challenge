@@ -1,19 +1,16 @@
-import { PROVIDERS, type Order, type Provider, type Wallet, type WalletInput, type WalletRef } from '@/api/types'
+import { PROVIDERS, type Order, type Wallet, type WalletInput, type WalletRef } from '@/api/types'
 import { validateWallet } from '@/lib/wallet-rules'
 import type { StoredOrder } from '../db'
 import { nftEvent, orderEvent } from '../events'
 import { fail } from '../failure'
 import type { Ctx } from './context'
 import { requireCurrentQuote } from './quote'
+import type { OrderBody } from '@/api/orders'
 import { getWallets } from './wallets'
 
-export interface OrderBody {
-  quoteId: string
-  wallet: WalletRef
-  provider: Provider
-}
-
 const publicOrder = ({ userId: _u, dueAt: _d, outcome: _o, lines: _l, ...order }: StoredOrder): Order => structuredClone(order)
+
+const NOTE_MAX = 280
 
 const short = (address: string) => (address.length > 12 ? `${address.slice(0, 6)}…${address.slice(-4)}` : address)
 
@@ -46,7 +43,7 @@ export function createOrder(ctx: Ctx, userId: string, key: string, body: OrderBo
   if (!key.trim()) throw fail(422, 'validation', 'Falta a chave de idempotência.', { idempotencyKey: 'Obrigatória.' })
 
   // The same attempt, again: give back the same order (or refuse a changed body). Nothing else runs.
-  const bodyHash = JSON.stringify([body.quoteId, body.wallet, body.provider])
+  const bodyHash = JSON.stringify([body.quoteId, body.wallet, body.provider, body.note ?? null])
   const known = db.state.idempotency[`${userId}:${key}`]
   if (known) {
     if (known.bodyHash !== bodyHash) throw fail(409, 'idempotency_conflict', 'Esta chave já foi usada com outro conteúdo.')
@@ -57,6 +54,7 @@ export function createOrder(ctx: Ctx, userId: string, key: string, body: OrderBo
   settleDue(ctx)
   if (!PROVIDERS.includes(body.provider)) throw fail(422, 'validation', 'Selecione uma carteira.', { provider: 'Selecione uma carteira.' })
   const wallet = resolveWallet(ctx, userId, body.wallet)
+  if (body.note !== undefined && body.note.length > NOTE_MAX) throw fail(422, 'validation', 'A observação é longa demais.', { note: `Use até ${NOTE_MAX} caracteres.` })
 
   const pending = db.state.orders.find((o) => o.userId === userId && o.status === 'pending')
   if (pending) throw fail(409, 'order_pending', 'Você já tem um pedido em andamento.', undefined, { orderId: pending.id })
@@ -95,6 +93,7 @@ export function createOrder(ctx: Ctx, userId: string, key: string, body: OrderBo
     quote: structuredClone(stored.quote),
     wallet: { label: wallet.nickname || wallet.displayName, address: short(wallet.address), network: wallet.network },
     provider: body.provider,
+    ...(body.note?.trim() && { note: body.note.trim() }),
     dueAt: now + db.state.settleAfterMs,
     outcome: db.state.scenario === 'payment-refused' ? 'refused' : 'confirmed',
     lines: stored.quote.lines.map(({ lineId, nftId, editionId, quantity }) => ({ lineId, nftId, editionId, quantity })),

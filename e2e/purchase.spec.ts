@@ -24,7 +24,7 @@ async function payWith(page: Page, provider = 'MetaMask') {
   await page.getByRole('radio', { name: provider }).click()
   await page.getByRole('button', { name: 'Conectar carteira' }).click()
   await expect(page.getByText(`Carteira conectada: ${provider}.`)).toBeVisible()
-  await page.getByRole('button', { name: 'Revisar pedido' }).click()
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
 }
 
 test('ORD-3#1 ORD-3#2 ORD-3#3 ORD-6#1 ORD-6#2 RT-2#1 ED-1#1 CART-5#1 CART-4#1 CHK-1#2 MON-3#2 MOCK-2#1 MOCK-S01#1 MOCK-S16#1: a purchase from the detail to a confirmed receipt, driven by the simulation', async ({ page }) => {
@@ -58,7 +58,7 @@ test('ORD-3#1 ORD-3#2 ORD-3#3 ORD-6#1 ORD-6#2 RT-2#1 ED-1#1 CART-5#1 CART-4#1 CH
   await expect(review.getByText('ID do token: #0412', { exact: false })).toBeVisible()
   await expect(review.getByText('2.914 ETH')).toBeVisible()
   await expect(review.getByText(/MetaMask · Rede Ethereum · Principal/)).toBeVisible()
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
 
   // Created is not confirmed: the pending screen shows first, and no receipt.
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
@@ -93,7 +93,7 @@ test('ORD-3#1 ORD-4#1 ORD-11#1 MOCK-S17#1: a refused payment keeps the cart and 
   await expect(page.getByTestId('nft-card').first()).toBeVisible()
   await addTwoToCart(page)
   await payWith(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
 
   await expect(page.getByRole('heading', { name: 'Pagamento recusado' })).toBeVisible({ timeout: 6000 })
   await expect(page.getByText('Seus NFTs agora estão na sua carteira')).toHaveCount(0)
@@ -103,7 +103,7 @@ test('ORD-3#1 ORD-4#1 ORD-11#1 MOCK-S17#1: a refused payment keeps the cart and 
 
   // A new attempt: back to payment, and an order is created again (a new key, not a replay of the refusal).
   await payWith(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000002$/)
 })
 
@@ -111,7 +111,7 @@ test('CHK-5#1 CHK-5#2: repeated clicks and a direct second call create one order
   await signIn(page)
   await addTwoToCart(page)
   await payWith(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click({ clickCount: 5, delay: 0 })
+  await page.getByRole('button', { name: 'Enviar pedido' }).click({ clickCount: 5, delay: 0 })
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
   expect(await mock<number>(page, 'orders()')).toBe(1)
 
@@ -133,7 +133,7 @@ test('MOCK-9#1 CART-6#3 RT-8#1: a price change while paying blocks the checkout 
   await addTwoToCart(page)
   await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
   await expect(page).toHaveURL('/pagamento')
-  const review = page.getByRole('button', { name: 'Revisar pedido' })
+  const review = page.getByRole('button', { name: 'Confirmar compra' })
   await expect(review).toBeEnabled()
 
   await mock<void>(page, "updateNft('nft-004', { price: '2' })")
@@ -154,7 +154,7 @@ test('ORD-2#1: a pending order is still there after a reload', async ({ page }) 
   await signIn(page)
   await addTwoToCart(page)
   await payWith(page)
-  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
   await page.reload()
   await expect(page.getByRole('heading', { name: /Aguardando a confirmação|Seus NFTs agora estão/ })).toBeVisible()
