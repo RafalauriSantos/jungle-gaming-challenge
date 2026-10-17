@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { SlidersHorizontal } from 'lucide-react'
 import { nftListOptions } from '@/api/nfts'
 import { FEEDS, SORTS, type NftListParams, type Sort } from '@/api/types'
+import { ChevronDown } from 'lucide-react'
 import { SearchBox } from '@/components/layout/SearchBox'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -32,7 +33,7 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
   const pages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1
 
   return (
-    <main className="mx-auto flex w-full max-w-[1232px] flex-col gap-6 px-4 pb-8 md:gap-24 md:pt-6">
+    <main className="mx-auto flex w-full max-w-[1232px] flex-col gap-6 px-6 pb-8 pt-6 md:gap-24 md:px-4 md:pt-6">
       <div className="flex gap-3 md:hidden">
         <SearchBox className="flex-1" placeholder="Explorar coleções" />
         <FiltersSheet>{filters}</FiltersSheet>
@@ -63,15 +64,16 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
                 </button>
               ))}
             </div>
-            <label className="flex items-center gap-2 text-[15px]">
+            <label className="relative flex items-center gap-2 text-[15px]">
               Ordenar por:
               <select
                 value={search.sort ?? 'recent'}
                 onChange={(e) => setFilter({ sort: e.target.value === 'recent' ? undefined : (e.target.value as Sort) })}
-                className="rounded border border-border bg-ink px-2 py-1"
+                className="cursor-pointer appearance-none bg-transparent pr-5 text-[15px]"
               >
-                {SORTS.map((s) => <option key={s} value={s}>{SORT_LABELS[s]}</option>)}
+                {SORTS.map((s) => <option key={s} value={s} className="bg-ink">{SORT_LABELS[s]}</option>)}
               </select>
+              <ChevronDown aria-hidden className="pointer-events-none absolute right-0 size-4" />
             </label>
           </div>
 
