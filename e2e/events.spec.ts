@@ -53,6 +53,9 @@ test('RT-4#1 RT-4#2 CART-6#1 CART-6#2: a duplicate event changes nothing and an 
   await expect(summary(page).getByText('2.516 ETH')).toBeVisible()
   await expect(summary(page).getByText('1.626 ETH')).toHaveCount(0) // the old snapshot did not come back
   await expect(notice).toHaveCount(1)
+  // The newer message is written 50 ms after the event is handled. Anything the duplicate or the old event announced
+  // is written before it (timers fire in order), so once it is there the count below is final.
+  await expect(page.getByTestId('announcer')).toContainText('2.50 ETH')
   // Only the genuine change was announced: the duplicate and the old event said nothing.
   const announced = await page.evaluate(() => (window as unknown as { __announced: string[] }).__announced)
   expect(announced).toHaveLength(1)
