@@ -11,7 +11,7 @@ export const SEED_USERS = [
 
 export const SEED_PROFILES: Record<string, Profile> = {
   u_ana: { displayName: 'Ana Souza', username: 'ana', email: 'ana@kurio.test', ensName: 'ana', walletNickname: 'Principal', avatarUrl: null, version: 1 },
-  u_bruno: { displayName: 'Bruno Lima', username: 'bruno', email: 'bruno@kurio.test', avatarUrl: null, version: 1 },
+  u_bruno: { displayName: 'Bruno Lima', username: 'bruno', email: 'bruno@kurio.test', ensName: 'bruno', walletNickname: 'Principal', avatarUrl: null, version: 1 },
 }
 
 export const SEED_WALLETS: Record<string, Wallets> = {

@@ -29,6 +29,19 @@ describe('profile', () => {
     expect(getProfile(db, 'u_ana').displayName).toBe('Ana Souza')
   })
 
+  it('PRO-1#1: keeps the ENS name and the wallet nickname, and a new account starts with both', async () => {
+    expect(updateProfile(db, 'u_ana', { ensName: 'ana-souza', walletNickname: 'Cofre' })).toMatchObject({ ensName: 'ana-souza', walletNickname: 'Cofre' })
+    const { signup } = await import('./auth')
+    const { user } = await signup(db, { username: 'carla', email: 'carla@kurio.test', password: 'Segredo#2026', confirmPassword: 'Segredo#2026' })
+    expect(getProfile(db, user.id)).toMatchObject({ ensName: 'carla', walletNickname: 'Principal' })
+  })
+
+  it('PRO-1#2: refuses an empty or malformed ENS name and an empty wallet nickname on their fields', () => {
+    expect(() => updateProfile(db, 'u_ana', { ensName: 'ana souza', walletNickname: ' ' })).toThrowError(
+      expect.objectContaining({ status: 422, body: expect.objectContaining({ fields: { ensName: expect.any(String), walletNickname: expect.any(String) } }) }),
+    )
+  })
+
   it('PRO-1#1: stores and removes the avatar, and refuses other types and big files', () => {
     expect(setAvatar(db, 'u_ana', PNG).avatarUrl).toBe(PNG)
     expect(getProfile(db, 'u_bruno').avatarUrl).toBeNull()

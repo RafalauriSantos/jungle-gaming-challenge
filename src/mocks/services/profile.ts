@@ -5,6 +5,7 @@ import { hashPassword } from '../password'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USERNAME = /^[a-zA-Z0-9._-]{3,24}$/
+const ENS = /^[a-zA-Z0-9-]{1,30}$/
 const AVATAR = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/
 /** Base64 characters, about 1 MB of image. */
 const AVATAR_MAX = 1_400_000
@@ -18,6 +19,8 @@ export function updateProfile(db: Db, userId: string, patch: ProfileInput): Prof
   if (patch.displayName !== undefined && (patch.displayName.trim().length < 2 || patch.displayName.trim().length > 60)) fields.displayName = 'Informe um nome de 2 a 60 caracteres.'
   if (patch.username !== undefined && !USERNAME.test(patch.username)) fields.username = 'Use de 3 a 24 letras, números, ponto, hífen ou sublinhado.'
   if (patch.email !== undefined && !EMAIL.test(patch.email.trim())) fields.email = 'Informe um e-mail válido.'
+  if (patch.ensName !== undefined && !ENS.test(patch.ensName.trim())) fields.ensName = 'Use de 1 a 30 letras, números ou hífen.'
+  if (patch.walletNickname !== undefined && (patch.walletNickname.trim().length < 1 || patch.walletNickname.trim().length > 30)) fields.walletNickname = 'Informe um apelido de 1 a 30 caracteres.'
   if (Object.keys(fields).length) throw fail(422, 'validation', 'Revise os campos destacados.', fields)
 
   const email = patch.email?.trim().toLowerCase()
@@ -30,6 +33,8 @@ export function updateProfile(db: Db, userId: string, patch: ProfileInput): Prof
 
   if (patch.displayName !== undefined) profile.displayName = patch.displayName.trim()
   if (patch.username) profile.username = user.username = patch.username
+  if (patch.ensName !== undefined) profile.ensName = patch.ensName.trim()
+  if (patch.walletNickname !== undefined) profile.walletNickname = patch.walletNickname.trim()
   if (email) profile.email = user.email = email
   profile.version += 1
   db.save()
