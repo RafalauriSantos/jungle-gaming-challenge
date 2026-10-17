@@ -27,11 +27,11 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | DQ-STACK | M0 | req | §2 | Router, Query, Axios, Socket.IO, Tailwind, shadcn/ui, MSW, Playwright and Lighthouse each take real part. Accept: Axios is the only HTTP client in `src`; Socket.IO is exercised by a published-build test; a Lighthouse report exists | manual | part | Socket.IO and Lighthouse missing |
-| ROUTE-1 | M1 | req | §4 | Unknown routes show a not-found page with a way back. Accept: `/nada` renders the not-found heading and a link to `/` | test | part | Component exists |
-| ROUTE-2 | M0 | req | §4, §12 | Every planned screen opens by direct URL and survives refresh, locally and on the host. Accept: each route loads by URL on the deployed build; refresh keeps the page | test | todo | Host rewrite rule |
+| ROUTE-1 | M1 | req | §4 | Unknown routes show a not-found page with a way back. Accept: `/nada` renders the not-found heading and a link to `/` | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
+| ROUTE-2 | M0 | req | §4, §12 | Every planned screen opens by direct URL and survives refresh, locally and on the host. Accept: each route loads by URL on the deployed build; refresh keeps the page | test | part | Existing routes pass by URL and refresh on the public URL; planned screens are added as they are built |
 | ROUTE-3 | M1 | req | §3 | Private routes send an anonymous user to login and return afterwards. Accept: opening `/carrinho` anonymous lands on login with `redirect`; after login the cart opens; an external `redirect` is ignored | test | todo | |
 | DEL-1 | M0 | req | §12 | Source, lockfile, assets, mocks, fixtures, tests and audit config are in the repo. Accept: a clean clone installs and builds | config | part | Not committed yet |
-| DEL-2 | M0 | req | §12 | The public deploy matches the code, serves mocks and real time, and keeps deep links. Accept: the published URL passes the M0 socket proof and a deep-link refresh; the final check is DEL-10 | manual | todo | Needs approval to create the repo |
+| DEL-2 | M0 | req | §12 | The public deploy matches the code, serves mocks and real time, and keeps deep links. Accept: the published URL passes the M0 socket proof and a deep-link refresh; the final check is DEL-10 | manual | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16): HTTPS, socket proof, deep links and refresh. Final check is DEL-10 |
 | DEL-3 | M6 | req | §12 | README: setup, env vars, fictional credentials, scenario selection and reset, commands, failure reproduction. Accept: a table lists every MOCK-S scenario with how to activate it (URL), what to observe, and how to reset; a new person follows it on a clean checkout and on the deployed URL | manual | todo | |
 | DEL-4 | M6 | req | §12 | Contracts, events, session policy, cart state, cache and reconciliation are documented. Accept: `ARCHITECTURE.md` matches the code | manual | part | Planned in `ARCHITECTURE.md` |
 | DEL-5 | M6 | req | §12 | `ARCHITECTURE.md` records limitations, UX decisions and Figma deviations. Accept: every `design-decisions.md` row is decided and reflected | manual | part | |
@@ -40,7 +40,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | DEL-8 | M6 | req | §12 | The deploy stays reachable through the evaluation. Accept: host plan has no expiry or sleep | manual | todo | |
 | DEL-10 | M6 | req | §12 | The public URL is verified as its own environment. Accept: a smoke subset of the E2E suite runs against the deployed URL (login, purchase, one failure scenario, one socket event, a deep link refresh) and passes; the result is recorded | test | todo | Local green does not prove it |
 | DEL-9 | M5 | opt | none | CI runs verify and E2E on every push. Accept: a workflow is green on a clean checkout | config | todo | |
-| ASSET-1 | M0 | req | §8 | Images and fonts load from the repo; nothing loads from Figma or a third-party host at runtime. Accept: no request to another origin in the network log | test | part | Local today |
+| ASSET-1 | M0 | req | §8 | Images and fonts load from the repo; nothing loads from Figma or a third-party host at runtime. Accept: no request to another origin in the network log | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 
 ## 3. Routing, account, session
 
@@ -160,8 +160,8 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | MOCK-14 | M1 | req | §6, §12 | An evaluator can activate, observe and reset each scenario on the deployed build without code or hidden test setup. Accept: opening `?scenario=<name>` on the public URL reproduces it; a visible reset exists; the README states the exact steps | manual | todo | |
 | MOCK-4 | M3 | req | §6 | Latency, timeouts, offline and HTTP errors are configurable and reproducible. Accept: a scenario name yields the same behavior on every run | test | todo | |
 | MOCK-5 | M1 | req | §6 | Fixtures vary enough and include two users. Accept: 48+ NFTs across collections and networks; two seeded users | test | part | No users |
-| MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | part | Proven on the local built app (`pnpm preview`); the published URL is still to run (DEL-10). Limits in `ARCHITECTURE.md` §5 |
-| MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | part | |
+| MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16). Limits in `ARCHITECTURE.md` §5 |
+| MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 | MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | todo | |
 | MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | todo | |
 | MOCK-11 | M1 | req | §9 | Ids, timestamps and transaction refs are deterministic. Accept: two runs produce identical order ids and refs | test | todo | |
@@ -218,9 +218,9 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | TEST-6 | M0 | req | §9 | HTML report and traces of failures are produced. Accept: report folder and traces appear on failure | config | done | |
 | TEST-7 | M0 | req | §9 | Real-time tests pass through the Socket.IO client; REST tests through MSW handlers. Accept: no test calls a store setter to simulate an event | test | part | `MOCK-7#1` drives events through the mock backend and `socket.io-client`; no store setter is used |
 | TEST-8 | M1 | opt | none | Unit tests cover pure rules: money, quote, idempotency, state machine. Accept: Vitest suite is green | test | todo | D-15 |
-| PERF-1 | M0 | req | §10 | Lighthouse runs on home and detail, mobile and desktop, on the optimized build. Accept: an early baseline report exists at M0 | audit | part | Local baseline for home in `reports/lighthouse/`; detail joins at M2; rerun on the published URL |
+| PERF-1 | M0 | req | §10 | Lighthouse runs on home and detail, mobile and desktop, on the optimized build. Accept: an initial measurement report (one run) exists at M0 | audit | part | Initial single-run measurements of home in `reports/lighthouse/` (local) and `reports/lighthouse/public/` (published); detail joins at M2 |
 | PERF-2 | M6 | req | §10 | Targets: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 90. Accept: medians meet them or the gap is justified | audit | todo | |
-| PERF-3 | M6 | req | §10 | Three runs per page and profile; the median is reported. Accept: report lists three runs and the median | audit | todo | |
+| PERF-3 | M6 | req | §10 | Three runs per page and profile; the median is reported. Accept: for each of home and detail, at mobile and desktop, the report lists three runs and their median | audit | todo | |
 | PERF-4 | M6 | req | §10 | Config versioned; HTML and JSON reports, tool versions and conditions delivered. Accept: files exist in the repo | audit | todo | |
 | PERF-5 | M6 | req | §10 | LCP, CLS and TBT are recorded and any gap explained. Accept: values in the report | audit | todo | |
 | PERF-6 | M6 | req | §10 | No simplification exists only to raise the score. Accept: the audited build equals the delivered one | manual | todo | |

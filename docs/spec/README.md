@@ -35,7 +35,7 @@ Each milestone has an objective exit test. Do not start the next before the exit
 
 | M | Goal | Exit test |
 | --- | --- | --- |
-| M0 | Proof and early deploy | The app is published; on that URL a `socket.io-client` connects through MSW and receives one event; a deep link refreshes; a first Lighthouse baseline exists. If the socket proof fails, the fallback is decided here and recorded, before anything else |
+| M0 | Proof and early deploy | The app is published; on that URL a `socket.io-client` connects through MSW and receives one event; a deep link refreshes; an initial Lighthouse measurement exists. If the socket proof fails, the fallback is decided here and recorded, before anything else |
 | M1 | Foundations | Contracts in `src/api/types.ts` match `ARCHITECTURE.md`; mock layers (`db`, `services`, `handlers`, `socket`) exist with seeded ids, a clock, scenarios and reset; signup, login, session, logout and route guards work; wallets can be registered; money math is exact with unit tests |
 | M2 | Purchase slice | As a seeded user: open a detail, add to cart, see the quote with a coupon, pick a wallet, confirm, see the pending screen move to a confirmed receipt through a real `order.updated`; refusal keeps the cart. One Playwright test runs this on desktop and mobile |
 | M3 | Hardening | Timeout after creation recovers with the same key and one order; a price or stock change blocks a stale quote; reconnect and refresh recover a pending order; duplicate, old and late events change nothing; switching user shows no old data |

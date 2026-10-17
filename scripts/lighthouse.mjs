@@ -1,4 +1,4 @@
-// Lighthouse runner. Usage: node scripts/lighthouse.mjs [--runs 3] [--url http://localhost:4173]
+// Lighthouse runner. Usage: node scripts/lighthouse.mjs [--runs 3] [--url http://localhost:4173] [--out dir]
 // Writes HTML and JSON per run to reports/lighthouse/ and prints the median of each metric.
 import { chromium } from '@playwright/test'
 import { spawnSync } from 'node:child_process'
@@ -12,7 +12,7 @@ const base = arg('url', 'http://localhost:4173')
 const runs = Number(arg('runs', '1'))
 const PAGES = { home: '/' } // detail joins when the route is built (M2)
 const PROFILES = { mobile: [], desktop: ['--preset=desktop'] }
-const OUT = 'reports/lighthouse'
+const OUT = arg('out', 'reports/lighthouse')
 mkdirSync(OUT, { recursive: true })
 
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)]
@@ -39,6 +39,6 @@ for (const [page, path] of Object.entries(PAGES)) {
     const metrics = Object.fromEntries(
       Object.entries(METRICS).map(([id, label]) => [label, median(results.map((r) => r.audits[id].numericValue))]),
     )
-    console.log(`${page} ${profile} (median of ${runs})`, scores, metrics)
+    console.log(`${page} ${profile} (${runs === 1 ? 'initial measurement' : `median of ${runs}`})`, scores, metrics)
   }
 }

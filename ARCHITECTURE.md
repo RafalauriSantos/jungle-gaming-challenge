@@ -327,3 +327,17 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 - Fees for Polygon and Solana are invented mock values.
 - The mock has no valid-referral-code list.
 - Solana address validation is a format check only.
+
+## 9. Operational notes
+
+**Deploy.** Cloudflare Pages project `jungle-gaming-challenge`, direct upload of `dist` built from the commit being published:
+`pnpm build && pnpm dlx wrangler@4.20.0 pages deploy dist --project-name=jungle-gaming-challenge --branch=main --commit-hash=$(git rev-parse HEAD)`.
+Public URL: https://jungle-gaming-challenge.pages.dev. Check it with `BASE_URL=<url> pnpm test:e2e`.
+
+**Observed with `wrangler@latest` (not reproduced, cause not established).**
+- Command: `pnpm dlx wrangler@latest pages project create jungle-gaming-challenge --production-branch main`, run in the repository root on 2026-10-16.
+- The version that `latest` resolved to was not printed. The run added `"wrangler": "^4.151.1"` to `package.json`, and `wrangler@4.20.0` later reported 4.151.1 as the available update, so it was probably 4.151.1.
+- Output seen: a `workers.dev` URL (`https://jungle-gaming-challenge.<account>.workers.dev`), a `Current Version ID`, and a warning stating that the project was deployed to the latest version of Cloudflare Pages, "which is now part of Cloudflare Workers", with a suggestion to use `wrangler deploy` and an opt-out flag.
+- Effects found afterwards: a Worker named `jungle-gaming-challenge` (static assets from `dist`, created by an upload deployment) existed and answered 200; no Pages project was listed by `wrangler pages project list`; the working tree had changes to `package.json` (new `preview` and `deploy` scripts and the `wrangler` devDependency), `.gitignore` (added `.env*`), `pnpm-lock.yaml`, and a new `wrangler.jsonc`.
+- Handling: the working-tree changes were reverted; the Worker had no bindings in its generated config, no routes and no dependents found, and was deleted with `wrangler@4.20.0 delete`; the Pages project was left untouched.
+- With `wrangler@4.20.0` the same `pages project create` and a `pages deploy` created and published the Pages project, with no change to the repository. The newer version was not run again, so whether it always behaves this way is unknown.
