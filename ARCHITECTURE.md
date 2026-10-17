@@ -352,6 +352,20 @@ Secrets (repository): `CLOUDFLARE_API_TOKEN` (permission Cloudflare Pages: Edit,
 
 **Rollback.** If `smoke` fails after a promotion: Cloudflare dashboard, Workers & Pages, `jungle-gaming-challenge`, Deployments, choose the last good production deployment and roll back to it. Then fix forward through the pipeline. This step has not been exercised yet.
 
+**Stack checklist (DQ-STACK), checked 2026-10-17 on `a7c7b9c`.** Each technology of the statement (§2) and where it takes real part:
+
+| Technology | Evidence |
+| --- | --- |
+| TanStack Router | 10 file routes in `src/routes` (plus the root) with `validateSearch` and `beforeLoad` guards |
+| TanStack Query | 12 non-test files use `useQuery`, `useMutation` or `useQueries`; private keys start with the user id (`src/api/keys.test.ts`) |
+| Axios | The only HTTP client in `src`: no `fetch(` call exists; every request goes through `src/api/client.ts` (no `api.*` call outside `src/api`) |
+| Socket.IO | `socket.io-client` in `src/realtime/client.ts`; test `MOCK-7#1` ran in CI run 39062239102 on the built app, on the test copy and on production (desktop and mobile, reports `playwright-report-copy-*` and `playwright-report-production-*`: 1 pass each) |
+| Tailwind | `@tailwindcss/vite` in `vite.config.ts`, `@import "tailwindcss"` in `src/index.css` |
+| shadcn/ui | 13 components in `src/components/ui`, adapted to the Kurio tokens, used by the forms, dialogs and filters |
+| MSW | `setupWorker` in `src/mocks/browser.ts`; 27 REST handlers plus the Socket.IO binding serve the whole backend, in dev and in the published build |
+| Playwright | 14 spec files, desktop and mobile projects, run by the pipeline before and after publishing |
+| Lighthouse | Reports in `reports/lighthouse/` (home, desktop and mobile, local and public) from the M0 initial measurement; the final runs (3 per page and profile, median) belong to PERF-2 to PERF-6 and are not claimed here |
+
 **Manual publication** only with the owner's explicit approval, in the same message: `pnpm build && pnpm dlx wrangler@4.20.0 pages deploy dist --project-name=jungle-gaming-challenge --branch=main --commit-hash=$(git rev-parse HEAD)`.
 
 **Not proven yet.** Cloudflare documents branch test copies for Git-connected projects. That a direct-upload project serves `--branch=ci-<commit>` as a test copy, and that `deployment_trigger.metadata.commit_hash` is filled for direct uploads, are unconfirmed until the first pipeline run.

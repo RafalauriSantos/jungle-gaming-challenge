@@ -10,6 +10,7 @@ import { connectRealtime } from './client'
 const fake = vi.hoisted(() => {
   class FakeSocket {
     handlers = new Map<string, Set<unknown>>()
+    options: { auth?: (cb: (data: { token: string | null }) => void) => void } = {}
     connects = 0
     disconnects = 0
     on(event: string, handler: unknown) {
@@ -33,8 +34,9 @@ const fake = vi.hoisted(() => {
 })
 
 vi.mock('socket.io-client', () => ({
-  io: () => {
+  io: (_url: unknown, options: InstanceType<typeof fake.FakeSocket>['options']) => {
     const socket = new fake.FakeSocket()
+    socket.options = options
     fake.sockets.push(socket)
     return socket
   },

@@ -24,6 +24,33 @@ for (const [path, heading, private_] of ROUTES) {
   })
 }
 
+// The two screens that depend on what the user did before: the payment (needs a cart) and an order (needs a purchase).
+test('ROUTE-2#1 ROUTE-2#2: /pagamento and /pedido/:id open by URL and survive a refresh', async ({ page }) => {
+  await signIn(page)
+  await page.goto('/nfts/nft-004')
+  await page.getByRole('radio', { name: 'Edição 1/10' }).click()
+  await page.getByRole('button', { name: 'COMPRAR' }).click()
+  await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
+  await expect(page).toHaveURL('/pagamento')
+  const payment = page.getByRole('heading', { name: /Pagamento|Perfil do colecionador/ }).first()
+  await expect(payment).toBeVisible()
+  await page.reload()
+  await expect(page).toHaveURL('/pagamento')
+  await expect(payment).toBeVisible()
+
+  await page.getByRole('radio', { name: 'MetaMask' }).click()
+  await page.getByRole('button', { name: 'Conectar carteira' }).click()
+  await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
+  await page.getByRole('button', { name: 'Revisar pedido' }).click()
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await expect(page).toHaveURL(/\/pedido\/ord_\w+$/)
+  const order = page.url()
+  const status = page.getByRole('heading', { name: /Aguardando a confirmação do pagamento|Seus NFTs agora estão na sua carteira/ })
+  await expect(status).toBeVisible()
+  await page.goto(order)
+  await expect(status).toBeVisible()
+})
+
 test('ROUTE-1#1: an unknown route shows the not-found page with a way back', async ({ page }) => {
   await page.goto('/nada-aqui')
   await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
