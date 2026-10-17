@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { WalletInput } from '@/api/types'
 import { createDb, memoryStorage, type Db } from '../db'
-import { getWallets, saveWallet } from './wallets'
+import { connectWallet, getWallets, saveWallet } from './wallets'
 
 const evm = '0x' + 'ab12'.repeat(10)
 const valid: WalletInput = {
@@ -65,5 +65,13 @@ describe('wallets', () => {
     const solana = '4Nd1mYQzvgnZQ3dSPrtJXJvKNWJHgTWBvPhC1FDR6Y2d'
     expect(saveWallet(db, 'u_bruno', 'primary', { ...valid, network: 'solana', address: solana, ensName: undefined }).address).toBe(solana)
     expect(() => saveWallet(db, 'u_bruno', 'primary', { ...valid, network: 'ethereum', address: solana })).toThrow()
+  })
+})
+
+describe('wallet connection', () => {
+  it('connects, unless the scenario has the wallet refuse', () => {
+    expect(connectWallet(db, 'metamask')).toEqual({ provider: 'metamask', status: 'connected' })
+    db.state.scenario = 'wallet-refused'
+    expect(() => connectWallet(db, 'metamask')).toThrowError(expect.objectContaining({ status: 422, body: expect.objectContaining({ code: 'wallet_refused' }) }))
   })
 })

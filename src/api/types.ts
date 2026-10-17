@@ -42,6 +42,7 @@ export type ErrorCode =
   | 'quote_stale'
   | 'order_pending'
   | 'idempotency_conflict'
+  | 'wallet_refused'
   | 'validation'
   | 'wallet_network_mismatch'
   | 'transient'
@@ -200,6 +201,7 @@ export interface QuoteLine {
   editionId: string
   tokenId: string
   name: string
+  image: string
   tier: EditionTier
   quantity: number
   unitPrice: Eth
@@ -252,4 +254,23 @@ export interface Order {
   provider: Provider
   refusalReason?: 'payment_refused' | 'insufficient_funds' | 'stock_lost'
   receipt?: Receipt
+}
+
+/** A visitor-cart line the merge could not (fully) take. */
+export interface SkippedLine {
+  nftId: string
+  editionId: string
+  requested: number
+  applied: number
+  reason: 'network_mismatch' | 'unavailable'
+}
+
+/** What differs between a stale quote and the current one; sent with `quote_stale`. */
+export interface QuoteChange {
+  type: 'price_changed' | 'unavailable' | 'cart_changed' | 'coupon_changed' | 'fee_changed'
+  nftId?: string
+  editionId?: string
+  was?: string
+  now?: string
+  available?: number
 }

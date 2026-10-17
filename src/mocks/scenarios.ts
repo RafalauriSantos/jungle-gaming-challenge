@@ -10,13 +10,14 @@ export const SCENARIOS = [
   { name: 'session-expired', label: 'Sessão expirada', ready: false },
   { name: 'unauthorized', label: 'Acesso não autorizado', ready: false },
   { name: 'signup-conflict', label: 'Conflito de cadastro', ready: true },
-  { name: 'coupon-invalid', label: 'Cupom inválido', ready: false },
-  { name: 'coupon-expired', label: 'Cupom expirado', ready: false },
+  { name: 'coupon-invalid', label: 'Cupom inválido', ready: true },
+  { name: 'coupon-expired', label: 'Cupom expirado', ready: true },
   { name: 'price-changed', label: 'Preço alterado na compra', ready: false },
   { name: 'sold-out', label: 'Edição esgotada na compra', ready: false },
   { name: 'order-timeout', label: 'Timeout após criar o pedido', ready: false },
-  { name: 'payment-confirmed', label: 'Pagamento confirmado', ready: false },
-  { name: 'payment-refused', label: 'Pagamento recusado', ready: false },
+  { name: 'wallet-refused', label: 'Conexão da carteira recusada', ready: true },
+  { name: 'payment-confirmed', label: 'Pagamento confirmado', ready: true },
+  { name: 'payment-refused', label: 'Pagamento recusado', ready: true },
 ] as const
 
 export type ScenarioName = (typeof SCENARIOS)[number]['name']

@@ -49,11 +49,12 @@ type ErrorBody = { code: ErrorCode; message: string; fields?: Record<string, str
 | 409 | `email_taken`, `username_taken` | Signup or profile conflict |
 | 409 | `availability_conflict` | Quantity above stock. `details: { available }` |
 | 409 | `network_mismatch` | Cart network differs. `details: { cartNetwork }` |
-| 409 | `quote_stale` | Quote no longer matches the cart or catalog. `details: { quote }` (the current one) |
+| 409 | `quote_stale` | Quote no longer matches the cart or catalog. `details: { quote, changes }` (the current quote and what differs) |
 | 409 | `order_pending` | The user already has a pending order. `details: { orderId }` |
 | 409 | `idempotency_conflict` | Same key, different body |
 | 422 | `validation` | `fields` maps field name to message |
 | 422 | `wallet_network_mismatch` | Wallet network differs from the cart |
+| 422 | `wallet_refused` | The wallet app refused the connection (simulated) |
 | 503 | `transient` | Retryable failure |
 
 A timeout has no body: the client sees a network error.
@@ -117,7 +118,7 @@ type Skipped = { nftId: string; editionId: string; requested: number; applied: n
 type Quote = {
   id: string; cartVersion: number; network: Network;
   lines: { lineId: string; nftId: string; editionId: string; tokenId: string; name: string; tier: string;
-           quantity: number; unitPrice: string; lineTotal: string; nftVersion: number; available: number }[]
+           quantity: number; unitPrice: string; lineTotal: string; nftVersion: number; available: number; image: string }[]
   subtotal: string; discount: string; networkFee: string; total: string;
   coupon: null | { code: string; status: 'applied' | 'invalid' | 'expired'; message?: string }
   issues: { type: 'unavailable' | 'price_changed'; nftId: string; editionId: string; available?: number; was?: string; now?: string }[]
@@ -148,6 +149,10 @@ type Order = {
 }
 type Receipt = { txRef: string; confirmedAt: string; explorerUrl: string }  // totals and lines come from order.quote
 ```
+
+### Wallet connection (simulated)
+
+`POST /wallet-connections { provider }` returns `200 { provider, status: 'connected' }`, or `422 wallet_refused` in the `wallet-refused` scenario. The client keeps the connected state; the order still carries the `provider`.
 
 ### Wallets, profile
 

@@ -1,4 +1,4 @@
-import type { Wallet, WalletInput, Wallets } from '@/api/types'
+import type { Provider, Wallet, WalletInput, Wallets } from '@/api/types'
 import { validateWallet } from '@/lib/wallet-rules'
 import type { Db } from '../db'
 import { fail } from '../failure'
@@ -17,4 +17,10 @@ export function saveWallet(db: Db, userId: string, slot: keyof Wallets, input: W
   wallets[slot] = wallet
   db.save()
   return structuredClone(wallet)
+}
+
+/** Simulates the wallet app answering a connection request. The `wallet-refused` scenario makes it say no. */
+export function connectWallet(db: Db, provider: Provider): { provider: Provider; status: 'connected' } {
+  if (db.state.scenario === 'wallet-refused') throw fail(422, 'wallet_refused', 'A conexão foi recusada na carteira. Tente novamente.')
+  return { provider, status: 'connected' }
 }

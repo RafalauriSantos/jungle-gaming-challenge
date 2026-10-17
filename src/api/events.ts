@@ -1,4 +1,4 @@
-import type { Nft } from './types'
+import type { Nft, Order } from './types'
 
 /** Envelope shared by every real-time event; see ARCHITECTURE.md §5. */
 export interface EventEnvelope<Type extends string, Resource extends string, Data> {
@@ -14,3 +14,6 @@ export interface EventEnvelope<Type extends string, Resource extends string, Dat
 }
 
 export type NftUpdated = EventEnvelope<'nft.updated', 'nft', Nft>
+export type OrderUpdated = EventEnvelope<'order.updated', 'order', { id: string; status: Order['status']; refusalReason?: Order['refusalReason'] }>
+
+export type AppEvent = NftUpdated | OrderUpdated

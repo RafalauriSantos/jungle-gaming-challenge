@@ -56,7 +56,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | AUTH-8 | M1 | req | §3 | Passwords are never stored or logged in clear text. Accept: a unit test shows only a salted hash in the mock state and storage | test | done | Unit test on state and storage; hash is salted SHA-256 (mock grade) |
 | AUTH-9 | M1 | req | §3 | Checkout, profile, wallets, favorites and orders need a session. Accept: each private API returns 401 without a token and its route redirects | test | part | Routes redirect; the wallets API refuses a missing token in the handlers; the other private APIs follow with their features |
 | AUTH-10 | M1 | req | §3 | After login the header shows the account with a logout control. Accept: the desktop header and mobile tab expose logout; "Entrar" disappears | test | done | Desktop: account menu in the header; mobile: Sair on the profile screen, reached from the tab bar |
-| AUTH-12 | M2 | req | §3, §11 | Mock handlers enforce who may read or change each resource, not only the pages. Accept: user B calling `GET /orders/:id` of user A gets 403 and the page shows a forbidden state; wallets, profile, favorites and cart always come from the token's user, never from a client-supplied id; the check runs with the page guard bypassed | test | todo | |
+| AUTH-12 | M2 | req | §3, §11 | Mock handlers enforce who may read or change each resource, not only the pages. Accept: user B calling `GET /orders/:id` of user A gets 403 and the page shows a forbidden state; wallets, profile, favorites and cart always come from the token's user, never from a client-supplied id; the check runs with the page guard bypassed | test | done | |
 | AUTH-11 | M3 | req | §9 | Session time is controllable in tests. Accept: a test expires the session by advancing the clock, without waiting | test | todo | |
 
 ## 4. Catalog and detail
@@ -73,11 +73,11 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | CAT-8 | M4 | req | §3 | Pagination offers previous and next. Accept: previous appears from page 2; links keep other params | test | part | D-08 |
 | CAT-9 | M4 | opt | none | The price filter accepts exact min and max values. Accept: typing `0.10` and `2.00` filters inclusively | test | todo | Slider today; D-06 |
 | CAT-10 | M5 | opt | none | Active filters show as removable chips. Accept: removing a chip removes its param | test | todo | D-20 |
-| DET-1 | M2 | req | §3 | Detail opens by direct URL; a missing NFT shows not-found. Accept: `/nfts/nft-001` loads; `/nfts/nope` shows not-found | test | todo | Stub route |
-| DET-2 | M2 | req | §3 | Detail shows gallery, info, editions, quantity, favorite and buy. Accept: tiers `1/1`, `1/10`, `1/50` show their status; choosing one updates stock and token id shown | test | todo | |
-| DET-3 | M2 | req | §3 | A sold-out edition cannot be bought. Accept: the tier is marked unavailable and buy is disabled for it | test | todo | |
-| DET-4 | M2 | req | §3 | Quantity is an integer limited by stock. Accept: stepper stops at stock; decrement is disabled at 1; the server rejects more | test | todo | |
-| ED-1 | M2 | req | §3 | Edition, unit and token id follow one definition from detail to receipt. Accept: the token id on detail, cart, payment and receipt is identical and equals the NFT number padded to 4 | test | todo | See `ARCHITECTURE.md` §1 |
+| DET-1 | M2 | req | §3 | Detail opens by direct URL; a missing NFT shows not-found. Accept: `/nfts/nft-001` loads; `/nfts/nope` shows not-found | test | done | Stub route |
+| DET-2 | M2 | req | §3 | Detail shows gallery, info, editions, quantity, favorite and buy. Accept: tiers `1/1`, `1/10`, `1/50` show their status; choosing one updates stock and token id shown | test | done | |
+| DET-3 | M2 | req | §3 | A sold-out edition cannot be bought. Accept: the tier is marked unavailable and buy is disabled for it | test | done | |
+| DET-4 | M2 | req | §3 | Quantity is an integer limited by stock. Accept: stepper stops at stock; decrement is disabled at 1; the server rejects more | test | done | |
+| ED-1 | M2 | req | §3 | Edition, unit and token id follow one definition from detail to receipt. Accept: the token id on detail, cart, payment and receipt is identical and equals the NFT number padded to 4 | test | done | See `ARCHITECTURE.md` §1 |
 | FAV-1 | M4 | req | §3 | Favorites persist per user. Accept: a favorite survives reload and is not visible to another user | test | todo | |
 | FAV-2 | M4 | req | §4 | Favorite toggles optimistically and rolls back on failure. Accept: the heart changes at once; on a 5xx it returns and an error is announced | test | todo | |
 
@@ -85,38 +85,38 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| CART-1 | M2 | req | §3 | Add, change and remove items respecting stock per NFT and edition. Accept: add creates a line; set changes quantity; remove deletes; above stock returns `availability_conflict` and the cart is unchanged | test | todo | |
-| CART-2 | M2 | req | §3 | The cart persists after refresh. Accept: after reload the same lines show for the same user | test | todo | |
-| CART-3 | M2 | req | §3 | Visitor items merge once on login. Accept: items appear after login; a replayed merge adds nothing; another user logging in receives none; lines of another network are skipped and listed | test | todo | Rule in `ARCHITECTURE.md` §4 |
-| CART-4 | M2 | req | §3 | A coupon can be applied and removed; invalid and expired codes are handled. Accept: valid code lowers the total; invalid and expired codes show their reason and no discount; removal restores the total | test | todo | |
-| CART-5 | M2 | req | §3 | Subtotal, discount, network fee and total are exactly the quote. Accept: the four values on screen equal the quote response | test | todo | |
+| CART-1 | M2 | req | §3 | Add, change and remove items respecting stock per NFT and edition. Accept: add creates a line; set changes quantity; remove deletes; above stock returns `availability_conflict` and the cart is unchanged | test | done | |
+| CART-2 | M2 | req | §3 | The cart persists after refresh. Accept: after reload the same lines show for the same user | test | done | |
+| CART-3 | M4 | req | §3 | Visitor items merge once on login. Accept: items appear after login; a replayed merge adds nothing; another user logging in receives none; lines of another network are skipped and listed | test | todo | The server merge rule is unit-tested (`mergeVisitorCart`); the visitor cart on the client and the claim on login are still to build |
+| CART-4 | M2 | req | §3 | A coupon can be applied and removed; invalid and expired codes are handled. Accept: valid code lowers the total; invalid and expired codes show their reason and no discount; removal restores the total | test | done | |
+| CART-5 | M2 | req | §3 | Subtotal, discount, network fee and total are exactly the quote. Accept: the four values on screen equal the quote response | test | done | |
 | CART-6 | M3 | req | §3, §7 | A price or stock change received while the cart is open updates the summary and informs the user. Accept: after the event the total changes without reload; a status message names the NFT; checkout is blocked until the new quote is confirmed | test | todo | |
-| CART-7 | M2 | req | §3 | Cart and checkout reject a second network. Accept: adding an NFT of another network shows the conflict and the option to empty the cart | test | todo | D-21 |
+| CART-7 | M2 | req | §3 | Cart and checkout reject a second network. Accept: adding an NFT of another network shows the conflict and the option to empty the cart | test | done | The cart offers "Esvaziar carrinho e adicionar" when the network differs |
 | MON-1 | M1 | req | §3 | ETH is a decimal string with exact math and display. Accept: unit tests of parse, add, multiply and format on values with up to 18 decimals; no `Number` on money | test | done | `src/lib/eth.ts`; display keeps at least 2 decimals and never rounds (Figma shows `0.016` and `26.846`) |
-| MON-2 | M2 | req | §3 | Quantities are integers. Accept: non-integer and zero are refused by the UI and the API | test | todo | |
-| MON-3 | M2 | req | §3 | The API quote is the reference to finalize. Accept: the order total equals its quote; a client-side total never reaches the API | test | todo | |
+| MON-2 | M2 | req | §3 | Quantities are integers. Accept: non-integer and zero are refused by the UI and the API | test | done | |
+| MON-3 | M2 | req | §3 | The API quote is the reference to finalize. Accept: the order total equals its quote; a client-side total never reaches the API | test | done | |
 
 ## 6. Checkout and orders
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| CHK-1 | M2 | req | §3 | Validate the layout's fields and offer a review before submit. Accept: invalid fields block with field errors; a review step shows items, totals, wallet and network | test | todo | Desktop and mobile layouts differ on purpose; D-04 |
-| CHK-2 | M2 | req | §3 | Use registered wallets with network selection; simulate connect, refusal and disconnect. Accept: only wallets of the cart network are selectable; a refused connection shows an error and allows retry; disconnect returns to selection | test | todo | |
+| CHK-1 | M2 | req | §3 | Validate the layout's fields and offer a review before submit. Accept: invalid fields block with field errors; a review step shows items, totals, wallet and network | test | done | Desktop and mobile layouts differ on purpose; D-04 |
+| CHK-2 | M2 | req | §3 | Use registered wallets with network selection; simulate connect, refusal and disconnect. Accept: only wallets of the cart network are selectable; a refused connection shows an error and allows retry; disconnect returns to selection | test | done | Wallet connection, refusal (`wallet-refused` scenario) and disconnection are simulated by the mock API |
 | CHK-3 | M3 | req | §3 | Price, stock, coupon and fees are revalidated before confirming. Accept: a change of price, stock, coupon status, discount, network or fee between review and click returns `quote_stale` and creates no order, one test per input | test | todo | |
 | CHK-4 | M3 | req | §3 | Any change needs a new explicit confirmation. Accept: after `quote_stale` the button asks to confirm the new total; no order is created until it is pressed | test | todo | |
-| CHK-5 | M2 | req | §3 | Repeated clicks and resubmits never create a second order. Accept: five rapid clicks produce one order; two direct API calls with the button bypassed still produce one order; after a reload the persisted attempt replays the same key and returns the same order id | test | todo | |
-| ORD-1 | M2 | req | §3, §7 | States pending, confirmed and refused; the last two are terminal. Accept: unit tests of the state machine; a late event cannot change a terminal order | test | todo | |
+| CHK-5 | M2 | req | §3 | Repeated clicks and resubmits never create a second order. Accept: five rapid clicks produce one order; two direct API calls with the button bypassed still produce one order; after a reload the persisted attempt replays the same key and returns the same order id | test | done | |
+| ORD-1 | M2 | req | §3, §7 | States pending, confirmed and refused; the last two are terminal. Accept: unit tests of the state machine; a late event cannot change a terminal order | test | done | |
 | ORD-2 | M3 | req | §3, §7 | A pending order is recovered after refresh or reconnection. Accept: reload during pending shows the same pending order and ends in its final state; starting checkout again opens that order instead of creating another; with storage cleared the pending order is still found; after 60 s without an answer the screen offers refresh only | test | todo | |
-| ORD-3 | M2 | req | §3 | The confirmation shows only for an order the simulation confirmed. Accept: `/pedido/:id` of a pending or refused order never shows the success screen; a `201` from order creation with status pending shows the pending screen, never a receipt; the receipt appears only after a read returns status confirmed with a receipt | test | todo | |
-| ORD-4 | M2 | req | §3 | On failure items stay; on success only purchased quantities leave. Accept: after refusal the cart is unchanged, and a line removed while pending is not restored; after confirmation lines added after submit remain; a line removed and added again while pending keeps its quantity; a line raised while pending loses only the purchased part | test | todo | |
-| ORD-5 | M2 | req | §3 | The receipt is an immutable snapshot. Accept: after a price change the receipt still shows the original values | test | todo | |
-| ORD-6 | M2 | req | §3 | The receipt shows result, transaction id, items, fees and total; refs and links are simulated. Accept: each field matches the order snapshot; the explorer link is inert or simulated | test | todo | |
-| ORD-7 | M2 | req | §5 | Order creation takes an idempotency key; the same key returns the same order. Accept: two POSTs with one key return one order id | test | todo | |
-| ORD-8 | M2 | req | §5 | The same key with different content is a conflict. Accept: the second POST returns `idempotency_conflict` | test | todo | |
+| ORD-3 | M2 | req | §3 | The confirmation shows only for an order the simulation confirmed. Accept: `/pedido/:id` of a pending or refused order never shows the success screen; a `201` from order creation with status pending shows the pending screen, never a receipt; the receipt appears only after a read returns status confirmed with a receipt | test | done | |
+| ORD-4 | M2 | req | §3 | On failure items stay; on success only purchased quantities leave. Accept: after refusal the cart is unchanged, and a line removed while pending is not restored; after confirmation lines added after submit remain; a line removed and added again while pending keeps its quantity; a line raised while pending loses only the purchased part | test | done | |
+| ORD-5 | M2 | req | §3 | The receipt is an immutable snapshot. Accept: after a price change the receipt still shows the original values | test | done | |
+| ORD-6 | M2 | req | §3 | The receipt shows result, transaction id, items, fees and total; refs and links are simulated. Accept: each field matches the order snapshot; the explorer link is inert or simulated | test | done | |
+| ORD-7 | M2 | req | §5 | Order creation takes an idempotency key; the same key returns the same order. Accept: two POSTs with one key return one order id | test | done | |
+| ORD-8 | M2 | req | §5 | The same key with different content is a conflict. Accept: the second POST returns `idempotency_conflict` | test | done | |
 | ORD-9 | M3 | req | §6 | A timeout after creation is recovered with the same key. Accept: the timeout scenario creates the order; the UI shows checking; the replay returns it; one order exists | test | todo | |
 | ORD-10 | M3 | req | §7 | A late event never moves an order out of a terminal state. Accept: a pending event delivered after confirmation leaves it confirmed even with a higher version; a terminal event applies to a pending order even with a lower version; a refused event never replaces a confirmed order | test | todo | |
-| ORD-11 | M2 | req | §3 | A refused order can be retried as a new attempt. Accept: "Tentar novamente" uses a new key and cart items are still there | test | todo | |
-| UND-1 | M2 | req | §1 | Pending and refused screens exist and reuse the confirmation's visual language. Accept: both render with status text and icon (not color only) at 390 and 1440 | manual | todo | D-01 |
+| ORD-11 | M2 | req | §3 | A refused order can be retried as a new attempt. Accept: "Tentar novamente" uses a new key and cart items are still there | test | done | |
+| UND-1 | M2 | req | §1 | Pending and refused screens exist and reuse the confirmation's visual language. Accept: both render with status text and icon (not color only) at 390 and 1440 | manual | done | Checked at 390 and 1440 on 2026-10-17: pending, confirmed and refused share one card with an icon, a title and text; D-01 |
 
 ## 7. Profile, wallets, forms
 
@@ -153,19 +153,19 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MOCK-1 | M1 | req | §6 | Mocks live in the network layer; no fake data in components, hooks or the Axios client. Accept: no import of `src/mocks` outside the mock entry | test | part | |
-| MOCK-2 | M1 | req | §6 | State is consistent across catalog, favorites, cart, profile, wallets and orders. Accept: a purchase lowers stock seen by the catalog | test | todo | |
+| MOCK-2 | M1 | req | §6 | State is consistent across catalog, favorites, cart, profile, wallets and orders. Accept: a purchase lowers stock seen by the catalog | test | done | |
 | MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | done | Reset on boot (`?reset=1`) wipes the mock state and the app storage, then reloads without the parameter |
-| MOCK-12 | M2 | req | §7 | Order progression is stored in the mock state with a due time and settles on its own, independent of the socket and the open screen. Accept: an order created, then the socket dropped or the page reloaded before its due time, reaches its final state; the result is the same without any connection | test | todo | Settle on read and on boot; `ARCHITECTURE.md` §7 |
+| MOCK-12 | M2 | req | §7 | Order progression is stored in the mock state with a due time and settles on its own, independent of the socket and the open screen. Accept: an order created, then the socket dropped or the page reloaded before its due time, reaches its final state; the result is the same without any connection | test | done | Settle on read and on boot; `ARCHITECTURE.md` §7 |
 | MOCK-13 | M1 | req | §6, §9 | Reset also cancels pending events and timers. Accept: an event or transition scheduled before `?reset=1` never fires afterward; a test that resets between runs sees no leftover | test | done | Generation counter plus a scheduler that cancels on reset (`src/mocks/scheduler.ts`); orders will use it in M2 |
 | MOCK-14 | M1 | req | §6, §12 | An evaluator can activate, observe and reset each scenario on the deployed build without code or hidden test setup. Accept: opening `?scenario=<name>` on the public URL reproduces it; a visible reset exists; the README states the exact steps | manual | part | Parameters and the Demo panel work on the deployed build; the README steps come with DEL-3 |
 | MOCK-4 | M3 | req | §6 | Latency, timeouts, offline and HTTP errors are configurable and reproducible. Accept: a scenario name yields the same behavior on every run | test | todo | |
 | MOCK-5 | M1 | req | §6 | Fixtures vary enough and include two users. Accept: 48+ NFTs across collections and networks; two seeded users | test | done | 48 NFTs over 9 collections and 3 networks; users `ana` and `bruno` (credentials in `src/mocks/fixtures/users.ts`) |
 | MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16). Limits in `ARCHITECTURE.md` §5 |
 | MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
-| MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | todo | |
+| MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | done | |
 | MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | part | Dev, preview and the deployed build run the same handler module; a test that proves it is still to write |
-| MOCK-11 | M1 | req | §9 | Ids, timestamps and transaction refs are deterministic. Accept: two runs produce identical order ids and refs | test | todo | |
-| MOCK-S01 | M1 | req | §6 | Scenario success. Accept: default flows work | test | todo | |
+| MOCK-11 | M1 | req | §9 | Ids, timestamps and transaction refs are deterministic. Accept: two runs produce identical order ids and refs | test | done | |
+| MOCK-S01 | M1 | req | §6 | Scenario success. Accept: default flows work | test | done | |
 | MOCK-S02 | M5 | req | §6 | Scenario empty result. Accept: catalog empty state shows | test | todo | |
 | MOCK-S03 | M5 | req | §6 | Scenario variable latency. Accept: skeleton shows during slow loads | test | todo | |
 | MOCK-S04 | M5 | req | §6 | Scenario out-of-order responses. Accept: CAT-5 | test | todo | |
@@ -175,16 +175,16 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | MOCK-S08 | M3 | req | §6 | Scenario expired session. Accept: AUTH-6 | test | todo | |
 | MOCK-S09 | M5 | req | §6 | Scenario unauthorized access. Accept: 403 page or message | test | todo | |
 | MOCK-S10 | M1 | req | §6 | Scenario signup or validation conflict. Accept: AUTH-1 | test | done | |
-| MOCK-S11 | M2 | req | §6 | Scenario invalid coupon. Accept: CART-4 | test | todo | |
-| MOCK-S12 | M2 | req | §6 | Scenario expired coupon. Accept: CART-4 | test | todo | |
+| MOCK-S11 | M2 | req | §6 | Scenario invalid coupon. Accept: CART-4 | test | done | |
+| MOCK-S12 | M2 | req | §6 | Scenario expired coupon. Accept: CART-4 | test | done | |
 | MOCK-S13 | M3 | req | §6 | Scenario price changed during purchase. Accept: CHK-3 | test | todo | |
 | MOCK-S14 | M3 | req | §6 | Scenario edition sold out during purchase. Accept: the quote lists the issue and checkout is blocked | test | todo | |
 | MOCK-S15 | M3 | req | §6 | Scenario timeout after order creation. Accept: ORD-9 | test | todo | |
-| MOCK-S16 | M2 | req | §6 | Scenario payment confirmed. Accept: ORD-3 | test | todo | |
-| MOCK-S17 | M2 | req | §6 | Scenario payment refused. Accept: ORD-11 | test | todo | |
-| RT-1 | M2 | req | §7 | `nft.updated` updates price and stock in catalog, detail and cart. Accept: one event changes the value in the three places without reload | test | todo | M0 has a smoke event |
-| RT-2 | M2 | req | §7 | `order.updated` updates the order and shows confirmation or refusal. Accept: the pending screen moves to the receipt or refusal | test | todo | |
-| RT-3 | M2 | req | §7 | Events carry stable id, resource and version. Accept: payloads match `ARCHITECTURE.md` §5 | test | todo | |
+| MOCK-S16 | M2 | req | §6 | Scenario payment confirmed. Accept: ORD-3 | test | done | |
+| MOCK-S17 | M2 | req | §6 | Scenario payment refused. Accept: ORD-11 | test | done | |
+| RT-1 | M2 | req | §7 | `nft.updated` updates price and stock in catalog, detail and cart. Accept: one event changes the value in the three places without reload | test | done | M0 has a smoke event |
+| RT-2 | M2 | req | §7 | `order.updated` updates the order and shows confirmation or refusal. Accept: the pending screen moves to the receipt or refusal | test | done | |
+| RT-3 | M2 | req | §7 | Events carry stable id, resource and version. Accept: payloads match `ARCHITECTURE.md` §5 | test | done | |
 | RT-4 | M3 | req | §7 | Duplicate and old events are tolerated. Accept: a duplicate changes nothing and repeats no announcement; an older version does not regress state | test | todo | |
 | RT-5 | M3 | req | §7 | After reconnect, active resources are reconciled with REST. Accept: an update missed while offline appears after reconnect; a terminal order does not regress | test | todo | |
 | RT-6 | M3 | req | §7 | Events of a previous session never update another user. Accept: AUTH-5 | test | todo | |
@@ -201,7 +201,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | UI-3 | each | req | §8 | Data components show skeletons with shimmer: catalog, detail, cart summary. Accept: dimensions equal the loaded content; no layout shift; animation off under reduced motion | test | part | Catalog skeleton |
 | UI-4 | each | req | §3 | Out-of-scope actions never look functional. Accept: each inert control is labelled "Em breve" or disabled | manual | part | |
 | UI-5 | M6 | req | §8 | Asset swaps and accessibility changes versus the Figma are documented. Accept: listed in `ARCHITECTURE.md` | manual | todo | |
-| UI-6 | M2 | req | §1 | States the Figma does not draw follow the same pattern. Accept: empty, error, pending and refused use existing tokens and components | manual | todo | |
+| UI-6 | M2 | req | §1 | States the Figma does not draw follow the same pattern. Accept: empty, error, pending and refused use existing tokens and components | manual | done | Cart empty and payment empty states, the error cards and the order states reuse the same tokens and shadcn components |
 | A11Y-1 | each | req | §8 | Keyboard operation with visible focus. Accept: each flow completes by keyboard | test | part | |
 | A11Y-2 | each | req | §8 | Dialogs and drawers trap and restore focus. Accept: focus enters, cycles and returns on close | test | part | |
 | A11Y-3 | each | req | §8 | Labels, semantics and field errors linked. Accept: every input has a label; errors use `aria-describedby` | test | part | |

@@ -3,11 +3,12 @@ import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
 
-const AUTH_PATHS = ['/entrar', '/cadastrar']
+// Screens the Figma draws on mobile without the tab bar or the footer.
+const STANDALONE_ON_MOBILE = ['/entrar', '/cadastrar', '/carrinho', '/pagamento', '/pedido']
+const standalone = (path: string) => path.startsWith('/nfts/') || STANDALONE_ON_MOBILE.some((p) => path === p || path.startsWith(`${p}/`))
 
 function Root() {
-  // On mobile the sign-in and sign-up screens stand alone, as drawn in the Figma.
-  const auth = useRouterState({ select: (s) => AUTH_PATHS.includes(s.location.pathname) })
+  const alone = useRouterState({ select: (s) => standalone(s.location.pathname) })
   return (
     <>
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-primary focus:p-2 focus:text-ink">
@@ -17,7 +18,7 @@ function Root() {
       <div id="conteudo" className="pt-4 md:pt-0">
         <Outlet />
       </div>
-      <div className={auth ? 'max-md:hidden' : undefined}>
+      <div className={alone ? 'max-md:hidden' : undefined}>
         <Footer />
         <MobileTabBar />
       </div>

@@ -1,13 +1,17 @@
-import type { NftUpdated } from '@/api/events'
 import type { EditionTier } from '@/api/types'
 import { db } from './db'
 import { isScenario } from './scenarios'
+import { nftEvent } from './events'
+import { ctx } from './runtime'
 import { realtime } from './socket'
 
 /** What an evaluator or a test may do to the mock backend. Exposed as `window.__mock`. */
 export const control = {
   connections: realtime.connections,
   generation: () => db.state.generation,
+  /** How many orders the backend holds, whatever the UI shows. */
+  orders: () => db.state.orders.length,
+  sentEvents: realtime.sent,
   scenario: () => db.state.scenario,
 
   setScenario(name: string) {
@@ -32,15 +36,6 @@ export const control = {
     }
     nft.version += 1
     db.save()
-    const event: NftUpdated = {
-      eventId: `nft.${id}.v${nft.version}`,
-      type: 'nft.updated',
-      resource: { type: 'nft', id },
-      version: nft.version,
-      occurredAt: new Date().toISOString(),
-      scope: 'public',
-      data: structuredClone(nft),
-    }
-    realtime.publish(event)
+    ctx.publish(nftEvent(nft, db.now()))
   },
 }

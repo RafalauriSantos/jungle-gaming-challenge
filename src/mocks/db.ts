@@ -1,4 +1,4 @@
-import type { Cart, Nft, Order, Profile, Wallets } from '@/api/types'
+import type { Cart, Nft, Order, Profile, Quote, Wallets } from '@/api/types'
 import { NFT_FIXTURES } from './fixtures/nfts'
 import { SEED_PROFILES, SEED_USERS, SEED_WALLETS } from './fixtures/users'
 
@@ -19,7 +19,25 @@ export function memoryStorage(): KeyValueStorage {
 
 export interface StoredUser { id: string; username: string; email: string; salt: string; passwordHash: string }
 export interface StoredSession { token: string; userId: string; expiresAt: number }
-export interface StoredOrder extends Order { userId: string }
+export interface StoredOrder extends Order {
+  userId: string
+  /** When the simulation settles this order, and how. Stored so a reload or a dropped socket changes nothing. */
+  dueAt: number
+  outcome: 'confirmed' | 'refused'
+  /** What the order bought, by line, for settling the cart. */
+  lines: { lineId: string; nftId: string; editionId: string; quantity: number }[]
+}
+
+export interface StoredQuote {
+  userId: string
+  cartVersion: number
+  couponCode: string | null
+  /** Everything the totals depend on; a different value means the quote is stale. */
+  fingerprint: string
+  createdAt: number
+  expiresAt: number
+  quote: Quote
+}
 
 /** Everything the mock backend knows. One object, so reset can restore it whole. */
 export interface MockState {
@@ -35,10 +53,12 @@ export interface MockState {
   profiles: Record<string, Profile>
   wallets: Record<string, Wallets>
   carts: Record<string, Cart>
+  quotes: Record<string, StoredQuote>
   favorites: Record<string, string[]>
   orders: StoredOrder[]
   idempotency: Record<string, { userId: string; bodyHash: string; orderId: string }>
-  merges: Record<string, string[]>
+  /** mergeId to the user who claimed it. */
+  merges: Record<string, string>
 }
 
 const STORAGE_KEY = 'kurio.mock.db'
@@ -56,6 +76,7 @@ function initialState(generation: number): MockState {
     profiles: SEED_PROFILES,
     wallets: SEED_WALLETS,
     carts: {},
+    quotes: {},
     favorites: {},
     orders: [],
     idempotency: {},

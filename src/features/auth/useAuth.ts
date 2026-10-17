@@ -16,7 +16,7 @@ export function useSignup() {
 /** Logs out on the server on a best-effort basis; the local session ends either way. */
 export function useLogout() {
   const queryClient = useQueryClient()
-  return useMutation({ mutationFn: logoutRequest, onSettled: () => endSession(queryClient) })
+  return useMutation({ mutationFn: logoutRequest, onSettled: () => endSession(queryClient, { forget: true }) })
 }
 
 /** Ends the session and goes home. */

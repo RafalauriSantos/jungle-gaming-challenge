@@ -5,7 +5,7 @@ import { signIn } from './support'
 // [path, heading, needs a session]. The sign-in heading is level 1 on mobile and 2 in the modal.
 const ROUTES = [
   ['/', /^SEJA DONO/, false],
-  ['/nfts/nft-001', /^NFT$/, false],
+  ['/nfts/nft-001', /^Emerald Ape #001$/, false],
   ['/entrar', /^Entrar$/, false],
   ['/cadastrar', /^Criar (conta|perfil de colecionador)$/, false],
   ['/carrinho', /^Carrinho$/, true],

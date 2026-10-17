@@ -53,5 +53,8 @@ const subscribe = (listener: () => void) => {
   return () => void listeners.delete(listener)
 }
 
+/** Runs when the session starts, changes or ends. */
+export const onSessionChange = (listener: () => void) => subscribe(listener)
+
 export const useSession = (): StoredSession | null => useSyncExternalStore(subscribe, getSession, () => null)
 export const useUser = (): User | null => useSession()?.user ?? null

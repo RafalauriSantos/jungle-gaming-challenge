@@ -1,14 +1,15 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { createQueryClient } from './api/query-client'
 import './index.css'
 import { connectRealtime } from './realtime/client'
 import { routeTree } from './routeTree.gen'
 import { endSession } from './session/actions'
 import { onSessionLost } from './session/store'
 
-const queryClient = new QueryClient()
+const queryClient = createQueryClient()
 const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {
@@ -29,6 +30,9 @@ async function enableMocks() {
   if (search !== location.search) history.replaceState(null, '', location.pathname + search + location.hash)
   const { worker } = await import('./mocks/browser')
   await worker.start()
+  // Orders that came due while the page was closed settle now.
+  const [{ ctx }, { settleDue }] = await Promise.all([import('./mocks/runtime'), import('./mocks/services/orders')])
+  settleDue(ctx)
   const { mountMockPanel } = await import('./mocks/panel')
   mountMockPanel()
 }

@@ -1,3 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { NftDetail } from '@/features/nft/NftDetail'
 
-export const Route = createFileRoute('/nfts/$id')({ component: () => <main className="p-8"><h1>NFT</h1></main> })
+export const Route = createFileRoute('/nfts/$id')({ component: Detail })
+
+function Detail() {
+  return <NftDetail id={Route.useParams().id} />
+}
