@@ -87,7 +87,9 @@ type Session = { token: string; expiresAt: string }
 type Edition = { id: string; tier: '1/1' | '1/10' | '1/50'; supply: number; available: number; status: 'open' | 'sold_out' }
 type Nft = { id: string; number: number; tokenId: string; name: string; creator: string; collection: Collection;
   network: Network; price: string; previousPrice?: string; image: string; rare: boolean; listedAt: string;
-  popularity: number; editions: Edition[]; version: number }
+  popularity: number; editions: Edition[];
+  series: string; about: string; attributes: string[]; rating: number; reviewCount: number;
+  description: { paragraphs: string[]; sections: { label: string; text: string }[] }; version: number }
 ```
 
 ### Cart (server side, per user)

@@ -86,8 +86,23 @@ export interface Nft {
   listedAt: string
   popularity: number
   editions: Edition[]
+  /** The line the NFT belongs to, as in "Kurio Apes"; not the catalog category. */
+  series: string
+  /** One-sentence summary shown beside the price. */
+  about: string
+  attributes: string[]
+  /** Average of the collectors' ratings, from 1 to 5, and how many gave one. */
+  rating: number
+  reviewCount: number
+  /** The long text under the tabs: two paragraphs and the labelled sections. */
+  description: NftDescription
   /** Monotonic; bumped on every change, used by the version gate. */
   version: number
+}
+
+export interface NftDescription {
+  paragraphs: string[]
+  sections: { label: string; text: string }[]
 }
 
 export interface NftListParams {
