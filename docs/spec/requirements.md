@@ -38,8 +38,8 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | DEL-6 | M0 | req | §12 | Commands exist for dev with mocks, build, preview, typecheck, lint, Playwright, Lighthouse. Accept: each runs from `package.json` | config | done | All seven commands exist |
 | DEL-7 | M6 | req | §12 | The project runs from a clean checkout with no private service. Accept: install, build and E2E pass on a fresh clone | manual | todo | |
 | DEL-8 | M6 | req | §12 | The deploy stays reachable through the evaluation. Accept: host plan has no expiry or sleep | manual | todo | |
-| DEL-10 | M6 | req | §12 | The public URL is verified as its own environment. Accept: a smoke subset of the E2E suite runs against the deployed URL (login, purchase, one failure scenario, one socket event, a deep link refresh) and passes; the result is recorded | test | todo | Local green does not prove it |
-| DEL-9 | M5 | opt | none | CI runs verify and E2E on every push. Accept: a workflow is green on a clean checkout | config | todo | |
+| DEL-10 | M6 | req | §12 | The public URL is verified as its own environment. Accept: a smoke subset of the E2E suite runs against the deployed URL (login, purchase, one failure scenario, one socket event, a deep link refresh) and passes; the result is recorded | test | part | The same workflow can be run by hand with `base_url` to smoke the deployed site; the Pages deploy itself stays manual |
+| DEL-9 | M0 | opt | none | CI runs verify and E2E on every push. Accept: a workflow is green on a clean checkout | config | part | `.github/workflows/ci.yml` runs verify and the E2E suite on every push and pull request; done once the first run is green |
 | ASSET-1 | M0 | req | §8 | Images and fonts load from the repo; nothing loads from Figma or a third-party host at runtime. Accept: no request to another origin in the network log | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 
 ## 3. Routing, account, session

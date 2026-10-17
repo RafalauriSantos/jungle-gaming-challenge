@@ -20,6 +20,7 @@ How the work is specified, ordered and verified. Read this, then `requirements.m
 | `pnpm test:unit` | Vitest, for pure rules (money, quote, idempotency, order state) |
 | `pnpm test:e2e` | Playwright on the built app |
 | `pnpm spec:check [--write]` | Checks requirements against tests; `--write` refreshes `traceability.md` |
+| CI | `.github/workflows/ci.yml` runs `pnpm verify` and `pnpm test:e2e` on every push and pull request. Run it by hand with a `base_url` input to smoke the deployed site |
 | `pnpm dev` | Dev server with mocks (`.env` has `VITE_ENABLE_MOCKS=true`) |
 
 Lighthouse is added at M0 and joins this table.
