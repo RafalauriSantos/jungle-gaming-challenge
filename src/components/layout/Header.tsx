@@ -1,10 +1,32 @@
 import { Link } from '@tanstack/react-router'
-import { LogIn, ShoppingCart } from 'lucide-react'
+import { ChevronDown, LogIn, ShoppingCart, User } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { useLogoutAndLeave } from '@/features/auth/useAuth'
+import { useUser } from '@/session/store'
 import { SearchBox } from './SearchBox'
 
 const NAV = ['Mercado', 'Criadores', 'Aprenda']
 
+function AccountMenu({ username }: { username: string }) {
+  const leave = useLogoutAndLeave()
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button className="h-[35px] gap-1 rounded-md font-medium" aria-label={`Conta de ${username}`} />}>
+        <User aria-hidden className="size-5" />
+        {username}
+        <ChevronDown aria-hidden className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem render={<Link to="/perfil" />}>Perfil</DropdownMenuItem>
+        <DropdownMenuItem onClick={leave}>Sair</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 export function Header({ cartCount = 0 }: { cartCount?: number }) {
+  const user = useUser()
   return (
     <header className="mx-auto hidden w-full max-w-[1200px] border-b border-border px-4 md:block">
       <div className="flex items-center justify-between gap-6 py-3">
@@ -36,13 +58,17 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
               </span>
             )}
           </Link>
-          <Link
-            to="/entrar"
-            className="inline-flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary font-medium text-ink"
-          >
-            <LogIn aria-hidden className="size-5" />
-            Entrar
-          </Link>
+          {user ? (
+            <AccountMenu username={user.username} />
+          ) : (
+            <Link
+              to="/entrar"
+              className="inline-flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary font-medium text-ink"
+            >
+              <LogIn aria-hidden className="size-5" />
+              Entrar
+            </Link>
+          )}
         </div>
       </div>
     </header>

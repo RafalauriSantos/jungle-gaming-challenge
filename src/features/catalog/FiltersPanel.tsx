@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { COLLECTIONS, NETWORKS, type NftListParams, type NftListResponse } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
+import { centiToEth, ethToCenti, formatEth } from '@/lib/eth'
 import { cn } from '@/lib/utils'
 import { COLLECTION_LABELS, NETWORK_LABELS } from './search'
 
@@ -66,11 +67,12 @@ function CheckList<T extends string>({
 
 export function FiltersPanel({ search, data, onChange }: Props) {
   const range = data?.priceRange ?? { min: '0', max: '0' }
-  const lo = Number(search.minPrice ?? range.min)
-  const hi = Number(search.maxPrice ?? range.max)
+  // The slider works in whole hundredths of an ETH; money itself stays a string.
+  const lo = ethToCenti(search.minPrice ?? range.min)
+  const hi = ethToCenti(search.maxPrice ?? range.max)
   const [draft, setDraft] = useState<[number, number] | null>(null)
   const [from, to] = draft ?? [lo, hi]
-  const fmt = (n: number) => n.toFixed(2).replace('.', ',')
+  const fmt = (n: number) => formatEth(centiToEth(n)).replace(' ETH', '').replace('.', ',')
 
   return (
     <div className="flex flex-col gap-10 bg-surface-card p-5">
@@ -88,9 +90,9 @@ export function FiltersPanel({ search, data, onChange }: Props) {
         <div className="flex flex-col gap-3 pl-3">
           <Slider
             aria-label="Faixa de preço em ETH"
-            min={Number(range.min)}
-            max={Number(range.max)}
-            step={0.01}
+            min={ethToCenti(range.min)}
+            max={ethToCenti(range.max)}
+            step={1}
             value={[from, to]}
             onValueChange={(v) => Array.isArray(v) && setDraft([v[0]!, v[1]!])}
             disabled={!data}
@@ -102,7 +104,7 @@ export function FiltersPanel({ search, data, onChange }: Props) {
             className="w-fit rounded-md px-3 text-base font-bold"
             disabled={!data || !draft}
             onClick={() => {
-              onChange({ minPrice: from.toFixed(2), maxPrice: to.toFixed(2) })
+              onChange({ minPrice: centiToEth(from), maxPrice: centiToEth(to) })
               setDraft(null)
             }}
           >

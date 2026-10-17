@@ -1,21 +1,25 @@
 import { expect, test } from '@playwright/test'
+import { signIn } from './support'
 
 // Runs locally and, with BASE_URL, against the deployed site.
+// [path, heading, needs a session]. The sign-in heading is level 1 on mobile and 2 in the modal.
 const ROUTES = [
-  ['/', /^SEJA DONO/],
-  ['/nfts/nft-001', /^NFT$/],
-  ['/carrinho', /^Carrinho$/],
-  ['/entrar', /^Entrar$/],
-  ['/favoritos', /^Favoritos$/],
-  ['/perfil', /^Perfil$/],
+  ['/', /^SEJA DONO/, false],
+  ['/nfts/nft-001', /^NFT$/, false],
+  ['/entrar', /^Entrar$/, false],
+  ['/cadastrar', /^Criar (conta|perfil de colecionador)$/, false],
+  ['/carrinho', /^Carrinho$/, true],
+  ['/favoritos', /^Favoritos$/, true],
+  ['/perfil', /^Perfil$/, true],
 ] as const
 
-for (const [path, heading] of ROUTES) {
+for (const [path, heading, private_] of ROUTES) {
   test(`ROUTE-2#1 ROUTE-2#2: ${path} opens by direct URL and survives a refresh`, async ({ page }) => {
+    if (private_) await signIn(page)
     await page.goto(path)
-    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible()
+    await expect(page.getByRole('heading', { name: heading })).toBeVisible()
     await page.reload()
-    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible()
+    await expect(page.getByRole('heading', { name: heading })).toBeVisible()
   })
 }
 

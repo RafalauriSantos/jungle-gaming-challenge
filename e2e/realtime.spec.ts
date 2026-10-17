@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 // The mock backend's control surface, exposed by the mock entry (never by app code).
 type MockControl = {
   connections: () => number
-  updateNft: (id: string, patch: { price?: string; available?: number }) => void
+  updateNft: (id: string, patch: { price?: string }) => void
 }
 const mock = <T,>(page: Page, run: (m: MockControl) => T) =>
   page.evaluate(`(${run.toString()})(window.__mock)`) as Promise<T>

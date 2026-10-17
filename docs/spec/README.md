@@ -16,7 +16,8 @@ How the work is specified, ordered and verified. Read this, then `requirements.m
 
 | Command | Use |
 | --- | --- |
-| `pnpm verify` | typecheck, lint, build and `spec:check`. Run before saying a change is done |
+| `pnpm verify` | typecheck, lint, unit tests, build and `spec:check`. Run before saying a change is done |
+| `pnpm test:unit` | Vitest, for pure rules (money, quote, idempotency, order state) |
 | `pnpm test:e2e` | Playwright on the built app |
 | `pnpm spec:check [--write]` | Checks requirements against tests; `--write` refreshes `traceability.md` |
 | `pnpm dev` | Dev server with mocks (`.env` has `VITE_ENABLE_MOCKS=true`) |

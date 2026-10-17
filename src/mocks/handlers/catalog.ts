@@ -11,8 +11,8 @@ import {
   type NftListResponse,
   type Sort,
 } from '@/api/types'
-import { ethToWei, weiToEth } from '@/lib/eth'
-import { db } from './db'
+import { parseEth, weiToEth } from '@/lib/eth'
+import { db } from '../db'
 
 const PAGE_SIZE = 9
 const NEW_COUNT = 12
@@ -22,8 +22,8 @@ const cmp = (a: bigint, b: bigint) => (a < b ? -1 : a > b ? 1 : 0)
 const sorters: Record<Sort, (a: Nft, b: Nft) => number> = {
   recent: (a, b) => b.listedAt.localeCompare(a.listedAt),
   name: (a, b) => a.name.localeCompare(b.name),
-  'price-asc': (a, b) => cmp(ethToWei(a.price), ethToWei(b.price)),
-  'price-desc': (a, b) => cmp(ethToWei(b.price), ethToWei(a.price)),
+  'price-asc': (a, b) => cmp(parseEth(a.price), parseEth(b.price)),
+  'price-desc': (a, b) => cmp(parseEth(b.price), parseEth(a.price)),
 }
 
 const list = <T extends string>(raw: string | null, allowed: readonly T[]): T[] | null => {
@@ -35,7 +35,7 @@ const isDecimal = (v: string | null) => v === null || /^\d+(\.\d+)?$/.test(v)
 const validation = (message: string) =>
   HttpResponse.json({ code: 'validation', message }, { status: 422 })
 
-export const handlers = [
+export const catalogHandlers = [
   http.get('/api/nfts', async ({ request }) => {
     const p = new URL(request.url).searchParams
     const collections = list<Collection>(p.get('collection'), COLLECTIONS)
@@ -53,14 +53,14 @@ export const handlers = [
     const page = Math.max(1, Number(p.get('page')) || 1)
     const q = p.get('q')?.trim().toLowerCase()
     const newestIds = new Set(
-      [...db.nfts].sort(sorters.recent).slice(0, NEW_COUNT).map((n) => n.id),
+      [...db.state.nfts].sort(sorters.recent).slice(0, NEW_COUNT).map((n) => n.id),
     )
 
     await delay(150)
-    const base = db.nfts
+    const base = db.state.nfts
       .filter((n) => !q || n.name.toLowerCase().includes(q) || n.creator.toLowerCase().includes(q))
-      .filter((n) => !min || ethToWei(n.price) >= ethToWei(min))
-      .filter((n) => !max || ethToWei(n.price) <= ethToWei(max))
+      .filter((n) => !min || parseEth(n.price) >= parseEth(min))
+      .filter((n) => !max || parseEth(n.price) <= parseEth(max))
       .filter((n) => feed === 'all' || (feed === 'new' ? newestIds.has(n.id) : n.popularity >= TRENDING_MIN))
 
     const facets: NftListResponse['facets'] = {
@@ -77,7 +77,7 @@ export const handlers = [
       .filter((n) => !networks.length || networks.includes(n.network))
       .sort(sorters[sort])
 
-    const prices = db.nfts.map((n) => ethToWei(n.price))
+    const prices = db.state.nfts.map((n) => parseEth(n.price))
     const body: NftListResponse = {
       items: filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
       total: filtered.length,
@@ -94,7 +94,7 @@ export const handlers = [
 
   http.get('/api/nfts/:id', async ({ params }) => {
     await delay(100)
-    const nft = db.nfts.find((n) => n.id === params.id)
+    const nft = db.state.nfts.find((n) => n.id === params.id)
     return nft
       ? HttpResponse.json(nft)
       : HttpResponse.json({ code: 'not_found', message: 'NFT not found' }, { status: 404 })

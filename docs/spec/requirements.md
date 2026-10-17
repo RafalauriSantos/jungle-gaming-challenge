@@ -29,7 +29,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | DQ-STACK | M0 | req | §2 | Router, Query, Axios, Socket.IO, Tailwind, shadcn/ui, MSW, Playwright and Lighthouse each take real part. Accept: Axios is the only HTTP client in `src`; Socket.IO is exercised by a published-build test; a Lighthouse report exists | manual | part | Socket.IO and Lighthouse missing |
 | ROUTE-1 | M1 | req | §4 | Unknown routes show a not-found page with a way back. Accept: `/nada` renders the not-found heading and a link to `/` | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 | ROUTE-2 | M0 | req | §4, §12 | Every planned screen opens by direct URL and survives refresh, locally and on the host. Accept: each route loads by URL on the deployed build; refresh keeps the page | test | part | Existing routes pass by URL and refresh on the public URL; planned screens are added as they are built |
-| ROUTE-3 | M1 | req | §3 | Private routes send an anonymous user to login and return afterwards. Accept: opening `/carrinho` anonymous lands on login with `redirect`; after login the cart opens; an external `redirect` is ignored | test | todo | |
+| ROUTE-3 | M1 | req | §3 | Private routes send an anonymous user to login and return afterwards. Accept: opening `/carrinho` anonymous lands on login with `redirect`; after login the cart opens; an external `redirect` is ignored | test | done | |
 | DEL-1 | M0 | req | §12 | Source, lockfile, assets, mocks, fixtures, tests and audit config are in the repo. Accept: a clean clone installs and builds | config | part | Not committed yet |
 | DEL-2 | M0 | req | §12 | The public deploy matches the code, serves mocks and real time, and keeps deep links. Accept: the published URL passes the M0 socket proof and a deep-link refresh; the final check is DEL-10 | manual | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16): HTTPS, socket proof, deep links and refresh. Final check is DEL-10 |
 | DEL-3 | M6 | req | §12 | README: setup, env vars, fictional credentials, scenario selection and reset, commands, failure reproduction. Accept: a table lists every MOCK-S scenario with how to activate it (URL), what to observe, and how to reset; a new person follows it on a clean checkout and on the deployed URL | manual | todo | |
@@ -46,16 +46,16 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| AUTH-1 | M1 | req | §3 | Sign up with validation; a duplicate e-mail comes back as a form conflict. Accept: empty and invalid fields show field errors; mismatched password confirmation errors; a seeded e-mail shows the conflict on the e-mail field | test | todo | |
-| AUTH-2 | M1 | req | §3 | Log in and return to the previous page. Accept: wrong credentials show an error; success returns to the page in `redirect`; header shows the account | test | todo | |
-| AUTH-3 | M1 | req | §3 | The session survives a refresh. Accept: after reload the user is still logged in and the header shows them | test | todo | |
-| AUTH-4 | M1 | req | §3 | Logout clears private cache and subscriptions. Accept: after logout the cart query, storage keys of the user and the socket are gone; protected routes redirect | test | todo | |
+| AUTH-1 | M1 | req | §3 | Sign up with validation; a duplicate e-mail comes back as a form conflict. Accept: empty and invalid fields show field errors; mismatched password confirmation errors; a seeded e-mail shows the conflict on the e-mail field | test | done | Modal on tablet and desktop, page on mobile; errors move focus to the first invalid field and are linked with `aria-describedby` |
+| AUTH-2 | M1 | req | §3 | Log in and return to the previous page. Accept: wrong credentials show an error; success returns to the page in `redirect`; header shows the account | test | done | The header assertion runs on desktop only: the mobile layout has no header |
+| AUTH-3 | M1 | req | §3 | The session survives a refresh. Accept: after reload the user is still logged in and the header shows them | test | done | |
+| AUTH-4 | M1 | req | §3 | Logout clears private cache and subscriptions. Accept: after logout the cart query, storage keys of the user and the socket are gone; protected routes redirect | test | part | Storage and route protection proven; the cart query and the socket are cleared once they exist (M2, M3) |
 | AUTH-5 | M3 | req | §3, §7 | Switching user leaves nothing of the previous user. Accept: user A's cart, favorites and order never show for B; a late response started by A is discarded; an event for A is ignored by B | test | todo | |
 | AUTH-6 | M3 | req | §3 | Session expiry during navigation sends the user to login and keeps context. Accept: a `session_expired` reply on a private page opens login with `redirect`; after login the same page opens | test | todo | |
 | AUTH-7 | M3 | req | §3 | Session expiry during checkout keeps the checkout context. Accept: after expiry and re-login the cart is intact and the checkout form values are restored | test | todo | |
-| AUTH-8 | M1 | req | §3 | Passwords are never stored or logged in clear text. Accept: a unit test shows only a salted hash in the mock state and storage | test | todo | |
-| AUTH-9 | M1 | req | §3 | Checkout, profile, wallets, favorites and orders need a session. Accept: each private API returns 401 without a token and its route redirects | test | todo | |
-| AUTH-10 | M1 | req | §3 | After login the header shows the account with a logout control. Accept: the desktop header and mobile tab expose logout; "Entrar" disappears | test | todo | Figma has no logout; D-05 |
+| AUTH-8 | M1 | req | §3 | Passwords are never stored or logged in clear text. Accept: a unit test shows only a salted hash in the mock state and storage | test | done | Unit test on state and storage; hash is salted SHA-256 (mock grade) |
+| AUTH-9 | M1 | req | §3 | Checkout, profile, wallets, favorites and orders need a session. Accept: each private API returns 401 without a token and its route redirects | test | part | Routes redirect; the wallets API refuses a missing token in the handlers; the other private APIs follow with their features |
+| AUTH-10 | M1 | req | §3 | After login the header shows the account with a logout control. Accept: the desktop header and mobile tab expose logout; "Entrar" disappears | test | done | Desktop: account menu in the header; mobile: Sair on the profile screen, reached from the tab bar |
 | AUTH-12 | M2 | req | §3, §11 | Mock handlers enforce who may read or change each resource, not only the pages. Accept: user B calling `GET /orders/:id` of user A gets 403 and the page shows a forbidden state; wallets, profile, favorites and cart always come from the token's user, never from a client-supplied id; the check runs with the page guard bypassed | test | todo | |
 | AUTH-11 | M3 | req | §9 | Session time is controllable in tests. Accept: a test expires the session by advancing the clock, without waiting | test | todo | |
 
@@ -92,7 +92,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | CART-5 | M2 | req | §3 | Subtotal, discount, network fee and total are exactly the quote. Accept: the four values on screen equal the quote response | test | todo | |
 | CART-6 | M3 | req | §3, §7 | A price or stock change received while the cart is open updates the summary and informs the user. Accept: after the event the total changes without reload; a status message names the NFT; checkout is blocked until the new quote is confirmed | test | todo | |
 | CART-7 | M2 | req | §3 | Cart and checkout reject a second network. Accept: adding an NFT of another network shows the conflict and the option to empty the cart | test | todo | D-21 |
-| MON-1 | M1 | req | §3 | ETH is a decimal string with exact math and display. Accept: unit tests of parse, add, multiply and format on values with up to 18 decimals; no `Number` on money | test | part | `formatEth` uses floats: bug |
+| MON-1 | M1 | req | §3 | ETH is a decimal string with exact math and display. Accept: unit tests of parse, add, multiply and format on values with up to 18 decimals; no `Number` on money | test | done | `src/lib/eth.ts`; display keeps at least 2 decimals and never rounds (Figma shows `0.016` and `26.846`) |
 | MON-2 | M2 | req | §3 | Quantities are integers. Accept: non-integer and zero are refused by the UI and the API | test | todo | |
 | MON-3 | M2 | req | §3 | The API quote is the reference to finalize. Accept: the order total equals its quote; a client-side total never reaches the API | test | todo | |
 
@@ -137,7 +137,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | API-1 | M1 | req | §4 | Routes, search params and private-route guards use TanStack Router. Accept: guards and params covered by ROUTE-3 and CAT-1 | test | part | |
 | API-2 | M1 | req | §4 | Queries, mutations and cache sync use TanStack Query. Accept: all server state comes from Query | manual | part | Queries only |
 | API-3 | M1 | req | §4 | Every REST call goes through Axios. Accept: a lint rule or test fails on `fetch` in `src` | test | part | |
-| API-4 | M1 | req | §4 | Contracts are typed between transport, state and UI. Accept: `tsc` strict passes with the `ARCHITECTURE.md` types | config | part | |
+| API-4 | M1 | req | §4 | Contracts are typed between transport, state and UI. Accept: `tsc` strict passes with the `ARCHITECTURE.md` types | config | part | `src/api/types.ts` now holds the full contract set of `ARCHITECTURE.md` §2; UI uses catalog and auth types so far |
 | API-5 | M2 | req | §4 | Loading, empty, error, success and background-refresh states exist per screen. Accept: each screen has a test or checklist entry for the five | test | part | Catalog only |
 | API-6 | M3 | req | §4 | The cache is invalidated coherently after mutations and events. Accept: after a cart mutation and after `nft.updated` dependent views update without reload | test | todo | |
 | API-7 | M1 | req | §4 | Stale responses are cancelled or discarded. Accept: changing params aborts the older request | test | part | `signal` passed |
@@ -145,7 +145,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | API-9 | M3 | req | §4 | Failures recover without duplicating operations. Accept: retries of idempotent calls do not duplicate | test | todo | |
 | API-10 | M4 | req | §4 | At least one optimistic update with rollback. Accept: FAV-2 | test | todo | |
 | API-11 | M6 | req | §4 | Cache, retry and sync policy is documented. Accept: `ARCHITECTURE.md` §6 matches the code | manual | part | |
-| API-12 | M2 | req | §5 | The REST resources exist: session, NFTs, favorites, cart, quote, orders, profile, wallets. Accept: one handler test per row of `ARCHITECTURE.md` §2 | test | part | NFTs only |
+| API-12 | M2 | req | §5 | The REST resources exist: session, NFTs, favorites, cart, quote, orders, profile, wallets. Accept: one handler test per row of `ARCHITECTURE.md` §2 | test | part | NFTs, auth and wallets exist; favorites, cart, quote, orders and profile follow |
 | API-13 | M2 | req | §5 | Errors cover validation, session, forbidden, not found, availability conflict and transient failure. Accept: each code is returned by a scenario and shown by the UI | test | part | |
 
 ## 9. Mocking and real time
@@ -154,12 +154,12 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MOCK-1 | M1 | req | §6 | Mocks live in the network layer; no fake data in components, hooks or the Axios client. Accept: no import of `src/mocks` outside the mock entry | test | part | |
 | MOCK-2 | M1 | req | §6 | State is consistent across catalog, favorites, cart, profile, wallets and orders. Accept: a purchase lowers stock seen by the catalog | test | todo | |
-| MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | todo | |
+| MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | part | Unit-tested reset of all state and generation; the `?reset=1` entry and client storage clearing are still to build |
 | MOCK-12 | M2 | req | §7 | Order progression is stored in the mock state with a due time and settles on its own, independent of the socket and the open screen. Accept: an order created, then the socket dropped or the page reloaded before its due time, reaches its final state; the result is the same without any connection | test | todo | Settle on read and on boot; `ARCHITECTURE.md` §7 |
 | MOCK-13 | M1 | req | §6, §9 | Reset also cancels pending events and timers. Accept: an event or transition scheduled before `?reset=1` never fires afterward; a test that resets between runs sees no leftover | test | todo | Generation counter |
 | MOCK-14 | M1 | req | §6, §12 | An evaluator can activate, observe and reset each scenario on the deployed build without code or hidden test setup. Accept: opening `?scenario=<name>` on the public URL reproduces it; a visible reset exists; the README states the exact steps | manual | todo | |
 | MOCK-4 | M3 | req | §6 | Latency, timeouts, offline and HTTP errors are configurable and reproducible. Accept: a scenario name yields the same behavior on every run | test | todo | |
-| MOCK-5 | M1 | req | §6 | Fixtures vary enough and include two users. Accept: 48+ NFTs across collections and networks; two seeded users | test | part | No users |
+| MOCK-5 | M1 | req | §6 | Fixtures vary enough and include two users. Accept: 48+ NFTs across collections and networks; two seeded users | test | done | 48 NFTs over 9 collections and 3 networks; users `ana` and `bruno` (credentials in `src/mocks/fixtures/users.ts`) |
 | MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16). Limits in `ARCHITECTURE.md` §5 |
 | MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 | MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | todo | |
@@ -174,7 +174,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | MOCK-S07 | M5 | req | §6 | Scenario HTTP 5xx. Accept: error with retry | test | todo | |
 | MOCK-S08 | M3 | req | §6 | Scenario expired session. Accept: AUTH-6 | test | todo | |
 | MOCK-S09 | M5 | req | §6 | Scenario unauthorized access. Accept: 403 page or message | test | todo | |
-| MOCK-S10 | M1 | req | §6 | Scenario signup or validation conflict. Accept: AUTH-1 | test | todo | |
+| MOCK-S10 | M1 | req | §6 | Scenario signup or validation conflict. Accept: AUTH-1 | test | done | |
 | MOCK-S11 | M2 | req | §6 | Scenario invalid coupon. Accept: CART-4 | test | todo | |
 | MOCK-S12 | M2 | req | §6 | Scenario expired coupon. Accept: CART-4 | test | todo | |
 | MOCK-S13 | M3 | req | §6 | Scenario price changed during purchase. Accept: CHK-3 | test | todo | |
@@ -217,7 +217,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | TEST-5 | M3 | req | §9 | Clock, latency and event firing are controlled where time matters. Accept: no `waitForTimeout` in time-sensitive tests | test | todo | |
 | TEST-6 | M0 | req | §9 | HTML report and traces of failures are produced. Accept: report folder and traces appear on failure | config | done | |
 | TEST-7 | M0 | req | §9 | Real-time tests pass through the Socket.IO client; REST tests through MSW handlers. Accept: no test calls a store setter to simulate an event | test | part | `MOCK-7#1` drives events through the mock backend and `socket.io-client`; no store setter is used |
-| TEST-8 | M1 | opt | none | Unit tests cover pure rules: money, quote, idempotency, state machine. Accept: Vitest suite is green | test | todo | D-15 |
+| TEST-8 | M1 | opt | none | Unit tests cover pure rules: money, quote, idempotency, state machine. Accept: Vitest suite is green | test | part | Vitest installed; money rules covered; quote, idempotency and state machine follow in M1 and M2 |
 | PERF-1 | M0 | req | §10 | Lighthouse runs on home and detail, mobile and desktop, on the optimized build. Accept: an initial measurement report (one run) exists at M0 | audit | part | Initial single-run measurements of home in `reports/lighthouse/` (local) and `reports/lighthouse/public/` (published); detail joins at M2 |
 | PERF-2 | M6 | req | §10 | Targets: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 90. Accept: medians meet them or the gap is justified | audit | todo | |
 | PERF-3 | M6 | req | §10 | Three runs per page and profile; the median is reported. Accept: for each of home and detail, at mobile and desktop, the report lists three runs and their median | audit | todo | |

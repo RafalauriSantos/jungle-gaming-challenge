@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { connectRealtime } from './realtime/client'
 import { routeTree } from './routeTree.gen'
+import { endSession } from './session/actions'
+import { onSessionLost } from './session/store'
 
 const queryClient = new QueryClient()
 const router = createRouter({ routeTree })
@@ -23,6 +25,13 @@ async function enableMocks() {
 
 await enableMocks()
 void connectRealtime(queryClient)
+
+// A refused token ends the session and sends the user to login, remembering where they were.
+onSessionLost((code) => {
+  const back = router.state.location.href
+  endSession(queryClient)
+  void router.navigate({ to: '/entrar', search: { redirect: back, reason: code === 'session_expired' ? 'session_expired' : undefined } })
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

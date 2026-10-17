@@ -1,9 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import type { Nft } from '@/api/types'
-import { formatEth } from '@/lib/format'
+import { formatEth } from '@/lib/eth'
+import { totalAvailable } from '@/lib/nft'
 
 export function NftCard({ nft }: { nft: Nft }) {
-  const soldOut = nft.available === 0
+  const soldOut = totalAvailable(nft) === 0
   return (
     <li data-testid="nft-card">
       <Link to="/nfts/$id" params={{ id: nft.id }} className="group block rounded-[20px]">

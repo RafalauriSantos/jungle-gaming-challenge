@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastrarRouteImport } from './routes/cadastrar'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
@@ -19,6 +20,11 @@ import { Route as NftsIdRouteImport } from './routes/nfts.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastrarRoute = CadastrarRouteImport.update({
+  id: '/cadastrar',
+  path: '/cadastrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarrinhoRoute = CarrinhoRouteImport.update({
@@ -49,6 +55,7 @@ const NftsIdRoute = NftsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastrar': typeof CadastrarRoute
   '/carrinho': typeof CarrinhoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastrar': typeof CadastrarRoute
   '/carrinho': typeof CarrinhoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastrar': typeof CadastrarRoute
   '/carrinho': typeof CarrinhoRoute
   '/entrar': typeof EntrarRoute
   '/favoritos': typeof FavoritosRoute
@@ -75,12 +84,26 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/carrinho' | '/entrar' | '/favoritos' | '/perfil' | '/nfts/$id'
+    | '/'
+    | '/cadastrar'
+    | '/carrinho'
+    | '/entrar'
+    | '/favoritos'
+    | '/perfil'
+    | '/nfts/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/carrinho' | '/entrar' | '/favoritos' | '/perfil' | '/nfts/$id'
+  to:
+    | '/'
+    | '/cadastrar'
+    | '/carrinho'
+    | '/entrar'
+    | '/favoritos'
+    | '/perfil'
+    | '/nfts/$id'
   id:
     | '__root__'
     | '/'
+    | '/cadastrar'
     | '/carrinho'
     | '/entrar'
     | '/favoritos'
@@ -90,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastrarRoute: typeof CadastrarRoute
   CarrinhoRoute: typeof CarrinhoRoute
   EntrarRoute: typeof EntrarRoute
   FavoritosRoute: typeof FavoritosRoute
@@ -104,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastrar': {
+      id: '/cadastrar'
+      path: '/cadastrar'
+      fullPath: '/cadastrar'
+      preLoaderRoute: typeof CadastrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/carrinho': {
@@ -146,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastrarRoute: CadastrarRoute,
   CarrinhoRoute: CarrinhoRoute,
   EntrarRoute: EntrarRoute,
   FavoritosRoute: FavoritosRoute,
