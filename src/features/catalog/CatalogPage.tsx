@@ -32,7 +32,7 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
   const pages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1
 
   return (
-    <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 pb-8 md:gap-24 md:pt-6">
+    <main className="mx-auto flex w-full max-w-[1232px] flex-col gap-6 px-4 pb-8 md:gap-24 md:pt-6">
       <div className="flex gap-3 md:hidden">
         <SearchBox className="flex-1" placeholder="Explorar coleções" />
         <FiltersSheet>{filters}</FiltersSheet>

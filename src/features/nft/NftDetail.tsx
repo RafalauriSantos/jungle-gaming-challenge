@@ -20,7 +20,7 @@ import { Stepper } from './Stepper'
 
 function DetailSkeleton() {
   return (
-    <div aria-busy="true" role="status" aria-label="Carregando NFT" className="mx-auto grid max-w-[1200px] gap-8 px-4 py-6 md:grid-cols-[110px_450px_1fr]">
+    <div aria-busy="true" role="status" aria-label="Carregando NFT" className="mx-auto grid max-w-[1232px] gap-8 px-4 py-6 md:grid-cols-[110px_450px_1fr]">
       <Skeleton className="hidden h-[450px] md:block" />
       <Skeleton className="aspect-square w-full md:h-[450px]" />
       <div className="flex flex-col gap-4">
@@ -35,7 +35,7 @@ function DetailSkeleton() {
 
 function Missing() {
   return (
-    <main className="mx-auto max-w-[1200px] px-4 py-16">
+    <main className="mx-auto max-w-[1232px] px-4 py-16">
       <h1 className="mb-4 text-2xl font-bold">NFT não encontrado</h1>
       <p className="mb-4 text-text-secondary">Ele pode ter sido removido ou o endereço está incorreto.</p>
       <Link to="/" className="text-text-accent underline">Voltar ao catálogo</Link>
@@ -172,7 +172,7 @@ export function NftDetail({ id }: { id: string }) {
   if (isError) {
     if (isAxiosError(error) && error.response?.status === 404) return <Missing />
     return (
-      <main className="mx-auto flex max-w-[1200px] flex-col items-start gap-3 px-4 py-16">
+      <main className="mx-auto flex max-w-[1232px] flex-col items-start gap-3 px-4 py-16">
         <p role="alert">Não foi possível carregar este NFT.</p>
         <Button onClick={() => refetch()}>Tentar novamente</Button>
       </main>
@@ -181,7 +181,7 @@ export function NftDetail({ id }: { id: string }) {
 
   const collection = COLLECTION_LABELS[nft.collection]
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-24 pt-4 md:pb-8">
+    <main className="mx-auto max-w-[1232px] px-4 pb-24 pt-4 md:pb-8">
       <nav aria-label="Você está em" className="mb-4 hidden text-xs md:block">
         <Link to="/">Início</Link> / <span>Mercado</span>
       </nav>

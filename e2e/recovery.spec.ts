@@ -57,6 +57,8 @@ test('ORD-2#2 ORD-2#3 ORD-2#4: a pending order is found again, even without loca
   await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
 
   // After a minute without an answer the page says so and offers a refresh, nothing that buys again.
+  // The minute is counted by the page, so the page must be on screen, and counting, before the clock moves.
+  await expect(page.getByRole('heading', { name: 'Aguardando a confirmação do pagamento' })).toBeVisible()
   await page.clock.fastForward(61_000)
   await expect(page.getByText('Ainda estamos processando.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Atualizar' })).toBeVisible()

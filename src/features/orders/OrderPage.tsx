@@ -23,7 +23,7 @@ const day = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: 'n
 
 function Card({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <main className="mx-auto grid min-h-[70dvh] max-w-[1200px] place-items-center px-4 py-10">
+    <main className="mx-auto grid min-h-[70dvh] max-w-[1232px] place-items-center px-4 py-10">
       <section aria-label={label} className="w-full max-w-[500px] overflow-hidden bg-surface-card">
         {children}
         <div aria-hidden className="h-[10px] bg-primary" />

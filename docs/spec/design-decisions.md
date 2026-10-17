@@ -14,7 +14,7 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 | D-02b | Token ids in the cart frame | The cart frame shows `#0009` for Violet Nomad #314 and `#0552` for Ivory Baron #088, which are other NFTs' numbers | Figma error. The rule above wins; the cart shows the same id as detail and receipt |
 | D-04 | Payment: desktop and mobile differ | Desktop frame: a "Perfil do colecionador" form with 10 fields, an optional note, "Usar outra carteira?", an order summary and a wallet choice. Mobile frame: no form; saved-wallet cards (Reserva, Principal), a wallet-type choice, total, "Confirmar compra" | Keep both as drawn; they are not unified. Both produce the same request: a saved wallet (`walletId`) or, on desktop with "Usar outra carteira?", an inline wallet for this order only. Desktop pre-fills the form from the selected saved wallet |
 | D-10 | Collection order | The Figma lists Arte digital, Fotografia, Música, Arte 3D, Colecionáveis, Generativa, Jogos, Assinaturas, Utilidade | Withdrawn: keep the Figma order. Reordering would be an unnecessary deviation |
-| D-13 | Header divider | Component note: the divider exists on home, profile and wallets and the two auth screens' backdrop; market screens use a bare header. Payment frame has no divider and "Mercado" active | Follow it: divider on home, profile, wallets, auth; none on detail, cart, payment, confirmation, where "Mercado" is highlighted. **Current code differs** (divider everywhere, only "Início" active): fix under UI-1 |
+| D-13 | Header divider | Component note: the divider exists on home, profile and wallets and the two auth screens' backdrop; market screens use a bare header. Payment frame has no divider and "Mercado" active | Follow it: divider on home, profile, wallets, auth; none on detail, cart, payment, confirmation, where "Mercado" is highlighted. Implemented in `Header.tsx` and tested in `e2e/shell.spec.ts` |
 | D-16 | NFT card background | Desktop: a flat `surface-card` box of 300 px with the art inside. Mobile: a rounded-20 gradient card with a heart button | Follow each frame. **Current code uses the mobile card on desktop**: fix under UI-1. The difference is intentional, so it is not unified |
 | D-17 | Theme tokens | Figma variables carry hex values; dark only | Implemented in `src/index.css` |
 | D-18 | Quantity stepper and remove control | Frames draw them differently on desktop and mobile | Keep each frame's look; share only the logic (limits, disabled at the minimum). Check both frames when building the cart |
@@ -103,3 +103,11 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 | E11 | Keyboard, dialog focus, form validation | A11Y-1..3, A11Y-6, A11Y-8, CHK-1 |
 | E12 | Skeletons under slow load, failure, retry | UI-3, CAT-4, API-5, MOCK-S03, MOCK-S05..S07 |
 | none | Out-of-order responses | CAT-5, MOCK-S04 |
+
+## 6. Visual review log
+
+Each screen is compared with its Figma frame before it is changed, and a baseline is created only afterwards (UI-1, TEST-3). Frames are read from the copy `f9lfuco4JIdAgFX0anlQbZ` (geometry, type styles and colors from the design context; picture from the screenshot). The original file could not be read, so fidelity to it is not checked.
+
+| Date | Screen | Frames | Result | Deliberate differences |
+| --- | --- | --- | --- | --- |
+| 2026-10-17 | Desktop header | `Header Row` (70486:560), `Header With Divider` (70522:3240) | Matches: 1200 content width, 16 px nav at 40 px gaps, 3 px active underline, cart with count badge, 100x35 sign-in button, divider only on the "Início" group | After sign-in the button is the account menu (D-05). The search field is not drawn: the icon opens a field styled like the other inputs |

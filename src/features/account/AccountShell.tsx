@@ -18,7 +18,7 @@ const INERT: [string, LucideIcon][] = [
 export function AccountShell({ children }: { children: ReactNode }) {
   const leave = useLogoutAndLeave()
   return (
-    <main className="mx-auto grid w-full max-w-[1200px] gap-8 px-4 py-6 md:grid-cols-[220px_1fr]">
+    <main className="mx-auto grid w-full max-w-[1232px] gap-8 px-4 py-6 md:grid-cols-[220px_1fr]">
       <nav aria-label="Minha conta" className="self-start bg-surface-card">
         <p className="px-4 py-3 text-lg font-bold">Meu perfil</p>
         <ul>

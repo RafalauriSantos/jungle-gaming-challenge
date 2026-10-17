@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { searchField } from './support'
 
 test('CAT-1#2 CAT-1#3 CAT-2#2: filters, sort and pagination live in the URL and survive history', async ({ page }) => {
   await page.goto('/')
@@ -45,7 +46,7 @@ test('CAT-1#1: search, collection, sort and page each write their own URL parame
   await page.goto('/')
   await expect(page.getByTestId('nft-card')).toHaveCount(9)
 
-  await page.getByRole('searchbox', { name: 'Buscar NFTs' }).first().fill('ape')
+  await (await searchField(page)).fill('ape')
   await expect(page).toHaveURL(/q=ape/)
   await expect(page.getByTestId('nft-card')).toHaveCount(6)
   await expect(page.getByTestId('nft-card').first()).toContainText('Ape')

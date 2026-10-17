@@ -31,7 +31,7 @@ function Root() {
 export const Route = createRootRoute({
   component: Root,
   notFoundComponent: () => (
-    <main className="mx-auto max-w-[1200px] px-4 py-16">
+    <main className="mx-auto max-w-[1232px] px-4 py-16">
       <h1 className="mb-4 text-2xl font-bold">Página não encontrada</h1>
       <Link to="/" className="text-text-accent underline">Voltar ao início</Link>
     </main>

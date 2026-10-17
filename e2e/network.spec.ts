@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { signIn } from './support'
+import { searchField, signIn } from './support'
 
 async function mock<T = unknown>(page: Page, expr: string): Promise<T> {
   await page.waitForFunction('!!window.__mock')
@@ -54,7 +54,7 @@ test('MOCK-S04#1 CAT-5#1: an older answer that arrives late never replaces the n
   await page.clock.install()
   await page.goto('/?scenario=out-of-order')
   await expect(cards(page).first()).toBeVisible()
-  const search = page.getByRole('searchbox', { name: 'Buscar NFTs' }).first()
+  const search = await searchField(page)
   await search.fill('ape') // the scenario makes this answer the slow one
   await expect(page).toHaveURL(/q=ape/)
   await search.fill('cosmic') // and this one the fast one
