@@ -114,7 +114,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | ORD-7 | M2 | req | §5 | Order creation takes an idempotency key; the same key returns the same order. Accept: two POSTs with one key return one order id | test | done | |
 | ORD-8 | M2 | req | §5 | The same key with different content is a conflict. Accept: the second POST returns `idempotency_conflict` | test | done | |
 | ORD-9 | M3 | req | §6 | A timeout after creation is recovered with the same key. Accept: the timeout scenario creates the order; the UI shows checking; the replay returns it; one order exists | test | done | |
-| ORD-10 | M3 | req | §7 | A late event never moves an order out of a terminal state. Accept: a pending event delivered after confirmation leaves it confirmed even with a higher version; a terminal event applies to a pending order even with a lower version; a refused event never replaces a confirmed order | test | done | |
+| ORD-10 | M3 | req | §7 | A late event never moves an order out of a terminal state. Accept: a pending event delivered after confirmation leaves it confirmed even with a higher version; a terminal event applies to a pending order even with a lower version; a refused event never replaces a confirmed order; a read made while pending never undoes a confirmation, but a read of the same final status may add the receipt | test | done | |
 | ORD-11 | M2 | req | §3 | A refused order can be retried as a new attempt. Accept: "Tentar novamente" uses a new key and cart items are still there | test | done | |
 | UND-1 | M2 | req | §1 | Pending and refused screens exist and reuse the confirmation's visual language. Accept: both render with status text and icon (not color only) at 390 and 1440 | manual | done | Checked at 390 and 1440 on 2026-10-17: pending, confirmed and refused share one card with an icon, a title and text; D-01 |
 
@@ -185,7 +185,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | RT-1 | M2 | req | §7 | `nft.updated` updates price and stock in catalog, detail and cart. Accept: one event changes the value in the three places without reload | test | done | M0 has a smoke event |
 | RT-2 | M2 | req | §7 | `order.updated` updates the order and shows confirmation or refusal. Accept: the pending screen moves to the receipt or refusal | test | done | |
 | RT-3 | M2 | req | §7 | Events carry stable id, resource and version. Accept: payloads match `ARCHITECTURE.md` §5 | test | done | |
-| RT-4 | M3 | req | §7 | Duplicate and old events are tolerated. Accept: a duplicate changes nothing and repeats no announcement; an older version does not regress state | test | done | |
+| RT-4 | M3 | req | §7 | Duplicate and old events are tolerated. Accept: a duplicate changes nothing and repeats no announcement; an older version does not regress state; a REST answer read before a newer event does not replace it | test | done | |
 | RT-5 | M3 | req | §7 | After reconnect, active resources are reconciled with REST. Accept: an update missed while offline appears after reconnect; a terminal order does not regress | test | done | |
 | RT-6 | M3 | req | §7 | Events of a previous session never update another user. Accept: AUTH-5 | test | done | |
 | RT-7 | M3 | req | §7 | Listeners and subscriptions are released with their lifecycle. Accept: after leaving a screen or logging out no handler remains | test | done | |

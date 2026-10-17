@@ -15,3 +15,16 @@ export function shouldApplyOrder(current: OrderState, incoming: OrderState): boo
   if (incoming.status !== 'pending') return true
   return shouldApplyVersion(current.version, incoming.version)
 }
+
+/**
+ * A REST answer was read at some moment; an event may have landed since. The answer replaces what the cache
+ * holds only if it is not older. Equal versions are allowed: a read may carry more than the event did.
+ */
+export const pickNewerNft = <T extends { version: number }>(current: T | undefined, read: T): T => (current && read.version < current.version ? current : read)
+
+/** Same idea for an order: a final order stays as it is, but a read of the same final status may add the receipt. */
+export function pickOrderRead<T extends OrderState>(current: T | undefined, read: T): T {
+  if (!current) return read
+  if (current.status !== 'pending') return read.status === current.status ? read : current
+  return read.status !== 'pending' || read.version >= current.version ? read : current
+}

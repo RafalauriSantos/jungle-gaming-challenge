@@ -1,4 +1,5 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, replaceEqualDeep } from '@tanstack/react-query'
+import { pickOrderRead } from '@/realtime/gate'
 import { api } from './client'
 import type { Order, Provider, WalletRef } from './types'
 
@@ -26,6 +27,8 @@ export const orderOptions = (userId: string, id: string, pollWhilePending = fals
     queryFn: ({ signal }) => api.get<Order>(`/orders/${encodeURIComponent(id)}`, { signal }).then((r) => r.data),
     // The socket is the fast path; polling covers a dropped connection. Terminal orders stop it.
     refetchInterval: (query) => (pollWhilePending && query.state.data?.status === 'pending' ? 3000 : false),
+    // A read made while the order was pending must not undo a confirmation that arrived first.
+    structuralSharing: (old, read) => replaceEqualDeep(old, pickOrderRead(old as Order | undefined, read as Order)),
   })
 
 export const pendingOrdersOptions = (userId: string) =>

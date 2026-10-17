@@ -173,7 +173,6 @@ test('RT-1#1 API-6#1: one price event changes the catalog, the detail and the ca
   await expect(page.locator('a[href="/nfts/nft-004"]').first()).toContainText('2.00 ETH')
   await page.locator('a[href="/nfts/nft-004"]').first().click()
   await expect(page.getByText('2.00 ETH').first()).toBeVisible()
-  await page.waitForLoadState('networkidle') // the detail's own read must not land after the event
   await mock(page, "updateNft('nft-004', { price: '2.5' })")
   await expect(page.getByText('2.50 ETH').first()).toBeVisible()
 })

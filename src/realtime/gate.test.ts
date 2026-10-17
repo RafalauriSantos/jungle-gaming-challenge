@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { shouldApplyOrder, shouldApplyVersion } from './gate'
+import { pickNewerNft, pickOrderRead, shouldApplyOrder, shouldApplyVersion } from './gate'
 
 describe('version gate', () => {
   it('applies only what is newer than what it has', () => {
@@ -31,5 +31,28 @@ describe('order gate', () => {
       expect(shouldApplyOrder(current, { status: 'confirmed', version: 9 })).toBe(false)
       expect(shouldApplyOrder(current, { status: 'refused', version: 9 })).toBe(false)
     }
+  })
+})
+
+describe('reading with REST', () => {
+  const order = (status: 'pending' | 'confirmed' | 'refused', version: number, extra = {}) => ({ status, version, ...extra })
+
+  it('RT-4#3: keeps a newer cached item over an older read, and takes an equal or newer one', () => {
+    expect(pickNewerNft({ version: 3 }, { version: 2 })).toEqual({ version: 3 })
+    expect(pickNewerNft({ version: 3 }, { version: 3 })).toEqual({ version: 3 })
+    expect(pickNewerNft({ version: 2 }, { version: 3 })).toEqual({ version: 3 })
+    expect(pickNewerNft(undefined, { version: 1 })).toEqual({ version: 1 })
+  })
+
+  it('ORD-10#4: a read never moves a final order to another status, but may enrich it with the receipt', () => {
+    expect(pickOrderRead(order('confirmed', 2), order('pending', 5))).toEqual(order('confirmed', 2))
+    expect(pickOrderRead(order('confirmed', 2), order('refused', 9))).toEqual(order('confirmed', 2))
+    expect(pickOrderRead(order('confirmed', 2), order('confirmed', 2, { receipt: 'r' }))).toEqual(order('confirmed', 2, { receipt: 'r' }))
+  })
+
+  it('ORD-10#4: a pending order takes a final read whatever its version, and a pending read only if not older', () => {
+    expect(pickOrderRead(order('pending', 3), order('confirmed', 1))).toEqual(order('confirmed', 1))
+    expect(pickOrderRead(order('pending', 3), order('pending', 2))).toEqual(order('pending', 3))
+    expect(pickOrderRead(order('pending', 3), order('pending', 3))).toEqual(order('pending', 3))
   })
 })
