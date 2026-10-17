@@ -1,12 +1,20 @@
-import { Link } from '@tanstack/react-router'
-import { ChevronDown, LogIn, ShoppingCart, User } from 'lucide-react'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { ChevronDown, LogIn, Search, ShoppingCart, User } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useLogoutAndLeave } from '@/features/auth/useAuth'
+import { useCart } from '@/features/cart/useCart'
+import { cn } from '@/lib/utils'
 import { useUser } from '@/session/store'
 import { SearchBox } from './SearchBox'
 
-const NAV = ['Mercado', 'Criadores', 'Aprenda']
+// The Figma marks "Mercado" on detail, cart, payment and confirmation, and "Início" everywhere else. The divider
+// under the header belongs to the "Início" group only.
+const isMarket = (path: string) => path.startsWith('/nfts/') || path.startsWith('/pedido/') || path === '/carrinho' || path === '/pagamento'
+
+const NAV_ITEM = 'relative flex h-[45px] items-start text-base after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:bg-transparent'
+const ACTIVE = 'font-bold text-text-accent after:bg-text-accent'
 
 function AccountMenu({ username }: { username: string }) {
   const leave = useLogoutAndLeave()
@@ -26,46 +34,61 @@ function AccountMenu({ username }: { username: string }) {
   )
 }
 
-export function Header({ cartCount = 0 }: { cartCount?: number }) {
-  const user = useUser()
+/** The frame draws only the icon; the field it opens is not drawn, so it reuses the card style of the other inputs. */
+function HeaderSearch({ hasQuery }: { hasQuery: boolean }) {
+  const [open, setOpen] = useState(hasQuery)
   return (
-    <header className="mx-auto hidden w-full max-w-[1200px] border-b border-border px-4 md:block">
-      <div className="flex items-center justify-between gap-6 py-3">
-        <Link to="/" className="w-40 text-sm font-bold tracking-[1.4px]">
+    <div className="flex items-center gap-3" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}>
+      {open && <SearchBox autoFocus className="w-56 !rounded-md" placeholder="Buscar" />}
+      <button type="button" aria-label="Abrir busca" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="grid size-5 place-items-center">
+        <Search aria-hidden className="size-5" strokeWidth={2} />
+      </button>
+    </div>
+  )
+}
+
+function CartLink() {
+  const user = useUser()
+  const { data } = useCart()
+  const count = user ? (data?.items.reduce((n, i) => n + i.quantity, 0) ?? 0) : 0
+  return (
+    <Link to="/carrinho" aria-label={`Carrinho, ${count} itens`} className="relative">
+      <ShoppingCart aria-hidden className="size-6" />
+      {count > 0 && (
+        <span className="absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-text-accent text-[10px] font-medium text-ink">{count}</span>
+      )}
+    </Link>
+  )
+}
+
+export function Header() {
+  const user = useUser()
+  const { path, hasQuery } = useRouterState({ select: (s) => ({ path: s.location.pathname, hasQuery: !!(s.location.search as { q?: string }).q }) })
+  const market = isMarket(path)
+  return (
+    <header className={cn('mx-auto hidden w-full max-w-[1232px] px-4 md:block', !market && 'border-b border-border')}>
+      <div className="flex items-start justify-between gap-6 pt-6">
+        <Link to="/" className="mt-2 w-40 text-sm font-bold tracking-[1.4px]">
           KURIO
         </Link>
-        <nav aria-label="Principal" className="flex items-start gap-10 text-base">
-          <Link
-            to="/"
-            activeOptions={{ exact: true }}
-            className="border-b-[3px] border-transparent font-bold text-foreground [&.active]:border-text-accent [&.active]:text-text-accent"
-          >
+        <nav aria-label="Principal" className="flex items-start gap-10">
+          <Link to="/" activeOptions={{ exact: true }} className={cn(NAV_ITEM, !market && ACTIVE)}>
             Início
           </Link>
-          {/* Editorial/market pages are out of scope; shown as inert labels. */}
-          {NAV.map((n) => (
-            <span key={n} className="text-foreground">
+          {/* Market and editorial pages are out of scope; they are inert labels, "Mercado" marked on its own screens. */}
+          {['Mercado', 'Criadores', 'Aprenda'].map((n) => (
+            <span key={n} title="Em breve" aria-disabled="true" className={cn(NAV_ITEM, n === 'Mercado' && market && ACTIVE)}>
               {n}
             </span>
           ))}
         </nav>
-        <div className="flex items-center gap-7">
-          <SearchBox className="w-48 !rounded-md" placeholder="Buscar" />
-          <Link to="/carrinho" aria-label={`Carrinho, ${cartCount} itens`} className="relative">
-            <ShoppingCart aria-hidden className="size-6" />
-            {cartCount > 0 && (
-              <span className="absolute -right-2 -top-2 grid size-4 place-items-center rounded-full bg-text-accent text-[10px] font-medium text-ink">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+        <div className="flex h-[35px] items-center gap-7">
+          <HeaderSearch hasQuery={hasQuery} />
+          <CartLink />
           {user ? (
             <AccountMenu username={user.username} />
           ) : (
-            <Link
-              to="/entrar"
-              className="inline-flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary font-medium text-ink"
-            >
+            <Link to="/entrar" className="inline-flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-primary font-medium text-ink">
               <LogIn aria-hidden className="size-5" />
               Entrar
             </Link>

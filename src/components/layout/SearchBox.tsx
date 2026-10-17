@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 /** Search field that writes to the catalog URL (debounced), from any page. */
-export function SearchBox({ className, placeholder }: { className?: string; placeholder: string }) {
+export function SearchBox({ className, placeholder, autoFocus }: { className?: string; placeholder: string; autoFocus?: boolean }) {
   const navigate = useNavigate()
   const urlQuery = useSearch({ strict: false, select: (s) => (s as { q?: string }).q ?? '' })
   const [value, setValue] = useState(urlQuery)
@@ -36,6 +36,7 @@ export function SearchBox({ className, placeholder }: { className?: string; plac
         type="search"
         aria-label="Buscar NFTs"
         placeholder={placeholder}
+        autoFocus={autoFocus}
         value={value}
         className="h-11 min-w-0 flex-1 bg-transparent text-sm font-bold text-foreground placeholder:text-tone focus-visible:outline-none"
         onChange={(e) => {

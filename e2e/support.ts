@@ -14,3 +14,12 @@ export async function signIn(page: Page, user = ANA, from = '/entrar') {
   await root.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).not.toHaveURL(/\/(entrar|cadastrar)/)
 }
+
+/** The catalog search field: on desktop it sits behind the header's search icon, on mobile it is on the page. */
+export async function searchField(page: Page) {
+  const toggle = page.getByRole('button', { name: 'Abrir busca' })
+  const field = page.getByRole('searchbox', { name: 'Buscar NFTs' })
+  await toggle.or(field.first()).first().waitFor() // the page must be on screen before asking what it shows
+  if ((await toggle.isVisible()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click()
+  return page.getByRole('searchbox', { name: 'Buscar NFTs' }).first()
+}

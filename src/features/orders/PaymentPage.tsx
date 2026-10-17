@@ -203,7 +203,7 @@ export function PaymentPage() {
 
   if (cart.isError || quote.isError) {
     return (
-      <main className="mx-auto flex max-w-[1200px] flex-col items-start gap-3 px-4 py-12">
+      <main className="mx-auto flex max-w-[1232px] flex-col items-start gap-3 px-4 py-12">
         <p role="alert">Não foi possível carregar o pagamento.</p>
         <Button onClick={() => { void cart.refetch(); void quote.refetch() }}>Tentar novamente</Button>
       </main>
@@ -211,7 +211,7 @@ export function PaymentPage() {
   }
   if (cart.data && cart.data.items.length === 0) {
     return (
-      <main className="mx-auto flex max-w-[1200px] flex-col items-start gap-3 px-4 py-12">
+      <main className="mx-auto flex max-w-[1232px] flex-col items-start gap-3 px-4 py-12">
         <h1 className="text-xl font-bold">Pagamento</h1>
         <p>Seu carrinho está vazio.</p>
         <Link to="/" className={buttonVariants()}>Explorar NFTs</Link>
@@ -220,7 +220,7 @@ export function PaymentPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-10 pt-4">
+    <main className="mx-auto max-w-[1232px] px-4 pb-10 pt-4">
       <div className="mb-4 flex items-center gap-3">
         <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="rounded-full md:hidden">
           <ArrowLeft aria-hidden />
