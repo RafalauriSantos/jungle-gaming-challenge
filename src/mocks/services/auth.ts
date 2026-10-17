@@ -37,7 +37,7 @@ export async function signup(db: Db, input: SignupInput): Promise<AuthResponse> 
   const salt = `s-${id}`
   const user: StoredUser = { id, username: input.username, email, salt, passwordHash: await hashPassword(input.password, salt) }
   db.state.users.push(user)
-  db.state.profiles[id] = { displayName: input.username, username: input.username, email, avatarUrl: null, version: 1 }
+  db.state.profiles[id] = { displayName: input.username, username: input.username, email, ensName: input.username.toLowerCase().replace(/[^a-z0-9-]/g, '-'), walletNickname: 'Principal', avatarUrl: null, version: 1 }
   db.state.wallets[id] = { primary: null, secondary: null }
   return { user: toUser(user), session: startSession(db, id) }
 }

@@ -184,7 +184,7 @@ export interface Wallets {
   secondary: Wallet | null
 }
 
-export type ProfileInput = Partial<Pick<Profile, 'displayName' | 'username' | 'email'>>
+export type ProfileInput = Partial<Pick<Profile, 'displayName' | 'username' | 'email' | 'ensName' | 'walletNickname'>>
 
 export interface PasswordInput {
   currentPassword: string
@@ -196,8 +196,8 @@ export interface Profile {
   displayName: string
   username: string
   email: string
-  ensName?: string
-  walletNickname?: string
+  ensName: string
+  walletNickname: string
   avatarUrl: string | null
   version: number
 }
