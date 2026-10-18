@@ -15,7 +15,7 @@ export function DetailMobile({ nft, buy }: { nft: Nft; buy: Buy }) {
     <main className="mx-auto -mt-4 flex min-h-dvh max-w-[414px] flex-col pb-[164px]">
       <div className="relative mb-[-114px] h-[506px] shrink-0 bg-gradient-to-br from-surface-card from-[12%] to-surface-raised px-7 pt-6">
         <div className="flex items-center justify-between">
-          <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="size-[35px] rounded-full border-border bg-surface-raised">
+          <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="touch relative size-[35px] rounded-full border-border bg-surface-raised">
             <ChevronLeft aria-hidden className="size-4 text-text-accent" />
           </Button>
           <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="size-[35px] rounded-full border border-border bg-surface-raised text-text-accent" />

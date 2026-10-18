@@ -56,7 +56,7 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
                   aria-pressed={(search.feed ?? 'all') === f}
                   onClick={() => setFilter({ feed: f === 'all' ? undefined : f })}
                   className={cn(
-                    'border-b-2 border-transparent pb-1 font-medium',
+                    'touch relative border-b-2 border-transparent pb-1 font-medium',
                     (search.feed ?? 'all') === f && 'border-text-accent font-bold text-text-accent',
                   )}
                 >

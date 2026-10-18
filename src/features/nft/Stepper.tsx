@@ -17,10 +17,10 @@ interface Props {
 
 /** A whole-number quantity with limits. Each button is disabled at its limit, so the state is not just a color. */
 const BUTTON = {
-  default: 'size-6 rounded-full bg-primary text-ink disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
-  pill: 'h-[30px] w-5 rounded-[20px] border border-ink bg-primary text-ink shadow-[0_4px_6px_rgba(20,13,10,0.15)] disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
-  large: 'h-[49.5px] w-[33px] rounded-[33px] border border-ink bg-primary text-ink shadow-[0_6.6px_9.9px_rgba(20,13,10,0.15)] disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
-  round: 'size-6 rounded-full border border-border bg-surface-raised text-foreground disabled:text-tone disabled:opacity-100',
+  default: 'relative touch size-6 rounded-full bg-primary text-ink disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
+  pill: 'relative touch h-[30px] w-5 rounded-[20px] border border-ink bg-primary text-ink shadow-[0_4px_6px_rgba(20,13,10,0.15)] disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
+  large: 'relative touch h-[49.5px] w-[33px] rounded-[33px] border border-ink bg-primary text-ink shadow-[0_6.6px_9.9px_rgba(20,13,10,0.15)] disabled:bg-surface-raised disabled:text-tone disabled:opacity-100',
+  round: 'relative touch size-6 rounded-full border border-border bg-surface-raised text-foreground disabled:text-tone disabled:opacity-100',
 } as const
 
 export function Stepper({ label, value, min = 1, max, onChange, disabled, className, variant = 'default' }: Props) {
