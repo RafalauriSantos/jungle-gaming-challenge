@@ -91,7 +91,7 @@ export function FiltersPanel({ search, data, onChange }: Props) {
           <Slider
             aria-label="Faixa de preço em ETH"
             thumbLabels={['Preço máximo em ETH']}
-            min={ethToCenti(range.min)}
+            min={lo}
             max={ethToCenti(range.max)}
             step={1}
             value={to}
