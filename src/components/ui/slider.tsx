@@ -25,6 +25,8 @@ function Slider({
       min={min}
       max={max}
       thumbAlignment="edge"
+      // One end never carries the other: the end you drag goes past and takes the other side, and the other stays put (the default pushes it along).
+      thumbCollisionBehavior="swap"
       {...props}
     >
       <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">

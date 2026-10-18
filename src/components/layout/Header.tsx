@@ -16,22 +16,16 @@ const isMarket = (path: string) => path.startsWith('/nfts/') || path.startsWith(
 const NAV_ITEM = 'relative flex h-[45px] items-start text-base after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:bg-transparent'
 const ACTIVE = 'font-bold text-text-accent after:bg-text-accent'
 
-/** A page that is not part of this delivery: the click gets a visible answer instead of nothing. */
-function SoonItem({ label }: { label: string }) {
-  const [shown, setShown] = useState(false)
-  useEffect(() => {
-    if (!shown) return
-    const id = window.setTimeout(() => setShown(false), 2500)
-    return () => window.clearTimeout(id)
-  }, [shown])
+/** A page that is not part of this delivery: the click gets a visible answer instead of nothing. One answer at a time. */
+function SoonItem({ label, shown, onShow }: { label: string; shown: boolean; onShow: () => void }) {
   return (
     <span className="relative">
-      <button type="button" title="Em breve" onClick={() => setShown(true)} className={NAV_ITEM}>
+      <button type="button" title="Em breve" onClick={onShow} className={NAV_ITEM}>
         {label}
       </button>
       {shown && (
-        <span role="status" className="absolute left-1/2 top-[34px] -translate-x-1/2 whitespace-nowrap rounded-md bg-surface-card px-2 py-1 text-xs text-text-accent shadow-lg">
-          Em breve
+        <span role="status" className="absolute left-1/2 top-[36px] z-30 -translate-x-1/2 whitespace-nowrap rounded-md border border-primary bg-surface-card px-3 py-1.5 text-sm font-bold text-text-accent shadow-lg">
+          {label}: em breve
         </span>
       )}
     </span>
@@ -87,6 +81,12 @@ export function Header() {
   const user = useUser()
   const { path, hasQuery } = useRouterState({ select: (s) => ({ path: s.location.pathname, hasQuery: !!(s.location.search as { q?: string }).q }) })
   const market = isMarket(path)
+  const [soon, setSoon] = useState<string | null>(null)
+  useEffect(() => {
+    if (!soon) return
+    const id = window.setTimeout(() => setSoon(null), 3000)
+    return () => window.clearTimeout(id)
+  }, [soon])
   return (
     <header className={cn('mx-auto hidden w-full max-w-[1232px] px-4 md:block', !market && 'border-b border-border')}>
       <div className="flex items-start justify-between gap-6 pt-6">
@@ -98,11 +98,13 @@ export function Header() {
             Início
           </Link>
           {/* The market is the catalog. Creators and learning pages are out of scope: they answer the click with "Em breve". */}
-          <Link to="/" className={cn(NAV_ITEM, market && ACTIVE)}>
+          {/* The market is the catalog: from any screen it lands on the catalog section of the home. */}
+          <Link to="/" hash="catalogo" className={cn(NAV_ITEM, market && ACTIVE)}>
             Mercado
           </Link>
-          <SoonItem label="Criadores" />
-          <SoonItem label="Aprenda" />
+          {['Criadores', 'Aprenda'].map((label) => (
+            <SoonItem key={label} label={label} shown={soon === label} onShow={() => setSoon(label)} />
+          ))}
         </nav>
         <div className="flex h-[35px] items-center gap-7">
           <HeaderSearch hasQuery={hasQuery} />

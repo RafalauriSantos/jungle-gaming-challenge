@@ -87,3 +87,28 @@ test('MOCK-S09#1: a user turned away with 403 sees why', async ({ page }) => {
   await page.goto('/carteiras')
   await expect(page.getByRole('alert').filter({ hasText: 'Não foi possível carregar suas carteiras.' })).toBeVisible({ timeout: 8000 })
 })
+
+test('API-5#1: when the mock service worker is not in control of the page, a signed-in screen shows its failure state, not a crash', async ({ page, context }) => {
+  await signIn(page)
+  // The page runs but its requests reach the host, which answers every unknown path with the app's own index.html.
+  const cdp = await context.newCDPSession(page)
+  await cdp.send('Network.enable')
+  await cdp.send('Network.setBypassServiceWorker', { bypass: true })
+  await page.goto('/favoritos')
+  await expect(page.getByRole('alert').filter({ hasText: 'Não foi possível carregar seus favoritos.' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByText('Algo deu errado nesta tela')).toHaveCount(0)
+})
+
+test('API-5#1: after the browser stops the idle mock service worker, the next request is served again', async ({ page, context }) => {
+  await signIn(page)
+  await page.goto('/')
+  await expect(page.getByTestId('nft-card').first()).toBeVisible()
+  // A browser ends an idle worker and restarts it on the next request, with no memory of which pages it was serving.
+  const cdp = await context.newCDPSession(page)
+  await cdp.send('ServiceWorker.enable')
+  await cdp.send('ServiceWorker.stopAllWorkers')
+  await page.getByRole('link', { name: /^Carrinho/ }).first().click() // a client-side move that asks the API for the cart
+  await expect(page.getByRole('heading', { name: /^Carrinho( de NFTs)?$/ }).first()).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByText('Algo deu errado nesta tela')).toHaveCount(0)
+  await expect(page.getByText('Não foi possível')).toHaveCount(0)
+})
