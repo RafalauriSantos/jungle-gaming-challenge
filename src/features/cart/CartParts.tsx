@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
-import { formatEth } from '@/lib/eth'
+import { formatEth } from '@/lib/domain/eth'
 import { cn } from '@/lib/utils'
 import type { CartModel } from './cartModel'
 

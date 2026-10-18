@@ -3,7 +3,7 @@ import { errorBodyOf } from '@/api/client'
 import type { Wallet, WalletInput, Wallets } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { FieldError } from '@/components/ui/field'
-import { validateWallet } from '@/lib/wallet-rules'
+import { validateWallet } from '@/lib/domain/wallet-rules'
 import { fromWallet, WalletFields, type Values } from './WalletFields'
 import { useSaveWallet } from './useWallets'
 

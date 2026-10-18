@@ -11,7 +11,7 @@ import {
   type NftListResponse,
   type Sort,
 } from '@/api/types'
-import { parseEth, weiToEth } from '@/lib/eth'
+import { parseEth, weiToEth } from '@/lib/domain/eth'
 import { db } from '../db'
 
 const PAGE_SIZE = 9

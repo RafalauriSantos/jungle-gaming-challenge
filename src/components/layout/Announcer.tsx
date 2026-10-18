@@ -1,4 +1,4 @@
-import { useAnnouncement } from '@/lib/announce'
+import { useAnnouncement } from '@/lib/ui/announce'
 
 export function Announcer() {
   return (

@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { AuthScreen } from '@/features/auth/AuthScreen'
-import { safeRedirect } from '@/lib/redirect'
+import { safeRedirect } from '@/lib/domain/redirect'
 import { getSession } from '@/session/store'
 
 export const Route = createFileRoute('/entrar')({
