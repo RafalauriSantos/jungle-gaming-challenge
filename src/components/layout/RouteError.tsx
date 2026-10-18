@@ -10,7 +10,12 @@ export function RouteError({ error, reset }: { error: unknown; reset?: () => voi
       <p role="alert" className="text-text-secondary">
         Não foi possível mostrar esta página. Seus dados estão seguros; tente de novo ou volte ao início.
       </p>
-      {detail && <p className="text-xs text-tone">Detalhe técnico: {detail}</p>}
+      {detail && (
+        <details className="text-xs text-tone">
+          <summary className="cursor-pointer">Detalhe técnico: {detail}</summary>
+          {error instanceof Error && error.stack && <pre className="mt-2 max-w-full overflow-x-auto whitespace-pre-wrap">{error.stack.split('\n').slice(0, 8).join('\n')}</pre>}
+        </details>
+      )}
       <div className="flex gap-3">
         {reset && (
           <button type="button" onClick={reset} className="h-10 rounded-md bg-primary px-4 font-bold text-ink">

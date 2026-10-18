@@ -39,15 +39,25 @@ test('UI-1#1 CAT-1#1: the search icon opens the field, which filters the catalog
   await expect(header(page).getByRole('searchbox')).toHaveCount(0)
 })
 
-test('UI-4#1: the header items that open nothing yet answer the click with "Em breve", and Mercado goes to the catalog', async ({ page }) => {
+test('UI-4#1: Mercado goes to the catalog, and the items that open nothing yet answer the click with one visible "em breve"', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 0) < 768, 'The header nav is the desktop one; the phone has the tab bar')
-  await page.goto('/nfts/nft-004')
   const nav = page.getByRole('navigation', { name: 'Principal' })
+
+  // From another screen it lands on the catalog section of the home.
+  await page.goto('/nfts/nft-004')
   await nav.getByRole('link', { name: 'Mercado' }).click()
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL(/\/#catalogo$/)
+  await expect(page.getByRole('region', { name: 'Catálogo' })).toBeInViewport()
+
+  // On the home it scrolls down to the catalog instead of doing nothing.
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await nav.getByRole('link', { name: 'Mercado' }).click()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(300)
+
   for (const item of ['Criadores', 'Aprenda']) {
     await expect(nav.getByRole('button', { name: item })).toHaveAccessibleDescription('Em breve') // announced before the click
     await nav.getByRole('button', { name: item }).click()
-    await expect(nav.getByRole('status').filter({ hasText: 'Em breve' }).last()).toBeVisible()
+    await expect(nav.getByRole('status')).toHaveText(`${item}: em breve`)
+    await expect(nav.getByRole('status')).toHaveCount(1) // the previous answer is gone
   }
 })
