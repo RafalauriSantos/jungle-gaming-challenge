@@ -114,6 +114,7 @@ test('API-5#1: after the browser stops the idle mock service worker, the next re
   // Stop this page's worker only (not every worker of the browser), and make sure it really stopped before going on.
   for (const [versionId, status] of running) if (status === 'running') await cdp.send('ServiceWorker.stopWorker', { versionId })
   await expect.poll(() => [...running.values()].includes('running')).toBe(false)
+  await cdp.detach() // an open debugging session on a worker makes it flaky to test (playwright#12103)
   await page.getByRole('link', { name: /^Carrinho/ }).first().click() // a client-side move that asks the API for the cart
   await expect(page.getByRole('heading', { name: /^Carrinho( de NFTs)?$/ }).first()).toBeVisible({ timeout: 15_000 })
   await expect(page.getByText('Algo deu errado nesta tela')).toHaveCount(0)
