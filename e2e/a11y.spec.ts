@@ -54,3 +54,16 @@ test('A11Y-4#2: every image has a text alternative or is hidden as decoration', 
   )
   expect(bare).toEqual([])
 })
+
+test('A11Y-8#1 A11Y-3#1: the order confirmation has no serious or critical accessibility violation', async ({ page }) => {
+  await withOneItem(page)
+  await page.getByRole('link', { name: 'Conectar e finalizar' }).click()
+  await expect(page).toHaveURL('/pagamento')
+  await page.getByRole('radio', { name: 'MetaMask' }).check()
+  await page.getByRole('button', { name: 'Conectar carteira' }).click()
+  await expect(page.getByText('Carteira conectada: MetaMask.')).toBeVisible()
+  await page.getByRole('button', { name: 'Confirmar compra' }).click()
+  await page.getByRole('dialog', { name: 'Revise seu pedido' }).getByRole('button', { name: 'Enviar pedido' }).click()
+  await expect(page).toHaveURL(/\/pedido\//)
+  expect(await scan(page)).toEqual([])
+})

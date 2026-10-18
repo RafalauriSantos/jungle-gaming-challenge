@@ -1,6 +1,5 @@
 import { queryOptions, replaceEqualDeep } from '@tanstack/react-query'
 import { pickNewerNft } from '@/realtime/gate'
-import { isAxiosError } from 'axios'
 import { api } from './client'
 import type { Nft, NftListParams, NftListResponse } from './types'
 
@@ -37,7 +36,5 @@ export const nftDetailOptions = (id: string) =>
   queryOptions({
     queryKey: nftKeys.detail(id),
     queryFn: ({ signal }) => api.get<Nft>(`/nfts/${encodeURIComponent(id)}`, { signal }).then((r) => r.data),
-    // A missing NFT is an answer, not a transient failure.
-    retry: (count, error) => !(isAxiosError(error) && error.response?.status === 404) && count < 2,
     structuralSharing: (old, read) => replaceEqualDeep(old, pickNewerNft(old as Nft | undefined, read as Nft)),
   })

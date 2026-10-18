@@ -11,7 +11,11 @@ const read = (f: string) => readFileSync(f, 'utf8')
 
 describe('the twelve scenarios of the statement', () => {
   it('TEST-1#1: each scenario of Appendix A has an E2E test that names one of its requirements', () => {
-    const titles = walk('e2e').filter((f) => f.endsWith('.spec.ts')).map(read).join('\n')
+    // Only what a test is called counts: a requirement named in a comment or an import proves nothing.
+    const titles = walk('e2e')
+      .filter((f) => f.endsWith('.spec.ts'))
+      .flatMap((f) => [...read(f).matchAll(/\btest\(\s*([`'"])(.*?)\1\s*,/g)].map((m) => m[2]))
+      .join('\n')
     const rows = read('docs/spec/design-decisions.md').split('## Appendix A')[1]!.split('\n').filter((l) => /^\| E\d+ \|/.test(l))
     expect(rows).toHaveLength(12)
     const expand = (token: string): string[] => {
