@@ -57,19 +57,21 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 | D-20 | Removable chips for active filters | CAT-10 |
 | D-26 | Footer medallion letters replaced by icons | UI-7 |
 
-## 4. Open
+## 4. Questions and how they were closed
 
-| ID | Question | Needed from | Default if unanswered |
-| --- | --- | --- | --- |
-| Q-1 | Create the repository and pick the host for the M0 deploy (`CLAUDE.md` says to ask first) | Rafael | Wait; M0 cannot finish without it |
-| Q-2 | Is a one-network cart acceptable, or must mixed-network carts be possible? | Rafael | One network |
-| Q-3 | Should the desktop "Usar outra carteira?" wallet be saved or used only for that order? | Rafael | Used only for that order |
-| Q-4 | Are Vitest and a Lighthouse dev dependency acceptable? (§2 allows complementary libraries) | Rafael | Yes |
-| Q-5 | Desktop cart rows, steppers and remove control: exact layout | Figma, when building the cart | Follow the frame |
-| Q-6 | The first wallet option on desktop payment is a chip row "MetaMask · WalletConnect · Coinbase" as one radio | Figma and judgment | Three separate options |
-| Q-7 | Mobile detail shows tiers `1/10, 1/10, 1/50`; desktop shows `1/1, 1/10, 1/50` | Figma | Use the desktop set |
-| Q-8 | Fee values for Polygon and Solana | Nobody (invented) | Mock constants, documented as invented |
-| Q-9 | Referral code is a required field with no valid list | Nobody | 4 to 12 letters or digits |
+All were answered by the default, none needed Rafael's call except Q-1.
+
+| ID | Question | Closed as |
+| --- | --- | --- |
+| Q-1 | Repository and M0 host | Done: GitHub repo and Cloudflare Pages, published only by CI |
+| Q-2 | One-network cart | Adopted: one network per cart (D-21) |
+| Q-3 | "Usar outra carteira?" wallet | Adopted: used only for that order |
+| Q-4 | Vitest and Lighthouse as dev dependencies | Adopted: both in use (§2 allows complementary libraries) |
+| Q-5 | Desktop cart rows | Resolved: follows the frame (D-18) |
+| Q-6 | First wallet option as one radio | Adopted: three separate options |
+| Q-7 | Mobile detail tiers `1/10, 1/10, 1/50` | Adopted: the desktop set `1/1, 1/10, 1/50` |
+| Q-8 | Fees for Polygon and Solana | Invented constants, documented in `ARCHITECTURE.md` §8 |
+| Q-9 | Referral code validity | Adopted: 4 to 12 letters or digits |
 
 ## 5. Contradictions found
 
@@ -140,3 +142,18 @@ Queries do not refetch on window focus (`query-client.ts`), so a background refr
 | Profile | `states.spec.ts` | `states.spec.ts` | n/a (always a profile) | saving keeps the form on screen (`ProfileScreen.tsx`; no dedicated test) |
 | Wallets | `states.spec.ts` | `states.spec.ts` | `wallets.spec.ts` (no secondary wallet) | list updates after add or remove (`wallets.spec.ts`) |
 | Login / sign-up | n/a (no server read) | `auth.spec.ts` (field and form errors) | n/a | n/a |
+
+
+## Contrast and non-color states (A11Y-5)
+
+Contrast: axe runs the WCAG AA `color-contrast` rule on every screen on desktop and mobile (`e2e/a11y.spec.ts`) and finds no serious violation; token colors are the Figma values.
+
+| State | Not by color alone | Where |
+| --- | --- | --- |
+| Selected edition | Weight and border change, `aria-checked`, and the line "Restam n de m" refers to the selected tier | `DetailParts.tsx` |
+| Sold-out edition | Strike-through, the label "ESGOTADA", `aria-label` "esgotada" and the message "Esta edição está esgotada." | `DetailParts.tsx` |
+| Sold-out card | The text "Esgotado" | `NftCard.tsx` |
+| Field error | Message text linked by `aria-describedby`, `aria-invalid`, focus on the first invalid field | `AuthForms.tsx`, `WalletFields.tsx`, `ProfileField.tsx` |
+| Failure and recovery | Alert text and a "Tentar novamente" button | every screen (see "Screen states") |
+| Favorite | `aria-pressed`, a name with the NFT and an announced message | `FavoriteButton.tsx` |
+| Active nav item | Underline plus color | `Header.tsx` |
