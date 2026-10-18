@@ -47,7 +47,7 @@ export function CartMobile({ m, empty }: { m: CartModel; empty: boolean }) {
                   <span className="sr-only">Total da linha </span>
                   {formatEth(line.lineTotal)}
                 </p>
-                <Stepper variant="round" label={`Quantidade de ${line.name}`} value={line.quantity} max={Math.max(line.available, 1)} onChange={(q) => m.setQuantity(line, q)} disabled={m.busy} className="absolute left-[261px] top-[38px] gap-[13px]" />
+                <Stepper variant="round" label={`Quantidade de ${line.name}`} value={line.quantity} max={Math.max(line.available, 1)} onChange={(q) => m.setQuantity(line, q)} disabled={m.busy} className="absolute right-3 top-[38px] gap-[13px]" />
                 <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${line.name}`} onClick={() => m.remove(line)} disabled={m.busy} className="absolute right-3 top-2 size-6">
                   <Trash2 aria-hidden className="size-[18px]" />
                 </Button>
