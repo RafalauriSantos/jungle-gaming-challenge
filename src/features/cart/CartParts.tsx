@@ -8,8 +8,10 @@ import type { CartModel } from './cartModel'
 /** The coupon field. Both frames draw it; the desktop one is a rectangle, the mobile one a pill. */
 export function CouponForm({ m, pill }: { m: CartModel; pill?: boolean }) {
   const [draft, setDraft] = useState('')
+  const [empty, setEmpty] = useState(false)
   const submit = (e: FormEvent) => {
     e.preventDefault()
+    setEmpty(!draft.trim())
     if (draft.trim()) m.applyCoupon(draft.trim())
   }
   if (m.coupon) {
@@ -29,7 +31,12 @@ export function CouponForm({ m, pill }: { m: CartModel; pill?: boolean }) {
         <input
           id="coupon"
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            setEmpty(false)
+          }}
+          aria-invalid={empty || undefined}
+          aria-describedby={empty ? 'coupon-empty' : undefined}
           placeholder="Digite o código promocional..."
           className={cn('min-w-0 flex-1 bg-transparent outline-none placeholder:text-tone', pill ? 'text-[13px]' : 'text-xs')}
         />
@@ -43,6 +50,11 @@ export function CouponForm({ m, pill }: { m: CartModel; pill?: boolean }) {
           Aplicar
         </button>
       </div>
+      {empty && (
+        <p id="coupon-empty" role="alert" className="text-sm text-destructive">
+          Digite o código promocional.
+        </p>
+      )}
     </form>
   )
 }

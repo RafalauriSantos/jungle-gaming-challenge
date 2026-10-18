@@ -1,6 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { ChevronDown, LogIn, Search, ShoppingCart, User } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useLogoutAndLeave } from '@/features/auth/useAuth'
@@ -15,6 +15,28 @@ const isMarket = (path: string) => path.startsWith('/nfts/') || path.startsWith(
 
 const NAV_ITEM = 'relative flex h-[45px] items-start text-base after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:bg-transparent'
 const ACTIVE = 'font-bold text-text-accent after:bg-text-accent'
+
+/** A page that is not part of this delivery: the click gets a visible answer instead of nothing. */
+function SoonItem({ label }: { label: string }) {
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    if (!shown) return
+    const id = window.setTimeout(() => setShown(false), 2500)
+    return () => window.clearTimeout(id)
+  }, [shown])
+  return (
+    <span className="relative">
+      <button type="button" onClick={() => setShown(true)} className={NAV_ITEM}>
+        {label}
+      </button>
+      {shown && (
+        <span role="status" className="absolute left-1/2 top-[34px] -translate-x-1/2 whitespace-nowrap rounded-md bg-surface-card px-2 py-1 text-xs text-text-accent shadow-lg">
+          Em breve
+        </span>
+      )}
+    </span>
+  )
+}
 
 function AccountMenu({ username }: { username: string }) {
   const leave = useLogoutAndLeave()
@@ -75,12 +97,12 @@ export function Header() {
           <Link to="/" activeOptions={{ exact: true }} className={cn(NAV_ITEM, !market && ACTIVE)}>
             Início
           </Link>
-          {/* Market and editorial pages are out of scope; they are inert labels, "Mercado" marked on its own screens. */}
-          {['Mercado', 'Criadores', 'Aprenda'].map((n) => (
-            <span key={n} title="Em breve" aria-disabled="true" className={cn(NAV_ITEM, n === 'Mercado' && market && ACTIVE)}>
-              {n}
-            </span>
-          ))}
+          {/* The market is the catalog. Creators and learning pages are out of scope: they answer the click with "Em breve". */}
+          <Link to="/" className={cn(NAV_ITEM, market && ACTIVE)}>
+            Mercado
+          </Link>
+          <SoonItem label="Criadores" />
+          <SoonItem label="Aprenda" />
         </nav>
         <div className="flex h-[35px] items-center gap-7">
           <HeaderSearch hasQuery={hasQuery} />
