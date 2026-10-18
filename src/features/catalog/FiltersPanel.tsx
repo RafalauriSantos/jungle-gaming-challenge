@@ -70,8 +70,8 @@ export function FiltersPanel({ search, data, onChange }: Props) {
   // The slider works in whole hundredths of an ETH; money itself stays a string.
   const lo = ethToCenti(search.minPrice ?? range.min)
   const hi = ethToCenti(search.maxPrice ?? range.max)
-  const [draft, setDraft] = useState<[number, number] | null>(null)
-  const [from, to] = draft ?? [lo, hi]
+  const [draft, setDraft] = useState<number | null>(null)
+  const to = draft ?? hi
   const fmt = (n: number) => formatEth(centiToEth(n)).replace(' ETH', '').replace('.', ',')
 
   return (
@@ -90,22 +90,22 @@ export function FiltersPanel({ search, data, onChange }: Props) {
         <div className="flex flex-col gap-3 pl-3">
           <Slider
             aria-label="Faixa de preço em ETH"
-            thumbLabels={['Preço mínimo em ETH', 'Preço máximo em ETH']}
-            min={ethToCenti(range.min)}
+            thumbLabels={['Preço máximo em ETH']}
+            min={lo}
             max={ethToCenti(range.max)}
             step={1}
-            value={[from, to]}
-            onValueChange={(v) => Array.isArray(v) && setDraft([v[0]!, v[1]!])}
+            value={to}
+            onValueChange={(v) => typeof v === 'number' && setDraft(v)}
             disabled={!data}
           />
           <p className="text-[15px]">
-            Preço: {fmt(from)} - {fmt(to)} ETH
+            Preço: {fmt(lo)} - {fmt(to)} ETH
           </p>
           <Button
             className="w-fit rounded-md px-3 text-base font-bold"
             disabled={!data || !draft}
             onClick={() => {
-              onChange({ minPrice: centiToEth(from), maxPrice: centiToEth(to) })
+              onChange({ maxPrice: centiToEth(to) })
               setDraft(null)
             }}
           >

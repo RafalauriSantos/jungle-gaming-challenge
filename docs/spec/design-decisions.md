@@ -52,7 +52,7 @@ Status: **decided** (evidence in hand) · **adopted** (own choice, reversible, l
 
 | ID | Item | Rows |
 | --- | --- | --- |
-| D-06 | Price filter as two exact text fields; the slider may stay as an extra | CAT-9 |
+| D-06 | Price filter as two exact text fields; the slider may stay as an extra (it has one handle, the maximum: a second handle was judged unnecessary in review) | CAT-9 |
 | D-11 | ENS name required only on Ethereum | WAL-3 |
 | D-15 | Vitest for pure rules | TEST-8 |
 | D-20 | Removable chips for active filters | CAT-10 |
