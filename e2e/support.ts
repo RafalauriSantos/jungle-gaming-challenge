@@ -23,3 +23,12 @@ export async function searchField(page: Page) {
   if ((await toggle.isVisible()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click()
   return page.getByRole('searchbox', { name: 'Buscar NFTs' }).first()
 }
+
+/** The sort control: a styled select, so its list is the page's own (a native one opens the phone's system dialog). */
+export const sortControl = (page: Page) => page.getByRole('combobox', { name: 'Ordenar por:' })
+const SORT_LABEL = { recent: 'Listados recentemente', 'price-asc': 'Menor preço', 'price-desc': 'Maior preço', name: 'Nome (A–Z)' } as const
+export async function chooseSort(page: Page, sort: keyof typeof SORT_LABEL) {
+  await sortControl(page).click()
+  await page.getByRole('option', { name: SORT_LABEL[sort] }).click()
+}
+export const sortLabel = (sort: keyof typeof SORT_LABEL) => SORT_LABEL[sort]
