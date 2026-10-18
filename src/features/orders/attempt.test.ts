@@ -24,6 +24,14 @@ describe('attempt key', () => {
     expect(attemptKey(s, 'u_ana', { ...body, provider: 'coinbase' })).toBe(second)
   })
 
+  it('ORD-7#1: the note is part of the attempt: the server hashes it, so a changed note must not reuse the key', () => {
+    const s = storage()
+    const first = attemptKey(s, 'u_ana', { ...body, note: 'Presente' })
+    expect(attemptKey(s, 'u_ana', { ...body, note: 'Presente' })).toBe(first)
+    expect(attemptKey(s, 'u_ana', { ...body, note: 'Outro texto' })).not.toBe(first)
+    expect(attemptKey(s, 'u_ana', body)).not.toBe(first)
+  })
+
   it('keeps one attempt per user', () => {
     const s = storage()
     expect(attemptKey(s, 'u_ana', body)).not.toBe(attemptKey(s, 'u_bruno', body))

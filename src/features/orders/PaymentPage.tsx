@@ -151,6 +151,7 @@ export function PaymentPage() {
 
   async function confirm() {
     if (!q || !provider || sending.current) return // a second click while one is in flight does nothing
+    if (stale || q.issues.length) return // the terms on screen are not the ones the user accepted
     const wallet: OrderBody['wallet'] = other ? { inline: Object.fromEntries(Object.entries(inline).filter(([, v]) => v)) as unknown as WalletInput } : { walletId: selectedId! }
     const body: OrderBody = { quoteId: q.id, wallet, provider, ...(note.trim() && { note: note.trim() }) }
     const key = attemptKey(localStorage, user.id, body)
@@ -279,9 +280,18 @@ export function PaymentPage() {
               {note.trim() && <p className="text-sm text-text-secondary">Observação: {note.trim()}</p>}
             </>
           )}
+          {stale && (
+            <div role="alert" className="flex flex-col items-start gap-2 rounded-md border border-primary p-3 text-sm">
+              <p className="font-bold">Os valores mudaram enquanto você revisava. Confira o novo total acima e aceite para continuar.</p>
+              <Button size="sm" onClick={model.acceptNewTerms}>Aceitar novos valores</Button>
+            </div>
+          )}
+          {!!q?.issues.length && (
+            <p role="alert" className="text-sm text-destructive">Um item não tem mais estoque suficiente. Volte e ajuste o carrinho.</p>
+          )}
           <div className="flex justify-end gap-2">
             <Button variant="outline" disabled={submitting} onClick={() => setReviewing(false)}>Voltar</Button>
-            <Button disabled={submitting} onClick={() => void confirm()}>{submitting ? 'Enviando…' : 'Enviar pedido'}</Button>
+            <Button disabled={submitting || stale || !!q?.issues.length} onClick={() => void confirm()}>{submitting ? 'Enviando…' : 'Enviar pedido'}</Button>
           </div>
           <div aria-live="polite" className="min-h-5 text-sm">
             {checking && <p role="status">Verificando seu pedido… Não foi possível ler a resposta, mas o envio não será duplicado.</p>}

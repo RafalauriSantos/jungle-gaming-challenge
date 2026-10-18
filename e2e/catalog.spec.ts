@@ -54,8 +54,13 @@ test('CAT-1#1: search, collection, sort and page each write their own URL parame
   await chooseSort(page, 'name')
   await expect(page).toHaveURL(/sort=name/)
   await page.goto('/?q=ape&page=2')
-  await expect(page.getByText('Nenhum NFT encontrado com esses filtros.')).toBeVisible()
+  // The search has results; only this page is past the end. Say so, and offer the way back.
+  await expect(page.getByText('Esta página não existe para a busca atual.')).toBeVisible()
+  await expect(page.getByText('Nenhum NFT encontrado com esses filtros.')).toHaveCount(0)
   await expect(page).toHaveURL(/page=2/)
+  await page.getByRole('button', { name: 'Ver a primeira página' }).click()
+  await expect(page).not.toHaveURL(/page=/)
+  await expect(page.getByTestId('nft-card')).toHaveCount(6)
 })
 
 test('CAT-2#1: collection and network filters combine and narrow the result', async ({ page }) => {

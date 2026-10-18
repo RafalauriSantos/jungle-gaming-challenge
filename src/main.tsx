@@ -5,12 +5,13 @@ import { createRoot } from 'react-dom/client'
 import { createQueryClient } from './api/query-client'
 import './index.css'
 import { connectRealtime } from './realtime/client'
+import { parseSearch } from './lib/search-params'
 import { routeTree } from './routeTree.gen'
 import { endSession } from './session/actions'
 import { onSessionLost } from './session/store'
 
 const queryClient = createQueryClient()
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree, parseSearch })
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -21,7 +22,7 @@ declare module '@tanstack/react-router' {
 async function enableMocks() {
   if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
   const [{ db }, { applyBootParams }] = await Promise.all([import('./mocks/db'), import('./mocks/boot')])
-  const { search, reset } = applyBootParams(db, location.search, localStorage)
+  const { search, reset } = applyBootParams(db, location.search, [localStorage, sessionStorage])
   if (reset) {
     // The session store already read its storage; a fresh load starts everything clean.
     location.replace(location.pathname + search + location.hash)

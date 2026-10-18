@@ -25,7 +25,7 @@ for (const [path, heading, private_] of ROUTES) {
 }
 
 // The two screens that depend on what the user did before: the payment (needs a cart) and an order (needs a purchase).
-test('ROUTE-2#1 ROUTE-2#2: /pagamento and /pedido/:id open by URL and survive a refresh', async ({ page }) => {
+test('DEL-10#1 DEL-10#2 ROUTE-2#1 ROUTE-2#2: /pagamento and /pedido/:id open by URL and survive a refresh', async ({ page }) => {
   await signIn(page)
   await page.goto('/nfts/nft-004')
   await page.getByRole('radio', { name: 'Edição 1/10' }).click()
