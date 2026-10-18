@@ -104,3 +104,9 @@ if __name__ == "__main__":
         pic = variant(base, trait, backdrop, lift, mirror).resize((SIZE, SIZE), Image.LANCZOS)
         pic.save(OUT / f"art-{n}.webp", "WEBP", quality=78, method=6)
     print(f"wrote art-5..art-{TOTAL}")
+    # Small copies for the catalog cards (shown at most 250 px wide) and the home banner, which keep the first paint light.
+    for n in range(1, TOTAL + 1):
+        Image.open(OUT / f"art-{n}.webp").convert("RGB").resize((360, 360), Image.LANCZOS).save(OUT / f"art-{n}-360.webp", "WEBP", quality=76, method=6)
+    for src, dst, size in (("art-1", "art-1-300", 300), ("art-2", "art-2-120", 120)):
+        Image.open(OUT / f"{src}.webp").convert("RGB").resize((size, size), Image.LANCZOS).save(OUT / f"{dst}.webp", "WEBP", quality=78, method=6)
+    print("wrote the small copies")
