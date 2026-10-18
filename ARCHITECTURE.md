@@ -24,7 +24,7 @@ reports/         Lighthouse HTML and JSON, with the tool versions and conditions
 docs/            statement, requirements, design decisions
 ```
 
-Dependency direction: `routes` and `features` use `api`, `session`, `realtime` and `lib`; `mocks` import none of them (a guard enforces it) and only `main.tsx` loads `mocks`.
+Dependency direction: `routes` and `features` use `api`, `session`, `realtime` and `lib`; `mocks` take only the shared types and pure helpers of `api` and `lib`, and only `main.tsx` loads `mocks` (a guard enforces that).
 
 ## 1. Domain
 
