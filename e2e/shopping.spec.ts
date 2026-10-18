@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { ANA, signIn } from './support'
+import { ANA, searchField, signIn } from './support'
 
 // nft-004 "Cosmic Bloom #412" (Ethereum, 1.61): tiers 1/1 (1 left), 1/10 (9), 1/50 (21).
 // nft-001 "Emerald Ape #001" is sold out in every tier. nft-003 "Neon Vessel #275" is on Polygon.
@@ -185,6 +185,7 @@ test('RT-1#1 API-6#1: one price event changes the catalog, the detail and the ca
 
   // Same page session, other screens: the detail and the catalog already carry the new price.
   await page.getByRole('link', { name: 'Continuar explorando' }).click()
+  await (await searchField(page)).fill('412') // nft-004 is no longer on the first page: find it, still without a reload
   await expect(page.locator('a[href="/nfts/nft-004"]').first()).toContainText('2.00 ETH')
   await page.locator('a[href="/nfts/nft-004"]').first().click()
   await expect(page.getByText('2.00 ETH').first()).toBeVisible()

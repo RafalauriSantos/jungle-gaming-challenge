@@ -1,13 +1,58 @@
 import { Link } from '@tanstack/react-router'
+import { Search, ShoppingCart } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { Nft } from '@/api/types'
 import { FavoriteButton } from '@/features/favorites/FavoriteButton'
+import { useBuy } from '@/features/nft/useBuy'
+import { announce } from '@/lib/announce'
 import { formatEth } from '@/lib/eth'
 import { totalAvailable } from '@/lib/nft'
+
+const ACTION = 'grid size-9 place-items-center rounded-full border border-border bg-ink/80 text-text-accent outline-none transition-colors hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50'
+
+/** The three buttons the desktop frame shows on a card under the pointer: add to cart, favorite, view. */
+function CardActions({ nft, soldOut }: { nft: Nft; soldOut: boolean }) {
+  const buy = useBuy(nft)
+  const [dismissed, setDismissed] = useState<unknown>(null)
+  useEffect(() => {
+    if (!buy.message) return
+    announce(buy.message.text)
+    // A confirmation goes away by itself; a refusal that offers a remedy stays until it is used or the cart changes.
+    if (buy.message.offerClear) return
+    const id = window.setTimeout(() => setDismissed(buy.message), 4000)
+    return () => window.clearTimeout(id)
+  }, [buy.message])
+  const shown = buy.message && buy.message !== dismissed ? buy.message : null
+  return (
+    <>
+      {/* Only where a pointer can hover: on a touch screen the invisible buttons would swallow taps meant for the card. */}
+      <div className="pointer-events-none absolute inset-x-0 top-[222px] hidden justify-center gap-2 opacity-0 transition-opacity group-focus-within/card:opacity-100 group-hover/card:opacity-100 md:[@media(hover:hover)]:flex">
+        <button type="button" disabled={soldOut || buy.adding} aria-label={`Adicionar ${nft.name} ao carrinho`} onClick={buy.addToCart} className={`${ACTION} pointer-events-auto`}>
+          <ShoppingCart aria-hidden className="size-4" />
+        </button>
+        <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className={`${ACTION} pointer-events-auto size-9 p-0`} />
+        <Link to="/nfts/$id" params={{ id: nft.id }} aria-label={`Ver ${nft.name}`} className={`${ACTION} pointer-events-auto`}>
+          <Search aria-hidden className="size-4" />
+        </Link>
+      </div>
+      {shown && (
+        <div role="status" className={`absolute inset-x-3 top-[168px] hidden rounded-md border px-3 py-2 text-xs shadow-lg md:block ${shown.kind === 'error' ? 'border-destructive bg-ink text-destructive' : 'border-primary bg-ink text-text-accent'}`}>
+          <p>{shown.text}</p>
+          {shown.offerClear && (
+            <button type="button" onClick={buy.emptyThenAdd} className="mt-1 font-bold underline">
+              Esvaziar carrinho e adicionar
+            </button>
+          )}
+        </div>
+      )}
+    </>
+  )
+}
 
 export function NftCard({ nft }: { nft: Nft }) {
   const soldOut = totalAvailable(nft) === 0
   return (
-    <li data-testid="nft-card" className="relative">
+    <li data-testid="nft-card" className="group/card relative">
       <Link to="/nfts/$id" params={{ id: nft.id }} className="group block rounded-[20px]">
         <div className="relative rounded-[20px] bg-gradient-to-br from-surface-card from-10% to-surface-raised p-1 pb-3 pt-3 md:grid md:h-[300px] md:place-items-center md:rounded-none md:bg-surface-card md:bg-none md:p-0">
           <img
@@ -42,7 +87,8 @@ export function NftCard({ nft }: { nft: Nft }) {
           </p>
         </div>
       </Link>
-      {/* The mobile frame draws a heart on the card; the desktop card has none (D-16). */}
+      {/* The mobile frame draws a heart on the card; the desktop card shows its buttons on hover (D-16). */}
+      <CardActions nft={nft} soldOut={soldOut} />
       <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="absolute right-3 top-5 size-[35px] rounded-full border border-border bg-ink/60 text-text-accent md:hidden" />
     </li>
   )

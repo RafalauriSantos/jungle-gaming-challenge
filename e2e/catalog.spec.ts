@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { chooseSort, searchField, sortControl, sortLabel } from './support'
+import { chooseSort, searchField, signIn, sortControl, sortLabel } from './support'
 
 test('CAT-1#2 CAT-1#3 CAT-2#2: filters, sort and pagination live in the URL and survive history', async ({ page }) => {
   await page.goto('/')
@@ -18,7 +18,7 @@ test('CAT-1#2 CAT-1#3 CAT-2#2: filters, sort and pagination live in the URL and 
   await filters.locator('label', { hasText: 'Música' }).click()
   await expect(page).toHaveURL(/collection=/)
   await expect(page).not.toHaveURL(/page=/)
-  await expect(cards).toHaveCount(6)
+  await expect(cards).toHaveCount(7)
   if (compact) await page.keyboard.press('Escape')
 
   await chooseSort(page, 'price-desc')
@@ -48,7 +48,7 @@ test('CAT-1#1: search, collection, sort and page each write their own URL parame
 
   await (await searchField(page)).fill('ape')
   await expect(page).toHaveURL(/q=ape/)
-  await expect(page.getByTestId('nft-card')).toHaveCount(6)
+  await expect(page.getByTestId('nft-card')).toHaveCount(7)
   await expect(page.getByTestId('nft-card').first()).toContainText('Ape')
 
   await chooseSort(page, 'name')
@@ -60,7 +60,7 @@ test('CAT-1#1: search, collection, sort and page each write their own URL parame
   await expect(page).toHaveURL(/page=2/)
   await page.getByRole('button', { name: 'Ver a primeira página' }).click()
   await expect(page).not.toHaveURL(/page=/)
-  await expect(page.getByTestId('nft-card')).toHaveCount(6)
+  await expect(page.getByTestId('nft-card')).toHaveCount(7)
 })
 
 test('CAT-2#1: collection and network filters combine and narrow the result', async ({ page }) => {
@@ -69,10 +69,10 @@ test('CAT-2#1: collection and network filters combine and narrow the result', as
   if (compact) await page.getByRole('button', { name: 'Abrir filtros' }).click()
   const filters = compact ? page.getByRole('dialog') : page.getByRole('complementary', { name: 'Filtros' })
   await filters.locator('label', { hasText: 'Música' }).click()
-  await expect(page.getByTestId('nft-card')).toHaveCount(6)
+  await expect(page.getByTestId('nft-card')).toHaveCount(7)
   await filters.locator('label', { hasText: 'Ethereum' }).click()
   await expect(page).toHaveURL(/network=/)
-  await expect(page.getByTestId('nft-card')).toHaveCount(2)
+  await expect(page.getByTestId('nft-card')).toHaveCount(3)
 })
 
 test('CAT-6#1 CAT-6#2: the home page shows the hero, nine NFTs and the sort control, and a card opens its detail', async ({ page }) => {
@@ -81,7 +81,7 @@ test('CAT-6#1 CAT-6#2: the home page shows the hero, nine NFTs and the sort cont
   await expect(page.getByTestId('nft-card')).toHaveCount(9)
   await expect(sortControl(page)).toBeVisible()
   if (page.viewportSize()!.width >= 1024) await expect(page.getByRole('complementary', { name: 'Filtros' })).toBeVisible()
-  const first = page.getByTestId('nft-card').first().getByRole('link')
+  const first = page.getByTestId('nft-card').first().getByRole('link').first()
   const href = await first.getAttribute('href')
   await first.click()
   await expect(page).toHaveURL(href!)
@@ -152,4 +152,43 @@ test('CAT-1#1: choosing a listing or a sort keeps the reading position instead o
   await expect(page).toHaveURL(/feed=new/)
   await expect(tab).toHaveAttribute('aria-pressed', 'true')
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(before - 60)
+})
+
+test('CAT-6#2: on desktop the card shows cart, favorite and view buttons on hover, and each does its job', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The hover buttons are the desktop card; the phone card keeps its heart')
+  await signIn(page)
+  await page.goto('/')
+  const card = page.getByTestId('nft-card').nth(1) // Sage Nomad #009, the card the frame shows on hover
+  await card.hover()
+  const cartButton = card.getByRole('button', { name: 'Adicionar Sage Nomad #009 ao carrinho' })
+  const heart = card.getByRole('button', { name: 'Favoritar Sage Nomad #009' })
+  const view = card.getByRole('link', { name: 'Ver Sage Nomad #009' })
+  await expect(cartButton).toBeVisible()
+  await expect(heart).toBeVisible()
+  await expect(view).toBeVisible()
+
+  await heart.click()
+  await expect(heart).toHaveAttribute('aria-pressed', 'true')
+  await cartButton.click()
+  await expect(page.getByRole('link', { name: /Carrinho, 1 itens/ })).toBeVisible()
+  await view.click()
+  await expect(page).toHaveURL(/\/nfts\/nft-050$/)
+})
+
+test('CAT-6#2: a card that cannot be added says why on the card, and offers the way out', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The hover buttons are the desktop card')
+  await signIn(page)
+  await page.goto('/')
+  const cards = page.getByTestId('nft-card')
+  await cards.nth(0).hover() // Ethereum
+  await cards.nth(0).getByRole('button', { name: /Adicionar .* ao carrinho/ }).click()
+  await expect(page.getByRole('link', { name: /Carrinho, 1 itens/ })).toBeVisible()
+  // A Polygon listing from the generated ones, found by search, cannot join an Ethereum cart.
+  await (await searchField(page)).fill('Neon Vessel #275')
+  const polygon = cards.filter({ hasText: 'Neon Vessel #275' })
+  await polygon.hover()
+  await polygon.getByRole('button', { name: /Adicionar .* ao carrinho/ }).click()
+  await expect(polygon.getByRole('status')).toContainText('outra rede')
+  await polygon.getByRole('button', { name: 'Esvaziar carrinho e adicionar' }).click()
+  await expect(polygon.getByRole('status')).toContainText('Adicionado ao carrinho')
 })

@@ -43,6 +43,8 @@ export interface StoredQuote {
 /** Everything the mock backend knows. One object, so reset can restore it whole. */
 export interface MockState {
   schema: 1
+  /** The fixture catalog this state was built from; a saved state with another one takes the current catalog. */
+  catalogVersion: number
   /** Bumped by every reset; anything scheduled under an older generation is dropped. */
   generation: number
   counters: Record<string, number>
@@ -65,10 +67,13 @@ export interface MockState {
 }
 
 const STORAGE_KEY = 'kurio.mock.db'
+/** Raise it when the fixture catalog changes, so browsers that saved an older one pick up the new one without losing their other state. */
+const CATALOG_VERSION = 2
 
 function initialState(generation: number): MockState {
   return structuredClone({
     schema: 1,
+    catalogVersion: CATALOG_VERSION,
     generation,
     counters: {},
     clock: { fixedAt: null, offset: 0 },
@@ -93,7 +98,10 @@ export function createDb(storage: KeyValueStorage = memoryStorage()) {
     try {
       const saved = JSON.parse(storage.getItem(STORAGE_KEY) ?? 'null') as MockState | null
       // Fields added after a state was saved take their default instead of being missing.
-      if (saved?.schema === 1) return { ...initialState(saved.generation), ...saved }
+      if (saved?.schema === 1) {
+        const merged = { ...initialState(saved.generation), ...saved }
+        return saved.catalogVersion === CATALOG_VERSION ? merged : { ...merged, nfts: initialState(saved.generation).nfts, catalogVersion: CATALOG_VERSION }
+      }
     } catch {
       // Corrupt or foreign data: start from the known scenario.
     }
