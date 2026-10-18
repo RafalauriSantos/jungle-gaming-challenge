@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { SlidersHorizontal } from 'lucide-react'
 import { nftListOptions } from '@/api/nfts'
 import { FEEDS, SORTS, type NftListParams, type Sort } from '@/api/types'
-import { ChevronDown } from 'lucide-react'
 import { SearchBox } from '@/components/layout/SearchBox'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Blog } from './Blog'
 import { FeaturedBanner } from './FeaturedBanner'
@@ -64,17 +64,21 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
                 </button>
               ))}
             </div>
-            <label className="relative flex items-center gap-2 text-[15px]">
-              Ordenar por:
-              <select
-                value={search.sort ?? 'recent'}
-                onChange={(e) => setFilter({ sort: e.target.value === 'recent' ? undefined : (e.target.value as Sort) })}
-                className="cursor-pointer appearance-none bg-transparent pr-5 text-[15px]"
-              >
-                {SORTS.map((s) => <option key={s} value={s} className="bg-ink">{SORT_LABELS[s]}</option>)}
-              </select>
-              <ChevronDown aria-hidden className="pointer-events-none absolute right-0 size-4" />
-            </label>
+            <div className="flex items-center gap-2 text-[15px]">
+              <span id="sort-label">Ordenar por:</span>
+              <Select value={search.sort ?? 'recent'} onValueChange={(v) => setFilter({ sort: v === 'recent' ? undefined : (v as Sort) })}>
+                <SelectTrigger aria-labelledby="sort-label" className="h-auto w-auto cursor-pointer gap-1 border-0 bg-transparent p-0 text-[15px] dark:bg-transparent dark:hover:bg-transparent">
+                  <SelectValue>{(v: Sort) => SORT_LABELS[v]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent align="start">
+                  {SORTS.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {SORT_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {isError && (
