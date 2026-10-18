@@ -80,4 +80,23 @@ test('MOCK-14#2: the Demo tab is docked on the left edge, opens and closes from 
 
   await page.reload()
   await expect(page.getByRole('button', { name: 'Demo' })).toHaveAttribute('data-hint', 'false') // seen: it stays still
+
+  await page.goto('/?reset=1') // a reset does not make it pulse again
+  await expect(page.getByRole('button', { name: 'Demo' })).toHaveAttribute('data-hint', 'false')
+})
+
+test('MOCK-14#2: Escape closes the Demo panel from anywhere and the focus returns to its tab', async ({ page }) => {
+  await page.goto('/')
+  const tab = page.getByRole('button', { name: 'Demo' })
+  await tab.click()
+  const panel = page.getByRole('region', { name: 'Painel de demonstração' })
+  await panel.getByRole('button', { name: 'Resetar estado' }).focus()
+  await page.keyboard.press('Escape')
+  await expect(panel).toHaveCount(0)
+  await expect(tab).toBeFocused()
+
+  await tab.click()
+  await page.getByRole('heading', { level: 1 }).first().click() // the page behind the open panel
+  await page.keyboard.press('Escape')
+  await expect(panel).toHaveCount(0)
 })

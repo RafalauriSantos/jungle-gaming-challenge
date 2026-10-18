@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { control } from './control'
 import { SCENARIOS } from './scenarios'
 
-const HINT_KEY = 'kurio.demo-hint-seen'
+// Outside the `kurio.` namespace on purpose: the reset clears that one, and a reset must not make the tab pulse again.
+const HINT_KEY = 'demo-tab-hint-seen'
 
 /** True on the first visit only: the tab pulses a few times, once, to say it exists. Storage may be blocked; then it stays quiet. */
 function useFirstVisitHint() {
@@ -33,9 +34,22 @@ function MockPanel() {
   const [open, setOpen] = useState(false)
   const [scenario, setScenario] = useState<string>(control.scenario())
   const hint = useFirstVisitHint()
+  const tab = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!open) return
+    // The panel is not modal: Escape works wherever the focus is, and the focus goes back to the tab so a keyboard user keeps their place.
+    const close = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpen(false)
+      tab.current?.focus()
+    }
+    document.addEventListener('keydown', close)
+    return () => document.removeEventListener('keydown', close)
+  }, [open])
   return (
-    <div className="fixed bottom-40 left-0 z-40 flex items-end md:bottom-6" onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}>
+    <div className="fixed bottom-40 left-0 z-40 flex items-end md:bottom-6">
       <button
+        ref={tab}
         type="button"
         aria-expanded={open}
         aria-controls="mock-panel"
