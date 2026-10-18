@@ -45,7 +45,7 @@ export function TextField({ id, label, type = 'text', placeholder, autoComplete,
             aria-label={shown ? 'Ocultar senha' : 'Mostrar senha'}
             aria-pressed={shown}
             onClick={() => setShown((s) => !s)}
-            className="absolute inset-y-0 right-3 grid w-8 place-items-center text-text-secondary/70 focus-visible:text-text-accent"
+            className="touch absolute inset-y-0 right-3 grid w-8 place-items-center text-text-secondary/70 focus-visible:text-text-accent"
           >
             {shown ? <Eye aria-hidden className="size-[18px]" /> : <EyeOff aria-hidden className="size-[18px]" />}
           </button>

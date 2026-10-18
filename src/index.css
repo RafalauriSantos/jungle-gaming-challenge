@@ -5,6 +5,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* A touch target of at least 44 x 44 px around a smaller control, with no change to the layout (WCAG 2.5.5, Apple HIG).
+   The element must be positioned (`relative`, or already absolute). */
+@utility touch {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    translate: -50% -50%;
+  }
+}
+
 
 @theme inline {
     --font-heading: var(--font-sans);

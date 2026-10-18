@@ -25,7 +25,7 @@ export function FavoriteButton({ nftId, name, variant = 'button', className }: P
 
   const heart = <Heart aria-hidden className={cn('size-4', on && 'fill-current text-primary')} />
   return variant === 'icon' ? (
-    <Button type="button" variant="ghost" size="icon" aria-pressed={on} aria-label={`Favoritar ${name}`} onClick={onClick} className={className}>
+    <Button type="button" variant="ghost" size="icon" aria-pressed={on} aria-label={`Favoritar ${name}`} onClick={onClick} className={cn('relative touch', className)}>
       {heart}
     </Button>
   ) : (

@@ -27,7 +27,7 @@ export function Hero() {
           <Link
             to="/"
             hash="catalogo"
-            className="inline-flex w-fit items-center gap-2 text-xs font-bold text-text-accent md:h-10 md:w-[140px] md:justify-center md:rounded-md md:bg-primary md:text-base md:text-ink"
+            className="touch relative inline-flex w-fit items-center gap-2 text-xs font-bold text-text-accent md:h-10 md:w-[140px] md:justify-center md:rounded-md md:bg-primary md:text-base md:text-ink"
           >
             EXPLORAR
             <ArrowRight aria-hidden className="size-4 md:hidden" />

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const box = 'grid size-[35px] place-items-center rounded border text-lg'
+const box = 'touch relative grid size-[35px] place-items-center rounded border text-lg'
 
 /** Page numbers around the current page; the first and last are always kept. */
 function pageList(current: number, total: number) {
