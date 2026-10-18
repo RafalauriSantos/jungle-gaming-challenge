@@ -57,6 +57,8 @@ export function NftCard({ nft }: { nft: Nft }) {
         <div className="relative rounded-[20px] bg-gradient-to-br from-surface-card from-10% to-surface-raised p-1 pb-3 pt-3 md:grid md:h-[300px] md:place-items-center md:rounded-none md:bg-surface-card md:bg-none md:p-0">
           <img
             src={nft.image}
+            srcSet={`${nft.image.replace('.webp', '-360.webp')} 360w, ${nft.image} 640w`}
+            sizes="(min-width: 768px) 250px, 45vw"
             alt={`Arte do NFT ${nft.name}`}
             width={250}
             height={250}

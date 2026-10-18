@@ -36,6 +36,8 @@ export function Hero() {
         <div className="relative shrink-0">
           <img
             src="/nfts/art-1.webp"
+            srcSet="/nfts/art-1-300.webp 300w, /nfts/art-1.webp 640w"
+            sizes="(min-width: 768px) 450px, 138px"
             alt="NFT em destaque: macaco de óculos escuros e jaqueta verde"
             width={450}
             height={450}
@@ -43,7 +45,7 @@ export function Hero() {
             className="size-[138px] rounded-2xl object-cover md:size-[450px] md:rounded-3xl"
           />
           {/* Mobile frame only: a second, smaller artwork overlapping the first. */}
-          <img src="/nfts/art-2.webp" alt="" aria-hidden width={58} height={58} className="absolute left-[14px] top-[88px] size-[58px] rounded-2xl object-cover md:hidden" />
+          <img src="/nfts/art-2-120.webp" alt="" aria-hidden width={58} height={58} className="absolute left-[14px] top-[88px] size-[58px] rounded-2xl object-cover md:hidden" />
         </div>
       </div>
     </section>
