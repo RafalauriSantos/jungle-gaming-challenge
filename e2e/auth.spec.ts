@@ -153,3 +153,14 @@ test('AUTH-9#1: every private API refuses a request without a token, and every p
     await expect(page).toHaveURL(new RegExp(`/entrar\\?redirect=${encodeURIComponent(route)}`))
   }
 })
+
+test('AUTH-1#3: spaces a phone keyboard adds around the user name and the e-mail do not block the sign-up', async ({ page }) => {
+  await page.goto('/cadastrar')
+  const root = authRoot(page)
+  await root.getByLabel('Nome de usuário').fill('rafael ')
+  await root.getByLabel('E-mail', { exact: true }).fill(' rafael@kurio.test ')
+  await root.getByLabel('Senha', { exact: true }).fill('Segredo#2026')
+  await root.getByLabel('Confirmar senha').fill('Segredo#2026')
+  await root.getByRole('button', { name: /^Criar (conta|perfil)$/ }).click()
+  await expect(page).not.toHaveURL(/cadastrar/)
+})
