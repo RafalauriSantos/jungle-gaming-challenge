@@ -5,7 +5,7 @@ describe('mock database', () => {
   it('MOCK-5#1 MOCK-5#2: starts from the known scenario: varied fixtures, two users, generation 1', () => {
     const db = createDb(memoryStorage())
     expect(db.state.generation).toBe(1)
-    expect(db.state.nfts).toHaveLength(48)
+    expect(db.state.nfts).toHaveLength(57) // 48 generated + the 9 of the Figma first page
     expect(db.state.users.map((u) => u.email)).toEqual(['ana@kurio.test', 'bruno@kurio.test'])
     expect(db.state.scenario).toBe('success')
     expect(new Set(db.state.nfts.map((n) => n.collection)).size).toBe(9)

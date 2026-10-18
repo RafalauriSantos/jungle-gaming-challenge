@@ -1,13 +1,38 @@
 import { Link } from '@tanstack/react-router'
+import { Search, ShoppingCart } from 'lucide-react'
+import { useEffect } from 'react'
 import type { Nft } from '@/api/types'
 import { FavoriteButton } from '@/features/favorites/FavoriteButton'
+import { useBuy } from '@/features/nft/useBuy'
+import { announce } from '@/lib/announce'
 import { formatEth } from '@/lib/eth'
 import { totalAvailable } from '@/lib/nft'
+
+const ACTION = 'grid size-9 place-items-center rounded-full border border-border bg-ink/80 text-text-accent outline-none transition-colors hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50'
+
+/** The three buttons the desktop frame shows on a card under the pointer: add to cart, favorite, view. */
+function CardActions({ nft, soldOut }: { nft: Nft; soldOut: boolean }) {
+  const buy = useBuy(nft)
+  useEffect(() => {
+    if (buy.message) announce(buy.message.text)
+  }, [buy.message])
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-[222px] hidden justify-center gap-2 opacity-0 transition-opacity group-focus-within/card:opacity-100 group-hover/card:opacity-100 md:flex">
+      <button type="button" disabled={soldOut || buy.adding} aria-label={`Adicionar ${nft.name} ao carrinho`} onClick={buy.addToCart} className={`${ACTION} pointer-events-auto`}>
+        <ShoppingCart aria-hidden className="size-4" />
+      </button>
+      <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className={`${ACTION} pointer-events-auto size-9 p-0`} />
+      <Link to="/nfts/$id" params={{ id: nft.id }} aria-label={`Ver ${nft.name}`} className={`${ACTION} pointer-events-auto`}>
+        <Search aria-hidden className="size-4" />
+      </Link>
+    </div>
+  )
+}
 
 export function NftCard({ nft }: { nft: Nft }) {
   const soldOut = totalAvailable(nft) === 0
   return (
-    <li data-testid="nft-card" className="relative">
+    <li data-testid="nft-card" className="group/card relative">
       <Link to="/nfts/$id" params={{ id: nft.id }} className="group block rounded-[20px]">
         <div className="relative rounded-[20px] bg-gradient-to-br from-surface-card from-10% to-surface-raised p-1 pb-3 pt-3 md:grid md:h-[300px] md:place-items-center md:rounded-none md:bg-surface-card md:bg-none md:p-0">
           <img
@@ -42,7 +67,8 @@ export function NftCard({ nft }: { nft: Nft }) {
           </p>
         </div>
       </Link>
-      {/* The mobile frame draws a heart on the card; the desktop card has none (D-16). */}
+      {/* The mobile frame draws a heart on the card; the desktop card shows its buttons on hover (D-16). */}
+      <CardActions nft={nft} soldOut={soldOut} />
       <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="absolute right-3 top-5 size-[35px] rounded-full border border-border bg-ink/60 text-text-accent md:hidden" />
     </li>
   )

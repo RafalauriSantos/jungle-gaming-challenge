@@ -47,7 +47,7 @@ export function ProfileField({ id, label, type = 'text', autoComplete, value, on
               aria-label={`${shown ? 'Ocultar' : 'Mostrar'} ${label.toLowerCase()}`}
               aria-pressed={shown}
               onClick={() => setShown((s) => !s)}
-              className="absolute inset-y-0 right-4 grid place-items-center text-primary/40"
+              className="absolute inset-y-0 right-4 grid place-items-center text-text-secondary/70"
             >
               {shown ? <Eye aria-hidden className="size-[18px]" /> : <EyeOff aria-hidden className="size-[18px]" />}
             </button>
