@@ -106,14 +106,21 @@ test('API-5#1: after the browser stops the idle mock service worker, the next re
   // A browser ends an idle worker and restarts it on the next request, with no memory of which pages it was serving.
   const cdp = await context.newCDPSession(page)
   const running = new Map<string, string>() // worker version id -> running status
+  let stopRequested = false
+  let reachedStopped = false
   cdp.on('ServiceWorker.workerVersionUpdated', ({ versions }) => {
-    for (const v of versions) running.set(v.versionId, v.runningStatus)
+    for (const v of versions) {
+      running.set(v.versionId, v.runningStatus)
+      if (stopRequested && v.runningStatus === 'stopped') reachedStopped = true
+    }
   })
   await cdp.send('ServiceWorker.enable')
   await expect.poll(() => [...running.values()].includes('running')).toBe(true)
-  // Stop this page's worker only (not every worker of the browser), and make sure it really stopped before going on.
+  // Stop this page's worker only (not every worker of the browser) and wait until it has really stopped. It may be woken again at once by the
+  // app, so what is checked is that it reached "stopped", not that it stays there ("stopping" does not count: it ends asynchronously).
+  stopRequested = true
   for (const [versionId, status] of running) if (status === 'running') await cdp.send('ServiceWorker.stopWorker', { versionId })
-  await expect.poll(() => [...running.values()].includes('running')).toBe(false)
+  await expect.poll(() => reachedStopped).toBe(true)
   await cdp.detach() // an open debugging session on a worker makes it flaky to test (playwright#12103)
   await page.getByRole('link', { name: /^Carrinho/ }).first().click() // a client-side move that asks the API for the cart
   await expect(page.getByRole('heading', { name: /^Carrinho( de NFTs)?$/ }).first()).toBeVisible({ timeout: 15_000 })
