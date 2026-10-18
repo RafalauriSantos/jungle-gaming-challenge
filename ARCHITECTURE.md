@@ -371,6 +371,8 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 
 ## 9. Operational notes
 
+**HTTP headers.** `public/_headers` (read by Cloudflare Pages) keeps the hashed files in `/assets/*` for a year as immutable, forces a check of `/mockServiceWorker.js` on every load and adds `nosniff`, a referrer policy and a permissions policy to every page. It deliberately has no rule for `/nfts/*`: that path is also the detail screen, whose HTML must not be cached by name.
+
 **Deploy.** Production is published only by the CI pipeline (`.github/workflows/ci.yml`), never by hand. Cloudflare Pages project `jungle-gaming-challenge`, direct upload, production branch `main`. Public URL: https://jungle-gaming-challenge.pages.dev.
 
 ```

@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import { PRIVATE_API, PUBLIC_API } from '../e2e/private-api'
+import { PRIVATE_API, PUBLIC_API } from '../../e2e/private-api'
 import { describe, expect, it } from 'vitest'
 
 describe('time-sensitive E2E tests do not wait on the wall clock', () => {
