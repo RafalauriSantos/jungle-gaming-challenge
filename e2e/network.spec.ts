@@ -105,8 +105,15 @@ test('API-5#1: after the browser stops the idle mock service worker, the next re
   await expect(page.getByTestId('nft-card').first()).toBeVisible()
   // A browser ends an idle worker and restarts it on the next request, with no memory of which pages it was serving.
   const cdp = await context.newCDPSession(page)
+  const running = new Map<string, string>() // worker version id -> running status
+  cdp.on('ServiceWorker.workerVersionUpdated', ({ versions }) => {
+    for (const v of versions) running.set(v.versionId, v.runningStatus)
+  })
   await cdp.send('ServiceWorker.enable')
-  await cdp.send('ServiceWorker.stopAllWorkers')
+  await expect.poll(() => [...running.values()].includes('running')).toBe(true)
+  // Stop this page's worker only (not every worker of the browser), and make sure it really stopped before going on.
+  for (const [versionId, status] of running) if (status === 'running') await cdp.send('ServiceWorker.stopWorker', { versionId })
+  await expect.poll(() => [...running.values()].includes('running')).toBe(false)
   await page.getByRole('link', { name: /^Carrinho/ }).first().click() // a client-side move that asks the API for the cart
   await expect(page.getByRole('heading', { name: /^Carrinho( de NFTs)?$/ }).first()).toBeVisible({ timeout: 15_000 })
   await expect(page.getByText('Algo deu errado nesta tela')).toHaveCount(0)
