@@ -2,16 +2,17 @@ import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import type { Nft } from '@/api/types'
 import { formatEth } from '@/lib/domain/eth'
+import { useMediaQuery } from '@/lib/ui/useMediaQuery'
 import { cn } from '@/lib/utils'
 
-const PER_PAGE = 5
-
-/** A titled row of NFT cards, five at a time; the dots are the pages. */
+/** A titled row of NFT cards, five at a time (four below 1280 px, where five of 219 px no longer fit); the dots are the pages. */
 export function ProductCarousel({ title, items, className }: { title: string; items: Nft[]; className?: string }) {
-  const [page, setPage] = useState(0)
-  const pages = Math.ceil(items.length / PER_PAGE)
+  const [requested, setPage] = useState(0)
+  const perPage = useMediaQuery('(min-width: 1280px)') ? 5 : 4
+  const pages = Math.ceil(items.length / perPage)
   if (items.length === 0) return null
-  const shown = items.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+  const page = Math.min(requested, pages - 1)
+  const shown = items.slice(page * perPage, page * perPage + perPage)
   return (
     <section aria-label={title} className={cn('flex flex-col items-center gap-8', className)}>
       <div className="flex w-full flex-col gap-3">

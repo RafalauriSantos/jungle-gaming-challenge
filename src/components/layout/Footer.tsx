@@ -20,9 +20,9 @@ const COLUMNS = [
 export function Footer() {
   return (
     <footer className="mx-auto w-full max-w-[1232px] px-4 pb-32 md:pb-6">
-      <div className="hidden bg-surface-card p-8 md:grid md:grid-cols-3 md:gap-6 lg:grid-cols-[265px_266px_265px_1fr] lg:gap-0">
+      <div className="hidden bg-surface-card p-8 md:grid md:grid-cols-3 md:gap-6 xl:grid-cols-[265px_266px_265px_1fr] xl:gap-0">
         {FEATURES.map(([letter, title, text]) => (
-          <section key={title} className="flex flex-col gap-3 border-primary px-4 lg:border-r">
+          <section key={title} className="flex flex-col gap-3 border-primary px-4 xl:border-r">
             <span aria-hidden className="grid size-[74px] place-items-center rounded-full bg-primary text-2xl font-bold text-ink">
               {letter}
             </span>
@@ -30,7 +30,7 @@ export function Footer() {
             <p className="max-w-[204px] text-sm leading-[22px] text-text-secondary">{text}</p>
           </section>
         ))}
-        <section className="flex flex-col gap-4 px-4 md:col-span-3 lg:col-span-1">
+        <section className="flex flex-col gap-4 px-4 md:col-span-3 xl:col-span-1">
           <h2 className="text-lg font-bold leading-4">Antecipe-se ao próximo lançamento</h2>
           <form onSubmit={(e) => e.preventDefault()} className="flex h-10 rounded-md bg-surface-dark">
             <input
@@ -49,14 +49,14 @@ export function Footer() {
         </section>
       </div>
 
-      <div className="hidden items-center gap-6 lg:gap-[92px] bg-surface-dark px-8 py-5 text-sm md:flex">
+      <div className="hidden items-center gap-6 xl:gap-[92px] bg-surface-dark px-8 py-5 text-sm md:flex">
         <p className="flex-1 text-sm font-bold tracking-[1.4px]">KURIO</p>
         <p className="flex-1 leading-[22px]">Feito para colecionadores,<br />criadores e cultura</p>
         <p className="flex-1">contato@email.com</p>
-        <p className="shrink-0 lg:w-[228px]">+55 11 4002 8922</p>
+        <p className="shrink-0 xl:w-[228px]">+55 11 4002 8922</p>
       </div>
 
-      <div className="hidden grid-cols-2 gap-8 bg-surface-card p-8 md:grid lg:grid-cols-[1fr_1fr_1fr_228px] lg:gap-x-[124px]">
+      <div className="hidden grid-cols-2 gap-8 bg-surface-card p-8 md:grid xl:grid-cols-[1fr_1fr_1fr_228px] xl:gap-x-[124px]">
         {COLUMNS.map(([title, items]) => (
           <section key={title}>
             <h2 className="mb-2 text-lg font-bold">{title}</h2>

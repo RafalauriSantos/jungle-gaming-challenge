@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from './support'
 
-// The widths of UI-2, plus what 200% zoom leaves of a 1440 desktop and of a 640 window, and the 320 reflow width.
-const WIDTHS = [390, 768, 1440, 720, 320] as const
+// The widths of UI-2, plus what 200% zoom leaves of a 1440 desktop and of a 640 window, the 320 reflow width, and the widths in between where fixed columns used to overflow (a landscape tablet at 1024, a small laptop at 1100 and 1180).
+const WIDTHS = [390, 768, 1440, 720, 320, 600, 1024, 1100, 1180, 1920] as const
 
 async function expectFits(page: Page, width: number, path: string) {
   await page.setViewportSize({ width, height: 900 })
