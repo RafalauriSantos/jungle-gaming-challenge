@@ -111,7 +111,7 @@ can also drop the connection, resend an event, send an older version of an NFT, 
 - **Unit (Vitest):** money math, the version gate, mock services, session rules. Coverage floors apply to these.
 - **E2E (Playwright):** the flows of the statement §9 on Chromium at 1440 and 390 wide. A requirement is only `done` when a test names it (`ID#k` in the title); `pnpm spec:check` enforces it and writes [`docs/spec/traceability.md`](docs/spec/traceability.md).
 - **Reports and traces:** each run writes an HTML report (`playwright-report/`, open it with `pnpm exec playwright show-report`) and keeps a trace of every failed test in `test-results/` (`pnpm exec playwright show-trace <trace.zip>`). CI uploads both as artifacts of each run for 14 days.
-- **Lighthouse:** [`reports/lighthouse/`](reports/lighthouse) has the full audit (3 runs per page and profile, median, home and detail, mobile and desktop) with the HTML and JSON of every run. Measured on the deployed site: desktop scores 98 on both pages and every other category is 100; mobile performance is 76 and 77, and [the report](reports/lighthouse/README.md) explains the gap.
+- **Lighthouse:** [`reports/lighthouse/`](reports/lighthouse) has the full audit (3 runs per page and profile, median, home and detail, mobile and desktop) with the HTML and JSON of every run. Measured on the deployed site: desktop scores 98 on both pages and every other category is 100; mobile performance is 80 on both pages, and [the report](reports/lighthouse/README.md) explains the gap.
 
 ## Pipeline and deploy
 
