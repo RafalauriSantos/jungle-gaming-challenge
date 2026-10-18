@@ -307,14 +307,17 @@ On `connect` after a drop: re-subscribe, then refetch the active resources: the 
 
 ## 6. Cache and retries
 
+Defaults of the shared `QueryClient` (`src/api/query-client.ts`): `staleTime` 0, `refetchOnWindowFocus` off, `refetchOnReconnect` on (Query's default), retry only through `shouldRetry`. The deliberate choice: data changes arrive as events and mutations, so a tab regaining focus must not make the screen flash or overwrite a newer state.
+
 | Resource | Cache | Retries |
 | --- | --- | --- |
-| NFT list and detail | `staleTime` 30 s; refetch on focus and on reconnect; patched by events | 2 retries with backoff on network errors and 5xx; none on 4xx |
-| Cart, quote, wallets, profile, favorites | `staleTime` 0; invalidated by their own mutations and by events | Same as above |
-| Mutations | No automatic retry, except `POST /orders` which the client replays with the same key | n/a |
+| NFT list and detail | Default staleness; refetched on mount and on reconnect; patched in place by `nft.updated` events and read through the version gate (`structuralSharing`). The list keeps the previous page while a new one loads (`placeholderData`) | Up to 2 retries with backoff on network errors, 5xx, 408 and 429; none on other 4xx. A missing NFT (404) is never retried |
+| Cart, quote, wallets, profile, favorites, orders | Same default; invalidated by their own mutations and by events. The quote is kept 60 s after it leaves the screen (`gcTime`) | Same as above |
+| Mutations | No automatic retry, except `POST /orders`, which the client replays with the same `Idempotency-Key` | n/a |
 | Optimistic updates | Favorite toggle: patch the cache, roll back on error, then refetch | n/a |
+| Session change | Query keys start with the user id (`['u', userId, ...]`); sign-out clears the cache and aborts the requests of the old session | n/a |
 
-Requests use the query `signal`, so a changed key cancels the older request.
+Requests carry the query `signal` (`src/api/stale.test.ts`), so a changed key cancels the older request, and an older answer that still arrives is discarded by the gate.
 
 ## 7. Mock backend
 
@@ -328,12 +331,40 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 - **Scenario selection (for evaluators too):** `?scenario=<name>` sets it and stores it, on the deployed build as well; a visible control or `?reset=1` clears everything and restores the default. Scenarios map to `MOCK-S01..S17` in the requirements. The README lists, for each one, how to activate it, what to observe and how to reset.
 - Passwords are hashed with a per-user salt. Two seeded users exist (documented in the README).
 
-## 8. Known limitations (to complete)
+## 8. Limitations, UX decisions and deviations from the Figma
+
+**Known limitations**
 
 - Token ID is per NFT, not per unit, as the Figma shows.
-- Fees for Polygon and Solana are invented mock values.
-- The mock has no valid-referral-code list.
-- Solana address validation is a format check only.
+- Fees for Polygon and Solana are invented mock values; there is no valid-referral-code list (4 to 12 letters or digits); Solana address validation is a format check only.
+- Wallet apps are simulated (`POST /wallet-connections`); there is no real extension, chain or transaction. "Ver no Etherscan" is a disabled button.
+- The mock backend runs in the page: state lives in `localStorage` and resets with `?reset=1`; two browsers do not share state.
+- One network per cart and one pending order per user (D-21, D-22). The "Usar outra carteira?" wallet is valid for that order only.
+- The reviews tab, social sign-in, "Esqueceu a senha?", the newsletter form and the nav items "Mercado", "Criadores" and "Aprenda" are out of scope and shown inert (below).
+- Cart and detail use the phone layout up to 1023 px, since the Figma has only 414 and 1440 frames.
+- Lighthouse performance on mobile is limited by the payload the statement forces (the mock layer ships in the public build); see the report.
+
+**Inert controls (UI-4).** Each carries `title="Em breve"` or is `disabled` / `aria-disabled`: header nav "Mercado/Criadores/Aprenda" (`Header.tsx`), "Esqueceu a senha?" and social buttons (`AuthForms.tsx`, `SocialButtons.tsx`), newsletter form (`Footer.tsx`), blog cards (`Blog.tsx`), reviews tab and "Ver no Etherscan" (`DetailDesktop.tsx`, `OrderPage.tsx`).
+
+**UX decisions.** Authorization is enforced in handlers (D-29); the review dialog before sending an order; a quote change asks for a new confirmation; a pending order is recovered by the server list after login; the visitor cart merges once; messages announce changes with `role="status"`; each screen has loading, error with retry, empty and success states (`design-decisions.md`, "Screen states").
+
+**Deviations from the Figma and asset swaps (UI-5).**
+
+| Where | Figma | Delivered | Why |
+| --- | --- | --- | --- |
+| Cart and receipt token ids | Other NFTs' numbers (`#0009`, `#0552`) | The detail's id | Figma error (D-02b) |
+| Detail frame, two attribute rows | Labels swapped between neighbours ("Contrato"/"Direitos autorais") | Corrected | Slip in the design |
+| "Nome de usuário" on payment | Different from the wallets screen's "Apelido da carteira" | "Apelido da carteira" | One field, one name |
+| Strings left in English | "Transaction confirmed…", "User Name", profile tabs | pt-BR | UI language (D-25) |
+| Footer medallions | Letters in a circle | Same letters, `aria-hidden` | Decorative; icons would be optional (D-26) |
+| Detail gallery | Several artworks | The one artwork repeated, decorative | The NFT has one image (D-35) |
+| Hero carousel dots | Dots | None | There is no carousel; dots would look functional |
+| Footer links and nav items | Links | Plain text or inert | Out of scope (D-19) |
+| Header search | An icon only | The icon opens a real field | Search is required (CAT-1) |
+| Wallet list on payment | Not drawn | "Carteira salva" list | Needed to choose between primary and reserve (D-34) |
+| Icons | Figma vectors | Exported SVGs for brand art and the tab bar; `lucide-react` for small UI icons | Same meaning, accessible names added |
+
+**Accessibility changes versus the Figma.** Visible focus rings on every control; names for the two price-slider thumbs; hidden labels (`sr-only`) where the frame shows only a placeholder; `aria-invalid` and `aria-describedby` on every field error; the edition pills are a radio group with text for sold-out editions; `aria-busy` and `role="status"` on loading areas; the heart and cart badge carry text alternatives; focus is trapped and restored in dialogs and sheets. Colors keep the Figma values; axe finds no contrast violation.
 
 ## 9. Operational notes
 
