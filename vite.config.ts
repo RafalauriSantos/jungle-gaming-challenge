@@ -6,5 +6,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: false }), react(), tailwindcss()],
-  resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
+  resolve: {
+    alias: {
+      '@': path.resolve(import.meta.dirname, 'src'),
+      // The mock does not use cookies: keep MSW's cookie jar and its public-suffix list out of the build.
+      'tough-cookie': path.resolve(import.meta.dirname, 'src/mocks/stubs/tough-cookie.ts'),
+    },
+  },
 })
