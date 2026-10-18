@@ -5,12 +5,13 @@ import { createRoot } from 'react-dom/client'
 import { createQueryClient } from './api/query-client'
 import './index.css'
 import { connectRealtime } from './realtime/client'
+import { parseSearch } from './lib/search-params'
 import { routeTree } from './routeTree.gen'
 import { endSession } from './session/actions'
 import { onSessionLost } from './session/store'
 
 const queryClient = createQueryClient()
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree, parseSearch })
 
 declare module '@tanstack/react-router' {
   interface Register {

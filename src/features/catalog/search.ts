@@ -46,12 +46,11 @@ const pickList = <T extends string>(value: unknown, allowed: readonly T[]) => {
   const items = (Array.isArray(value) ? value : []).filter((v): v is T => allowed.includes(v))
   return items.length ? items : undefined
 }
-// The router parses `?minPrice=1` into the number 1, so a typed price arrives as text or as a number. Either way
-// it must be an ETH amount the money code accepts (digits, at most 18 decimals), or it is ignored.
+// Prices are decimal text (the router keeps the typed digits, see `src/lib/search-params.ts`): digits with at most 18
+// decimals, the same rule as the money code, or the parameter is ignored. A number would have lost precision already.
 const AMOUNT = /^\d+(\.\d{1,18})?$/
 const pickDecimal = (v: unknown) => {
-  const text = typeof v === 'number' && Number.isFinite(v) ? String(v) : v
-  return typeof text === 'string' && AMOUNT.test(text) ? text : undefined
+  return typeof v === 'string' && AMOUNT.test(v) ? v : undefined
 }
 const pickRange = (min: unknown, max: unknown) => {
   const lo = pickDecimal(min)

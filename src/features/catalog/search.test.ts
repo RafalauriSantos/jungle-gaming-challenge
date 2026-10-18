@@ -2,15 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { validateCatalogSearch } from './search'
 
 describe('catalog URL parameters are normalized before anything renders', () => {
-  it('CAT-1#4: a price typed in the address is kept, as text or as the number the router parses', () => {
-    expect(validateCatalogSearch({ minPrice: 1, maxPrice: 2.5 })).toMatchObject({ minPrice: '1', maxPrice: '2.5' })
+  it('CAT-1#4: a price given as decimal text is kept', () => {
     expect(validateCatalogSearch({ minPrice: '0.5', maxPrice: '3' })).toMatchObject({ minPrice: '0.5', maxPrice: '3' })
+    expect(validateCatalogSearch({ minPrice: '0.123456789012345678' })).toMatchObject({ minPrice: '0.123456789012345678' })
   })
 
   it('CAT-1#4: a price money code cannot handle is ignored, not thrown at render', () => {
     const tooPrecise = validateCatalogSearch({ minPrice: '0.1234567890123456789' })
     expect(tooPrecise.minPrice).toBeUndefined()
-    for (const bad of [-1, Infinity, NaN, '1e3', '', 'abc', '1,5', {}, [], null]) {
+    for (const bad of [1, -1, Infinity, NaN, '1e3', '', 'abc', '1,5', {}, [], null]) {
       expect(validateCatalogSearch({ minPrice: bad, maxPrice: bad })).toMatchObject({ minPrice: undefined, maxPrice: undefined })
     }
   })
