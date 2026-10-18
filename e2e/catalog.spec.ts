@@ -192,3 +192,31 @@ test('CAT-6#2: a card that cannot be added says why on the card, and offers the 
   await polygon.getByRole('button', { name: 'Esvaziar carrinho e adicionar' }).click()
   await expect(polygon.getByRole('status')).toContainText('Adicionado ao carrinho')
 })
+
+test('CAT-9#1: moving one end of the price range never moves the other, like a volume control', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 1024, 'The price slider sits in the sidebar; the phone has it in the drawer (the same component)')
+  await page.goto('/')
+  await expect(page.getByTestId('nft-card').first()).toBeVisible()
+  const thumbs = page.locator('[data-slot=slider-thumb]')
+  await thumbs.first().scrollIntoViewIfNeeded()
+  const values = () => page.evaluate(() => [...document.querySelectorAll('[data-slot=slider-thumb] input')].map((i) => Number((i as HTMLInputElement).value)))
+  async function drag(index: number, dx: number) {
+    const box = (await thumbs.nth(index).boundingBox())!
+    await page.mouse.move(box.x + 7, box.y + 7)
+    await page.mouse.down()
+    for (let step = 1; step <= 20; step++) await page.mouse.move(box.x + 7 + (dx * step) / 20, box.y + 7)
+    await page.mouse.up()
+  }
+
+  await drag(1, -120)
+  const [, middle] = await values() // the maximum is now in the middle of the range
+  await drag(0, 250) // the minimum is pulled right, past it
+  const [low, high] = await values()
+  expect(low).toBe(middle) // the end that did not move is still where it was
+  expect(high).toBeGreaterThan(low) // and the dragged one went on beyond it
+
+  await drag(1, -450) // the upper end is pulled left, past the other
+  const [lower, upper] = await values()
+  expect(upper).toBe(low) // again the end that was not touched stayed put
+  expect(lower).toBeLessThan(upper)
+})
