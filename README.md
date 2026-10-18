@@ -110,7 +110,7 @@ can also drop the connection, resend an event, send an older version of an NFT, 
 
 - **Unit (Vitest):** money math, the version gate, mock services, session rules. Coverage floors apply to these.
 - **E2E (Playwright):** the flows of the statement §9 on Chromium at 1440 and 390 wide. A requirement is only `done` when a test names it (`ID#k` in the title); `pnpm spec:check` enforces it and writes [`docs/spec/traceability.md`](docs/spec/traceability.md).
-- **Lighthouse:** [`reports/lighthouse/`](reports/lighthouse) holds an initial measurement of the home page (one run, taken early). The full audit, three runs per page and profile with the median, is still to be done on the final build.
+- **Lighthouse:** [`reports/lighthouse/`](reports/lighthouse) has the full audit (3 runs per page and profile, median, home and detail, mobile and desktop) with the HTML and JSON of every run. Desktop scores 99 on both pages and every other category is 100; mobile performance is 78 and 79, and [the report](reports/lighthouse/README.md) explains the gap.
 
 ## Pipeline and deploy
 
