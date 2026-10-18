@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { isAxiosError } from 'axios'
 import { errorBodyOf } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -80,16 +81,18 @@ export function SignupForm({ onDone, large }: FormProps) {
   function submit(e: FormEvent) {
     e.preventDefault()
     if (signup.isPending) return
-    const found = validateSignup(values)
+    // A phone keyboard often adds a space after an autocompleted word: it is not part of the name or the e-mail.
+    const clean = { ...values, username: values.username.trim(), email: values.email.trim() }
+    const found = validateSignup(clean)
     setErrors(found)
     setFormError(undefined)
     if (Object.keys(found).length) return
-    signup.mutate(values, {
+    signup.mutate(clean, {
       onSuccess: onDone,
       onError: (error) => {
         const body = errorBodyOf(error)
         setErrors(body?.fields ?? {})
-        setFormError(body?.fields ? undefined : (body?.message ?? 'Não foi possível criar a conta. Tente novamente.'))
+        setFormError(body?.fields ? undefined : (body?.message ?? (isAxiosError(error) && !error.response ? 'Sem conexão com o servidor. Verifique a internet e tente novamente.' : 'Não foi possível criar a conta. Tente novamente.')))
       },
     })
   }

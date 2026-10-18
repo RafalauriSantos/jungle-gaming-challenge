@@ -21,7 +21,7 @@ function startSession(db: Db, userId: string) {
 const text = (value: unknown) => (typeof value === 'string' ? value : '')
 
 export async function signup(db: Db, raw: SignupInput): Promise<AuthResponse> {
-  const input: SignupInput = { username: text(raw.username), email: text(raw.email), password: text(raw.password), confirmPassword: text(raw.confirmPassword) }
+  const input: SignupInput = { username: text(raw.username).trim(), email: text(raw.email).trim(), password: text(raw.password), confirmPassword: text(raw.confirmPassword) }
   const fields: Record<string, string> = {}
   if (!USERNAME.test(input.username)) fields.username = 'Use de 3 a 24 letras, números, ponto, hífen ou sublinhado.'
   if (!EMAIL.test(input.email)) fields.email = 'Informe um e-mail válido.'
