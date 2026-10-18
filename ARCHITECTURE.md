@@ -328,6 +328,7 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 - **Reset clears everything:** sessions, users' changes, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario, queued events and timers, and the client's `kurio.*` storage and query cache. State carries a `generation` number; every scheduled event and transition remembers the generation it was created in, and anything older than the current generation is dropped. An event fired after a reset cannot reach a later test.
 - Ids, timestamps and transaction references come from a seeded counter and a controllable clock, so snapshots and tests are stable.
 - **Boot order.** `main.tsx` draws the first screen at once and starts the mock backend beside it; the Axios transport (`holdRequestsUntil` in `src/api/client.ts`) holds every request until the service worker answers, and the socket connects only then. So the page paints before the 140 KB of the mock layer has arrived, and no request can reach the network ahead of it. With a real backend the gate is already open and nothing waits. `?reset=1` still restarts the page after clearing the state.
+- **No cookies in the mock.** MSW's cookie jar (`tough-cookie` and its public-suffix list) cost about 120 KB of JavaScript on the wire and nothing here reads or sets a cookie (the session travels in the `Authorization` header), so `vite.config.ts` aliases it to a stub (`src/mocks/stubs/tough-cookie.ts`). The mock layer went from 143 KB to 23 KB compressed. A handler that needs cookies must remove the alias.
 - Dev, the demo build and Playwright use the same handlers.
 - **Scenario selection (for evaluators too):** `?scenario=<name>` sets it and stores it, on the deployed build as well; a visible control or `?reset=1` clears everything and restores the default. Scenarios map to `MOCK-S01..S17` in the requirements. The README lists, for each one, how to activate it, what to observe and how to reset.
 - Passwords are hashed with a per-user salt. Two seeded users exist (documented in the README).
@@ -337,6 +338,7 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 **Known limitations**
 
 - Token ID is per NFT, not per unit, as the Figma shows.
+- The mock does not support cookies (see section 7); sessions use a bearer header.
 - Fees for Polygon and Solana are invented mock values; there is no valid-referral-code list (4 to 12 letters or digits); Solana address validation is a format check only.
 - Wallet apps are simulated (`POST /wallet-connections`); there is no real extension, chain or transaction. "Ver no Etherscan" is a disabled button.
 - The mock backend runs in the page: state lives in `localStorage` and resets with `?reset=1`; two browsers do not share state.
