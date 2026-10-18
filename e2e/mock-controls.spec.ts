@@ -63,3 +63,21 @@ test('an unknown scenario is ignored', async ({ page }) => {
   await expect(page).toHaveURL('/')
   expect(await mock<string>(page, 'scenario()')).toBe('success')
 })
+
+test('MOCK-14#2: the Demo tab is docked on the left edge, opens and closes from the keyboard, and pulses only on the first visit', async ({ page }) => {
+  await page.goto('/')
+  const tab = page.getByRole('button', { name: 'Demo' })
+  await expect(tab).toBeVisible()
+  expect((await tab.boundingBox())!.x).toBe(0)
+  await expect(tab).toHaveAttribute('data-hint', 'true') // first visit: it pulses a few times
+
+  await tab.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('region', { name: 'Painel de demonstração' })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('region', { name: 'Painel de demonstração' })).toHaveCount(0)
+  await expect(tab).toHaveAttribute('aria-expanded', 'false')
+
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Demo' })).toHaveAttribute('data-hint', 'false') // seen: it stays still
+})
