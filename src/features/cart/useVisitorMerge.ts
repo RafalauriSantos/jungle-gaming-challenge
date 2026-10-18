@@ -13,6 +13,8 @@ export async function claimVisitorMerge(queryClient: QueryClient, userId: string
   try {
     const { cart, skipped } = await mergeCartRequest(claim)
     finishVisitorMerge()
+    // A read of the cart that began before the merge would end with the old, empty cart and overwrite this one.
+    await queryClient.cancelQueries({ queryKey: cartKeys.cart(userId) })
     queryClient.setQueryData(cartKeys.cart(userId), cart)
     queryClient.setQueryData(skippedKey(userId), skipped)
   } catch {
