@@ -33,6 +33,9 @@ export async function connectRealtime(queryClient: QueryClient) {
       old && { ...old, items: old.items.map((n) => (n.id === data.id ? onlyNewer(n, data) : n)) },
     )
     queryClient.setQueryData<Nft>(nftKeys.detail(data.id), (old) => old && onlyNewer(old, data))
+    // The change is shown at once, then the lists are read again: a new price can move a card in the sort, onto
+    // another page, or in or out of a price filter. Only the API knows the new composition.
+    void queryClient.invalidateQueries({ queryKey: [...nftKeys.all, 'list'] })
     // Prices and stock feed the cart totals: ask for a fresh quote and cart of this user.
     const user = getSession()?.user
     if (user) {

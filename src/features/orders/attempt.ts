@@ -6,13 +6,14 @@ interface Store {
 }
 
 /**
- * The idempotency key of "this press of Confirmar": the same quote, wallet and provider keep the same
+ * The idempotency key of "this press of Confirmar": the same quote, wallet, provider and note keep the same
  * key (stored before the request goes out), so a resend after a timeout or a reload asks for the same
  * order. Any change is a new attempt with a new key. One attempt is kept per user.
  */
 export function attemptKey(store: Store, userId: string, body: OrderBody): string {
   const slot = `kurio.${userId}.attempt`
-  const bodyHash = JSON.stringify([body.quoteId, body.wallet, body.provider])
+  // The note is in: the server compares the whole body, so a key may never meet a different note.
+  const bodyHash = JSON.stringify([body.quoteId, body.wallet, body.provider, body.note ?? null])
   try {
     const saved = JSON.parse(store.getItem(slot) ?? 'null') as { key: string; bodyHash: string } | null
     if (saved?.bodyHash === bodyHash) return saved.key

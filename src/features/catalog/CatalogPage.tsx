@@ -87,7 +87,15 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
               <Button onClick={() => refetch()}>Tentar novamente</Button>
             </div>
           )}
-          {data?.items.length === 0 && (
+          {data?.items.length === 0 && data.total > 0 && (
+            <div className="flex flex-col items-start gap-3 rounded-lg bg-surface-card p-6">
+              <p>Esta página não existe para a busca atual.</p>
+              <Button variant="outline" onClick={() => setFilter({})}>
+                Ver a primeira página
+              </Button>
+            </div>
+          )}
+          {data?.items.length === 0 && data.total === 0 && (
             <div className="flex flex-col items-start gap-3 rounded-lg bg-surface-card p-6">
               <p>Nenhum NFT encontrado com esses filtros.</p>
               {hasFilters && (

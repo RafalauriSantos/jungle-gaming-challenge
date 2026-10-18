@@ -127,3 +127,35 @@ test('MOCK-S14#1: an edition that sells out between the review and the click blo
   await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeDisabled()
   expect(await mock<number>(page, 'orders()')).toBe(0)
 })
+
+test('CHK-4#1 CHK-4#2: a price that changes while the review is open cannot be sent until the new total is accepted', async ({ page }) => {
+  await signIn(page)
+  await toCart(page)
+  await toReview(page)
+  const dialog = page.getByRole('dialog', { name: 'Revise seu pedido' })
+  await mock(page, "updateNft('nft-004', { price: '2' })")
+
+  await expect(dialog.getByRole('alert').filter({ hasText: 'valores mudaram' })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Enviar pedido' })).toBeDisabled()
+  expect(await mock<number>(page, 'orders()')).toBe(0)
+
+  await dialog.getByRole('button', { name: 'Aceitar novos valores' }).click()
+  await expect(dialog.getByRole('alert')).toHaveCount(0)
+  await dialog.getByRole('button', { name: 'Enviar pedido' }).click()
+  await expect(page).toHaveURL(/\/pedido\/ord_000001$/)
+  expect(await mock<number>(page, 'orders()')).toBe(1)
+})
+
+test('RT-1#1 CAT-1#1: a price event moves the card to its place in the sort and out of a price filter', async ({ page }) => {
+  await page.goto('/?sort=price-desc')
+  const cards = page.getByTestId('nft-card')
+  await expect(cards.first()).toBeVisible()
+  await expect(cards.first()).not.toContainText('Emerald Ape #197') // not the dearest yet
+  await mock(page, "updateNft('nft-004', { price: '99' })")
+  await expect(cards.first()).toContainText('Cosmic Bloom #412') // the new dearest comes first
+
+  await page.goto('/?reset=1&minPrice=1&maxPrice=2') // the mock keeps the 99 from above until it is reset
+  await expect(cards.filter({ hasText: 'Cosmic Bloom #412' })).toHaveCount(1) // 1.61 is inside the range
+  await mock(page, "updateNft('nft-004', { price: '5' })")
+  await expect(cards.filter({ hasText: 'Cosmic Bloom #412' })).toHaveCount(0) // 5 is not
+})

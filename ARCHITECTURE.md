@@ -260,7 +260,7 @@ Settlement is by **line**, never by NFT. The order records the `lineId` and quan
 
 ## 5. Real time and synchronization
 
-Transport: Socket.IO over the MSW interception from `@mswjs/socket.io-binding`; the client is the real `socket.io-client`. The binding documents no support for rooms, namespaces or broadcasting. The mock therefore keeps its own registry of live connections (user id and subscribed resources) and sends each event to the matching connections itself. Limits found while proving it (M0):
+Transport: Socket.IO over the MSW interception from `@mswjs/socket.io-binding`; the client is the real `socket.io-client`. The binding documents no support for rooms, namespaces or broadcasting. The mock therefore keeps its own registry of live connections (their user id) and sends each event to the matching connections itself. Limits found while proving it (M0):
 - `socket.io-client` keeps the `WebSocket` it finds at import time, so it is imported dynamically **after** the mock worker starts; a static import would bypass the mock.
 - Only WebSocket is used (`transports: ['websocket']`); long polling is HTTP and would not reach the mock socket.
 - `ws.link` matches the origin only, not the path. The client connects to a dedicated origin (`VITE_REALTIME_URL`, default `wss://realtime.kurio.mock`), which also keeps the dev server's HMR socket out of the mock.
@@ -268,7 +268,7 @@ Transport: Socket.IO over the MSW interception from `@mswjs/socket.io-binding`; 
 - Works with `msw` 3.0.3 although the binding declares `msw ^2.10.2`.
 
 - **Connect:** handshake `auth: { token }`. A failed handshake with `unauthorized` counts as session expiry. The socket belongs to one session epoch and is closed and rebuilt on any session change; listeners are removed in the same cleanup.
-- **Subscribe:** `socket.emit('subscribe', { resources: ['nft:<id>', …] })` for the NFTs on screen and in the cart. The mock registry stores them per connection; private events go to connections of that user.
+- **No per-resource subscription.** The client does not send `subscribe`: public events (`nft.updated`) go to every live connection and private ones (`order.updated`) only to the connections of the user named in `scope`. A subscription per resource was designed and not built; with this catalog size it would add messages and no behavior.
 
 ```ts
 type Event<Type, Resource, Data> = {
@@ -290,9 +290,9 @@ One rule for every write into the cache, whether it comes from REST or from an e
 
 > Apply a payload only if its `version` is **greater than** the cached version (equal is allowed for a REST refetch of the same state). Otherwise discard it.
 
-- **Duplicates:** the same `eventId` has the same version, so it is dropped. A set of recent event ids (last 500) avoids repeating side effects such as announcements.
+- **Duplicates:** the same `eventId` has the same version, so the version rule drops it. There is no separate set of seen ids: side effects (the announcements) follow a change of state, and a dropped event changes none.
 - **Old events:** a lower version is dropped; the state never goes back.
-- **Old REST response after a newer event:** its version is lower, so it is discarded. Catalog list rows read price and stock through a small entity store keyed by NFT id that holds the highest version seen.
+- **Old REST response after a newer event:** its version is lower, so it is discarded. Detail, list and order reads go through `structuralSharing` with `pickNewerNft` and `pickOrderRead` (`src/realtime/gate.ts`); there is no separate entity store. After a `nft.updated` the catalog lists are read again so the server recomposes sort, filters and pages.
 - **Terminal orders ignore versions.** For an order, the status rule is checked first and the version second: a `pending` cached order accepts a terminal status even when the incoming version is not greater (a late REST refetch must not hide a confirmation); a terminal order accepts nothing that changes its status, whatever the version; two different terminal statuses never replace each other (first wins). The version rule applies only among payloads of the same status.
 - **Private events:** the client drops an event whose `scope.userId` is not the current user.
 

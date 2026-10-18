@@ -19,7 +19,7 @@ beforeEach(() => {
 const nft = (id: string) => t.db.state.nfts.find((n) => n.id === id)!
 
 describe('quote totals', () => {
-  it('prices each line, adds the network fee and sums exactly', () => {
+  it('TEST-8#1: prices each line, adds the network fee and sums exactly', () => {
     const q = createQuote(t.db, ANA)
     expect(q.network).toBe('ethereum')
     expect(q.lines.map((l) => [l.tokenId, l.quantity, l.unitPrice, l.lineTotal])).toEqual([
