@@ -15,7 +15,7 @@ Não há backend real: o **MSW** simula toda a API (REST e Socket.IO), em desenv
 - **Entregue:** catálogo com busca, filtros, ordenação e paginação; detalhe do NFT; favoritos; carrinho; checkout com carteiras, cupons e recibo; conta, perfil e carteiras; atualizações em tempo real (Socket.IO) de preço, disponibilidade e pedido.
 - **Qualidade:** 169 testes unitários e mais de 280 testes E2E (Playwright, desktop 1440 e mobile 390). Cada requisito marcado como feito tem um teste que o nomeia ([`docs/spec/traceability.md`](docs/spec/traceability.md)).
 - **Lighthouse** (site publicado, mediana de 3 rodadas): acessibilidade, boas práticas e SEO em 100 em todas as páginas; desempenho 99 no desktop. **No mobile o desempenho é 82 (home) e 80 (detalhe), abaixo da meta de 90**: a página só desenha depois de baixar o JavaScript que inclui o backend simulado. O relatório com as causas e o que foi testado está em [`reports/lighthouse/`](reports/lighthouse/README.md).
-- **Publicação:** só o pipeline do GitHub Actions publica em produção, e só com todos os checks verdes (verificação, E2E no build, cópia de teste e smoke).
+- **Publicação:** só o pipeline do GitHub Actions publica em produção, e só depois de a verificação, o E2E no build e o E2E na cópia de teste passarem. Depois da promoção, um smoke test confere a produção.
 
 **Limites conhecidos**
 

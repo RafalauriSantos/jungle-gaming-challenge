@@ -10,11 +10,7 @@ function Slider({
   thumbLabels,
   ...props
 }: SliderPrimitive.Root.Props & { /** The accessible name of each thumb, in order. */ thumbLabels?: string[] }) {
-  const _values = Array.isArray(value)
-    ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max]
+  const thumbs = Array.isArray(value) ? value.length : Array.isArray(defaultValue) ? defaultValue.length : 1
 
   return (
     <SliderPrimitive.Root
@@ -25,8 +21,6 @@ function Slider({
       min={min}
       max={max}
       thumbAlignment="edge"
-      // One end never carries the other: the end you drag goes past and takes the other side, and the other stays put (the default pushes it along).
-      thumbCollisionBehavior="swap"
       {...props}
     >
       <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
@@ -39,7 +33,7 @@ function Slider({
             className="bg-primary select-none data-horizontal:h-full data-vertical:w-full"
           />
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
+        {Array.from({ length: thumbs }, (_, index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
