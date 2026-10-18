@@ -49,11 +49,11 @@ export function Footer() {
         </section>
       </div>
 
-      <div className="hidden items-center gap-[92px] bg-surface-dark px-8 py-5 text-sm md:flex">
+      <div className="hidden items-center gap-6 lg:gap-[92px] bg-surface-dark px-8 py-5 text-sm md:flex">
         <p className="flex-1 text-sm font-bold tracking-[1.4px]">KURIO</p>
         <p className="flex-1 leading-[22px]">Feito para colecionadores,<br />criadores e cultura</p>
         <p className="flex-1">contato@email.com</p>
-        <p className="w-[228px] shrink-0">+55 11 4002 8922</p>
+        <p className="shrink-0 lg:w-[228px]">+55 11 4002 8922</p>
       </div>
 
       <div className="hidden grid-cols-2 gap-8 bg-surface-card p-8 md:grid lg:grid-cols-[1fr_1fr_1fr_228px] lg:gap-x-[124px]">

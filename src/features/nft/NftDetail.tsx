@@ -37,7 +37,7 @@ function Missing() {
 
 /** One NFT, drawn as the desktop or the mobile frame; the choices and the buying are the same for both. */
 function Loaded({ nft }: { nft: Nft }) {
-  const desktop = useMediaQuery('(min-width: 768px)')
+  const desktop = useMediaQuery('(min-width: 1024px)')
   const buy = useBuy(nft)
   return desktop ? <DetailDesktop nft={nft} buy={buy} /> : <DetailMobile nft={nft} buy={buy} />
 }
