@@ -134,10 +134,10 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| API-1 | M1 | req | §4 | Routes, search params and private-route guards use TanStack Router. Accept: guards and params covered by ROUTE-3 and CAT-1 | test | part | |
-| API-2 | M1 | req | §4 | Queries, mutations and cache sync use TanStack Query. Accept: all server state comes from Query | manual | part | Queries only |
-| API-3 | M1 | req | §4 | Every REST call goes through Axios. Accept: a lint rule or test fails on `fetch` in `src` | test | part | |
-| API-4 | M1 | req | §4 | Contracts are typed between transport, state and UI. Accept: `tsc` strict passes with the `ARCHITECTURE.md` types | config | part | `src/api/types.ts` now holds the full contract set of `ARCHITECTURE.md` §2; UI uses catalog and auth types so far |
+| API-1 | M1 | req | §4 | Routes, search params and private-route guards use TanStack Router. Accept: guards and params covered by ROUTE-3 and CAT-1 | test | done | Guards: `e2e/auth.spec.ts` (ROUTE-3); params: `e2e/catalog.spec.ts` (CAT-1). Both run through TanStack Router |
+| API-2 | M1 | req | §4 | Queries, mutations and cache sync use TanStack Query. Accept: all server state comes from Query | manual | done | `src/architecture-rules.test.ts`: no screen calls the HTTP instance; every request is in `src/api` query and mutation hooks |
+| API-3 | M1 | req | §4 | Every REST call goes through Axios. Accept: a lint rule or test fails on `fetch` in `src` | test | done | `src/architecture-rules.test.ts`: no `fetch` or `XMLHttpRequest` outside the mock; the only Axios instance is `src/api/client.ts` |
+| API-4 | M1 | req | §4 | Contracts are typed between transport, state and UI. Accept: `tsc` strict passes with the `ARCHITECTURE.md` types | config | done | `strict` is on in `tsconfig.app.json` (the test config extends it) and `pnpm typecheck` runs in `verify` and CI; guarded in `src/architecture-rules.test.ts` |
 | API-5 | M2 | req | §4 | Loading, empty, error, success and background-refresh states exist per screen. Accept: each screen has a test or checklist entry for the five | test | done | `e2e/states.spec.ts`: loading, error with retry and success on favorites, wallets, profile, detail and order; empty on favorites, cart and payment; the cart and the payment fail and recover. Catalog by `e2e/network.spec.ts`. Background refresh: checklist "Screen states" in `design-decisions.md` |
 | API-6 | M3 | req | §4 | The cache is invalidated coherently after mutations and events. Accept: after a cart mutation and after `nft.updated` dependent views update without reload | test | done | |
 | API-7 | M1 | req | §4 | Stale responses are cancelled or discarded. Accept: changing params aborts the older request | test | part | `signal` passed |
@@ -152,7 +152,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| MOCK-1 | M1 | req | §6 | Mocks live in the network layer; no fake data in components, hooks or the Axios client. Accept: no import of `src/mocks` outside the mock entry | test | part | |
+| MOCK-1 | M1 | req | §6 | Mocks live in the network layer; no fake data in components, hooks or the Axios client. Accept: no import of `src/mocks` outside the mock entry | test | done | `src/architecture-rules.test.ts`: only `src/main.tsx` (boot, dynamic import) imports `src/mocks` |
 | MOCK-2 | M1 | req | §6 | State is consistent across catalog, favorites, cart, profile, wallets and orders. Accept: a purchase lowers stock seen by the catalog | test | done | |
 | MOCK-3 | M1 | req | §6 | State persists locally; reset restores a known scenario fully. Accept: `?reset=1` clears sessions, carts, favorites, orders, idempotency keys, wallets, profiles, the scenario and client storage, then restores fixtures, users and counters | test | done | Reset on boot (`?reset=1`) wipes the mock state and the app storage, then reloads without the parameter |
 | MOCK-12 | M2 | req | §7 | Order progression is stored in the mock state with a due time and settles on its own, independent of the socket and the open screen. Accept: an order created, then the socket dropped or the page reloaded before its due time, reaches its final state; the result is the same without any connection | test | done | Settle on read and on boot; `ARCHITECTURE.md` §7 |
@@ -163,7 +163,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | MOCK-7 | M0 | req | §6 | Socket.IO runs through MSW with a compatible binding; transport and limits documented. Accept: a test connects `socket.io-client` and receives an event on the published build | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16). Limits in `ARCHITECTURE.md` §5 |
 | MOCK-8 | M0 | req | §6 | Mocks switch on by configuration and ship in the demo build. Accept: the deployed build answers `/api/nfts` from MSW | test | done | Verified on https://jungle-gaming-challenge.pages.dev at 5d5d35d (2026-10-16) |
 | MOCK-9 | M2 | req | §6 | A data change appears both in REST responses and in the event. Accept: after a price change, REST and the event carry the same version and value | test | done | |
-| MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | part | Dev, preview and the deployed build run the same handler module; a test that proves it is still to write |
+| MOCK-10 | M1 | req | §6 | Dev, demo and tests share handlers and scenarios. Accept: Playwright uses the same handler module as the dev server | test | done | `src/architecture-rules.test.ts`: no E2E stubs the network and the worker takes the one `handlers` module; the same build runs in dev, preview, CI and the deploy |
 | MOCK-11 | M1 | req | §9 | Ids, timestamps and transaction refs are deterministic. Accept: two runs produce identical order ids and refs | test | done | |
 | MOCK-S01 | M1 | req | §6 | Scenario success. Accept: default flows work | test | done | |
 | MOCK-S02 | M5 | req | §6 | Scenario empty result. Accept: catalog empty state shows | test | done | |
@@ -213,7 +213,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | TEST-1 | M5 | req | §9 | The 12 scenarios of §9 pass. Accept: each maps to the rows in `design-decisions.md` appendix | test | done | Appendix A maps all 12 scenarios and every mapped row is done (13/13, `spec:check`); each runs in CI on desktop and mobile |
 | TEST-2 | M0 | req | §9 | Main flows run on Chromium at desktop and mobile. Accept: both projects run in CI | config | done | `ci.yml` runs `desktop` and `mobile` in `e2e`, `preview-e2e` and `smoke`; all green in run 39062239102 |
 | TEST-3 | M5 | req | §9 | Visual regression of home, detail, cart and payment with versioned baselines. Accept: each baseline is committed only after its screen was compared with the Figma frame and the check is recorded; the run is stable twice | test | todo | Baselines prove stability, not fidelity |
-| TEST-4 | M1 | req | §9 | Each test starts isolated. Accept: no test depends on another's state | test | part | |
+| TEST-4 | M1 | req | §9 | Each test starts isolated. Accept: no test depends on another's state | test | done | `playwright.config.ts` `fullyParallel`; guard in `src/architecture-rules.test.ts` against serial suites; each test gets a fresh context and the mock resets per load |
 | TEST-5 | M3 | req | §9 | Clock, latency and event firing are controlled where time matters. Accept: no `waitForTimeout` in time-sensitive tests | test | done | |
 | TEST-6 | M0 | req | §9 | HTML report and traces of failures are produced. Accept: report folder and traces appear on failure | config | done | |
 | TEST-7 | M0 | req | §9 | Real-time tests pass through the Socket.IO client; REST tests through MSW handlers. Accept: no test calls a store setter to simulate an event | test | done | Guards in `src/e2e-rules.test.ts`: no E2E test touches the cache or session store, the mock imports neither, and `window.__mock` is the only test hook. `MOCK-7#1` drives events through the real `socket.io-client` |
