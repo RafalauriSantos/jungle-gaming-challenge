@@ -19,8 +19,8 @@ Every target is met (performance ≥ 90, accessibility ≥ 95, best practices �
 
 ## The mobile gap, explained
 
-- LCP is 4.3 s because first paint is 3.2 s: the page cannot draw before the JavaScript arrives and runs. The page ships about 423 KB of JavaScript (compressed). About 160 KB of it is the mock backend (MSW, its Socket.IO binding and the handlers), which the statement requires in the published build and which must start before the first request.
-- CLS is 0 and TBT is under 100 ms, so the page is stable and responsive once it draws. Without the simulated throttling the first paint is about 350 ms.
+- On the deployed site LCP is about 4.5 s because first paint (FCP) is about 3.4 s: the page cannot draw before the JavaScript arrives and runs. The page transfers about 446 KB, 364 KB of it JavaScript (compressed). About 160 KB of that JavaScript is the mock backend (MSW, its Socket.IO binding and the handlers; sizes of the build chunks), which the statement requires in the published build and which must start before the first request.
+- CLS is 0 and TBT is about 100 ms on the home page (102 ms) and 48 ms on the detail page, so the page is stable and responsive once it draws. Without the simulated throttling the first paint is about 350 ms (measured on the local build).
 - Four optimizations were measured earlier in the project; only turning off automatic route code splitting helped (+4 points on mobile, +2 on desktop), and that is the setting delivered (`vite.config.ts`).
 - A real gain would need the page to draw before the mock backend is ready. That changes boot order and the session and reset flow, which carries more risk than a performance score is worth here, so the gap is reported and not hidden.
 
