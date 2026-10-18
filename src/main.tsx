@@ -3,6 +3,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createQueryClient } from './api/query-client'
+import { RouteError } from './components/layout/RouteError'
 import './index.css'
 import { connectRealtime } from './realtime/client'
 import { parseSearch } from './lib/search-params'
@@ -11,7 +12,7 @@ import { endSession } from './session/actions'
 import { onSessionLost } from './session/store'
 
 const queryClient = createQueryClient()
-const router = createRouter({ routeTree, parseSearch })
+const router = createRouter({ routeTree, parseSearch, defaultErrorComponent: RouteError })
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -30,7 +31,8 @@ async function enableMocks() {
   }
   if (search !== location.search) history.replaceState(null, '', location.pathname + search + location.hash)
   const { worker } = await import('./mocks/browser')
-  await worker.start()
+  // The service worker still answers every request; only its console chatter is off in the published build.
+  await worker.start({ quiet: import.meta.env.PROD })
   // Orders that came due while the page was closed settle now.
   const [{ ctx }, { settleDue }] = await Promise.all([import('./mocks/runtime'), import('./mocks/services/orders')])
   settleDue(ctx)
