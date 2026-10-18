@@ -65,6 +65,12 @@ test('CART-2#1 CART-4#2 CART-4#3: invalid and expired codes say why and give no 
   const summary = page.getByRole('region', { name: 'Resumo da carteira' })
   await expect(summary.getByText('3.236 ETH')).toBeVisible()
 
+  // An empty field answers the click too, instead of doing nothing.
+  await summary.getByRole('button', { name: 'Aplicar' }).click()
+  await expect(summary.getByRole('alert').filter({ hasText: 'Digite o código promocional.' })).toBeVisible()
+  await summary.getByRole('textbox', { name: 'Código promocional' }).fill('x')
+  await expect(summary.getByText('Digite o código promocional.')).toHaveCount(0)
+
   for (const [code, message] of [['NOPE', 'Código promocional inválido.'], ['EXPIRADO', 'Este código promocional expirou.']] as const) {
     await summary.getByRole('textbox', { name: 'Código promocional' }).fill(code)
     await summary.getByRole('button', { name: 'Aplicar' }).click()

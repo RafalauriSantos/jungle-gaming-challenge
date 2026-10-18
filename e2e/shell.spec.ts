@@ -38,3 +38,16 @@ test('UI-1#1 CAT-1#1: the search icon opens the field, which filters the catalog
   await page.keyboard.press('Escape')
   await expect(header(page).getByRole('searchbox')).toHaveCount(0)
 })
+
+test('UI-4#1: the header items that open nothing yet answer the click with "Em breve", and Mercado goes to the catalog', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The header nav is the desktop one; the phone has the tab bar')
+  await page.goto('/nfts/nft-004')
+  const nav = page.getByRole('navigation', { name: 'Principal' })
+  await nav.getByRole('link', { name: 'Mercado' }).click()
+  await expect(page).toHaveURL('/')
+  for (const item of ['Criadores', 'Aprenda']) {
+    await expect(nav.getByRole('button', { name: item })).toHaveAccessibleDescription('Em breve') // announced before the click
+    await nav.getByRole('button', { name: item }).click()
+    await expect(nav.getByRole('status').filter({ hasText: 'Em breve' }).last()).toBeVisible()
+  }
+})
