@@ -4,23 +4,23 @@ Command: `pnpm build && pnpm preview --port 4173`, then `pnpm lighthouse --runs 
 
 ## Result (median of 3, the deployed site)
 
-Measured on 2026-10-18 against https://jungle-gaming-challenge.pages.dev, which is the build of commit `2276d3c`, published by the CI run 39104037184 after every check (verify, E2E on the build and on a test copy, production smoke) passed. HTML and JSON of every run are in `public/`.
+Measured on 2026-10-18 against https://jungle-gaming-challenge.pages.dev, which is the build of commit `a213fc9` (#39), published by the CI run 39150468941 after every check (verify, E2E on the build and on a test copy, production smoke) passed. HTML and JSON of every run are in `public/`.
 
 | page | profile | performance | accessibility | best practices | SEO | LCP | CLS | TBT |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| home | mobile | 76 | 100 | 100 | 100 | 4499 ms | 0.000 | 102 ms |
-| home | desktop | 98 | 100 | 100 | 100 | 1033 ms | 0.000 | 3 ms |
-| detail | mobile | 77 | 100 | 100 | 100 | 4509 ms | 0.000 | 48 ms |
-| detail | desktop | 98 | 100 | 100 | 100 | 1044 ms | 0.000 | 0 ms |
+| home | mobile | 80 | 100 | 100 | 100 | 3665 ms | 0.000 | 242 ms |
+| home | desktop | 99 | 100 | 100 | 100 | 838 ms | 0.000 | 5 ms |
+| detail | mobile | 80 | 100 | 100 | 100 | 4138 ms | 0.000 | 74 ms |
+| detail | desktop | 98 | 100 | 100 | 100 | 967 ms | 0.000 | 0 ms |
 
-Every target is met (performance ≥ 90, accessibility ≥ 95, best practices ≥ 95, SEO ≥ 90) except **mobile performance (76 and 77)**.
+Every target is met (performance ≥ 90, accessibility ≥ 95, best practices ≥ 95, SEO ≥ 90) except **mobile performance (80 on both pages)**.
 
 `local/` is the same run on the local optimized build, taken earlier in the day (mobile 78 and 79, desktop 99), before the first page got the Figma data and the card buttons. It is kept as the development reference; the figures above are the ones for the delivered site.
 
 ## The mobile gap, explained
 
-- On the deployed site LCP is about 4.5 s because first paint (FCP) is about 3.4 s: the page cannot draw before the JavaScript arrives and runs. The page transfers about 446 KB, 364 KB of it JavaScript (compressed). About 160 KB of that JavaScript is the mock backend (MSW, its Socket.IO binding and the handlers; sizes of the build chunks), which the statement requires in the published build and which must start before the first request.
-- CLS is 0 and TBT is about 100 ms on the home page (102 ms) and 48 ms on the detail page, so the page is stable and responsive once it draws. Without the simulated throttling the first paint is about 350 ms (measured on the local build).
+- On the deployed site LCP is about 3.7 s on home and 4.1 s on detail because first paint (FCP) is about 3 s: the page cannot draw before the JavaScript arrives and runs. The page transfers about 417 KB, 364 KB of it JavaScript (compressed). About 160 KB of that JavaScript is the mock backend (MSW, its Socket.IO binding and the handlers; sizes of the build chunks), which the statement requires in the published build and which must start before the first request.
+- CLS is 0 and TBT is 242 ms on the home page and 74 ms on the detail page, so the page is stable and responsive once it draws. Without the simulated throttling the first paint is about 350 ms (measured on the local build).
 - Four optimizations were measured earlier in the project; only turning off automatic route code splitting helped (+4 points on mobile, +2 on desktop), and that is the setting delivered (`vite.config.ts`).
 - A real gain would need the page to draw before the mock backend is ready. That changes boot order and the session and reset flow, which carries more risk than a performance score is worth here, so the gap is reported and not hidden.
 
