@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { NFT_FIXTURES } from './nfts'
 
@@ -19,5 +20,11 @@ describe('catalog fixtures: what the detail screen reads', () => {
 
   it('UI-1#1: a rare NFT lists "Raro" among its attributes and the others do not', () => {
     for (const nft of NFT_FIXTURES) expect(nft.attributes.includes('Raro'), nft.id).toBe(nft.rare)
+  })
+
+  it('UI-1#1: every NFT has an artwork of its own, and the file exists', () => {
+    const images = NFT_FIXTURES.map((nft) => nft.image)
+    expect(new Set(images).size).toBe(images.length)
+    for (const image of images) expect(existsSync(`public${image}`), image).toBe(true)
   })
 })
