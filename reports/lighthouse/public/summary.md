@@ -7,7 +7,7 @@ URL: https://jungle-gaming-challenge.pages.dev
 
 | page | profile | performance per run | performance | accessibility | best practices | SEO | LCP ms | CLS | TBT ms |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| home | mobile | 79 / 80 / 80 | 80 | 100 | 100 | 100 | 3665 | 0.000 | 242 |
-| home | desktop | 99 / 99 / 99 | 99 | 100 | 100 | 100 | 838 | 0.000 | 5 |
-| detail | mobile | 80 / 80 / 81 | 80 | 100 | 100 | 100 | 4138 | 0.000 | 74 |
-| detail | desktop | 98 / 98 / 99 | 98 | 100 | 100 | 100 | 967 | 0.000 | 0 |
+| home | mobile | 77 / 82 / 82 | 82 | 100 | 100 | 100 | 3400 | 0.000 | 251 |
+| home | desktop | 99 / 99 / 99 | 99 | 100 | 100 | 100 | 875 | 0.000 | 5 |
+| detail | mobile | 80 / 81 / 80 | 80 | 100 | 100 | 100 | 4110 | 0.000 | 72 |
+| detail | desktop | 99 / 99 / 98 | 99 | 100 | 100 | 100 | 926 | 0.000 | 0 |
