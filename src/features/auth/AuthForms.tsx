@@ -26,7 +26,7 @@ export function LoginForm({ onDone, large }: FormProps) {
   const [values, setValues] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState<Errors>({})
   const [formError, setFormError] = useState<string>()
-  const field = large ? 'h-[50px] rounded-xl' : ''
+  const field = large ? 'h-[50px] rounded-[10px] dark:bg-transparent' : ''
   useFocusFirstInvalid(formRef, errors)
 
   function submit(e: FormEvent) {
@@ -61,7 +61,7 @@ export function LoginForm({ onDone, large }: FormProps) {
           {formError}
         </p>
       )}
-      <Button type="submit" disabled={login.isPending} className={cn('mt-3 h-[45px] rounded-[5px] text-base font-bold', large && 'h-[60px] rounded-xl')}>
+      <Button type="submit" disabled={login.isPending} className={cn('mt-3 h-[45px] rounded-[5px] text-base font-bold', large && 'mt-7 h-[60px] rounded-[10px]')}>
         {login.isPending ? 'Entrando…' : 'Entrar'}
       </Button>
     </form>
@@ -74,7 +74,7 @@ export function SignupForm({ onDone, large }: FormProps) {
   const [values, setValues] = useState({ username: '', email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState<Errors>({})
   const [formError, setFormError] = useState<string>()
-  const field = large ? 'h-[50px] rounded-xl' : ''
+  const field = large ? 'h-[50px] rounded-[10px] dark:bg-transparent' : ''
   useFocusFirstInvalid(formRef, errors)
   const set = (key: keyof typeof values) => (value: string) => setValues((v) => ({ ...v, [key]: value }))
 
@@ -108,7 +108,7 @@ export function SignupForm({ onDone, large }: FormProps) {
           {formError}
         </p>
       )}
-      <Button type="submit" disabled={signup.isPending} className={cn('mt-3 h-[45px] rounded-[5px] text-base font-bold', large && 'h-[60px] rounded-xl')}>
+      <Button type="submit" disabled={signup.isPending} className={cn('mt-3 h-[45px] rounded-[5px] text-base font-bold', large && 'mt-7 h-[60px] rounded-[10px]')}>
         {signup.isPending ? 'Criando…' : large ? 'Criar perfil' : 'Criar conta'}
       </Button>
     </form>

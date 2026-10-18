@@ -15,7 +15,7 @@ export function SocialButtons() {
         ['Continuar com Google', google],
         ['Continuar com Facebook', facebook],
       ].map(([label, icon]) => (
-        <Button key={label} type="button" variant="outline" disabled title="Em breve" className="h-10 gap-3 rounded-[5px] border-border text-[13px] font-medium text-text-secondary disabled:opacity-75">
+        <Button key={label} type="button" variant="outline" disabled title="Em breve" className="h-10 gap-3 rounded-[5px] border-border bg-transparent text-[13px] font-medium text-text-secondary disabled:opacity-75 dark:bg-transparent dark:hover:bg-transparent">
           <img src={icon} alt="" width={20} height={20} />
           {label}
         </Button>

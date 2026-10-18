@@ -1,5 +1,5 @@
 import { Link, useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ChevronLeft, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Stepper } from '@/features/nft/Stepper'
@@ -16,7 +16,7 @@ export function CartMobile({ m, empty }: { m: CartModel; empty: boolean }) {
       <div className="flex flex-col gap-3 px-7">
         <div className="flex h-11 items-center gap-[61px]">
           <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="size-[35px] rounded-full border-border-soft bg-surface-card">
-            <ArrowLeft aria-hidden className="size-4 text-text-accent" />
+            <ChevronLeft aria-hidden className="size-4 text-text-accent" />
           </Button>
           <h1 className="text-xl font-bold leading-4">Carrinho de NFTs</h1>
         </div>

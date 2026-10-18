@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Heart, Home, ScanLine, ShoppingBag, User } from 'lucide-react'
+import { Heart, Home, ScanLine, ShoppingCart, User } from 'lucide-react'
 
 const item = 'grid size-11 place-items-center rounded-full text-tone [&.active]:text-text-accent'
 
@@ -21,7 +21,7 @@ export function MobileTabBar() {
         </Link>
         <span aria-hidden className="size-11" />
         <Link to="/carrinho" aria-label="Carrinho" className={item}>
-          <ShoppingBag aria-hidden />
+          <ShoppingCart aria-hidden />
         </Link>
         <Link to="/perfil" aria-label="Perfil" className={item}>
           <User aria-hidden className="fill-current" />
