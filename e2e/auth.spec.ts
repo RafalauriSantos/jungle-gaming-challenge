@@ -122,6 +122,20 @@ test('the sign-in modal traps focus and Escape leaves it', async ({ page }, info
   await expect(page).toHaveURL('/')
 })
 
+test('on a short window the sign-in modal stays inside the screen and scrolls instead of being cut', async ({ page }, info) => {
+  test.skip(!desktopOnly(info.project.name), 'The modal exists from tablet width up')
+  await page.setViewportSize({ width: 1440, height: 520 })
+  await page.goto('/entrar')
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  const box = (await dialog.boundingBox())!
+  expect(box.y).toBeGreaterThanOrEqual(0)
+  expect(box.y + box.height).toBeLessThanOrEqual(520)
+  const last = dialog.getByRole('button', { name: 'Continuar com Facebook' })
+  await last.scrollIntoViewIfNeeded()
+  await expect(last).toBeInViewport()
+})
+
 test('the password can be revealed and hidden by keyboard', async ({ page }) => {
   await page.goto('/entrar')
   const root = authRoot(page)

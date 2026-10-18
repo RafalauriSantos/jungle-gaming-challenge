@@ -17,3 +17,10 @@ test('UI-1#2: the copyright line stays at the bottom and clear of the tab bar bu
     expect(height - (text!.y + text!.height), `${path}: the line is at the bottom of the screen`).toBeLessThanOrEqual(160)
   }
 })
+
+test('the sign-in page fits the screen, with nothing to scroll', async ({ page }) => {
+  await page.goto('/entrar')
+  await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
+  const { scrollHeight, innerHeight } = await page.evaluate(() => ({ scrollHeight: document.documentElement.scrollHeight, innerHeight: window.innerHeight }))
+  expect(scrollHeight).toBeLessThanOrEqual(innerHeight)
+})
