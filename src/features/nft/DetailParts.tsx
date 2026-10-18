@@ -2,7 +2,7 @@ import { Star } from 'lucide-react'
 import type { Nft } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { formatEth } from '@/lib/eth'
+import { formatEth } from '@/lib/domain/eth'
 import { cn } from '@/lib/utils'
 import type { Buy } from './useBuy'
 

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import type { Nft } from '@/api/types'
-import { formatEth } from '@/lib/eth'
+import { formatEth } from '@/lib/domain/eth'
 import { cn } from '@/lib/utils'
 
 const PER_PAGE = 5

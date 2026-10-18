@@ -92,7 +92,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | CART-5 | M2 | req | §3 | Subtotal, discount, network fee and total are exactly the quote. Accept: the four values on screen equal the quote response | test | done | |
 | CART-6 | M3 | req | §3, §7 | A price or stock change received while the cart is open updates the summary and informs the user. Accept: after the event the total changes without reload; a status message names the NFT; checkout is blocked until the new quote is confirmed | test | done | |
 | CART-7 | M2 | req | §3 | Cart and checkout reject a second network. Accept: adding an NFT of another network shows the conflict and the option to empty the cart | test | done | The cart offers "Esvaziar carrinho e adicionar" when the network differs |
-| MON-1 | M1 | req | §3 | ETH is a decimal string with exact math and display. Accept: unit tests of parse, add, multiply and format on values with up to 18 decimals; no `Number` on money | test | done | `src/lib/eth.ts`; display keeps at least 2 decimals and never rounds (Figma shows `0.016` and `26.846`) |
+| MON-1 | M1 | req | §3 | ETH is a decimal string with exact math and display. Accept: unit tests of parse, add, multiply and format on values with up to 18 decimals; no `Number` on money | test | done | `src/lib/domain/eth.ts`; display keeps at least 2 decimals and never rounds (Figma shows `0.016` and `26.846`) |
 | MON-2 | M2 | req | §3 | Quantities are integers. Accept: non-integer and zero are refused by the UI and the API | test | done | |
 | MON-3 | M2 | req | §3 | The API quote is the reference to finalize. Accept: the order total equals its quote; a client-side total never reaches the API | test | done | |
 
@@ -122,7 +122,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| WAL-1 | M1 | req | §3 | Register and edit primary and secondary wallets with validation. Accept: required fields error; EVM address format enforced; saved wallets appear on reload | test | done | Validation rules shared by the form and the mock (`src/lib/wallet-rules.ts`); the mock has the last word |
+| WAL-1 | M1 | req | §3 | Register and edit primary and secondary wallets with validation. Accept: required fields error; EVM address format enforced; saved wallets appear on reload | test | done | Validation rules shared by the form and the mock (`src/lib/domain/wallet-rules.ts`); the mock has the last word |
 | WAL-2 | M4 | req | §3 | Confirmed wallet changes survive a refresh. Accept: edit, reload, same values | test | done | |
 | PRO-1 | M4 | req | §3 | Edit profile data and avatar; changes survive a refresh. Accept: name, username, e-mail and avatar persist; conflicts show on the field | test | done | |
 | PRO-2 | M4 | req | §3 | Change password with validation. Accept: wrong current password errors; success lets the user log in with the new one only | test | done | |

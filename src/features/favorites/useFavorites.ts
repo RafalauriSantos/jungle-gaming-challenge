@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { favoriteKeys, favoritesOptions, setFavoriteRequest } from '@/api/favorites'
-import { announce } from '@/lib/announce'
+import { announce } from '@/lib/ui/announce'
 import { useUser } from '@/session/store'
 
 type Favorites = { nftIds: string[] }

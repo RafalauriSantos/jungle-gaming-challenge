@@ -1,8 +1,30 @@
 # Architecture
 
-Status: **planning**. These rules are decided before the code so that the mock backend, the client and the tests agree. `src/api/types.ts` must follow the contracts below; when code and this file disagree, fix one of them in the same change.
+Status: **delivered**. This file describes the code as shipped (the contracts, cache and real-time sections were re-checked against it on 2026-10-18). `src/api/types/` follows the contracts below; when code and this file disagree, fix one of them in the same change.
 
-Requirement IDs (`CART-6`) point to `docs/spec/requirements.md`. Open questions are in `docs/spec/design-decisions.md`.
+Requirement IDs (`CART-6`) point to `docs/spec/requirements.md`. Decisions and how every question was closed are in `docs/spec/design-decisions.md`.
+
+## Project layout
+
+```
+src/
+  routes/        one file per URL (TanStack Router, file-based); guards and search validation only
+  features/      one folder per screen area: catalog, nft, cart, orders, auth, profile, wallets, favorites, account
+                 pattern: XPage (data and rules), XDesktop / XMobile (the two frames), XParts, xModel
+  components/    ui/ (shadcn, restyled), layout/ (header, footer, tab bar, error screen)
+  api/           Axios client, one module of query and mutation options per resource, types/ (contracts by domain)
+  session/       token, expiry, per-user keys and the abort signal of the session
+  realtime/      Socket.IO client and the version gate
+  mocks/         the whole backend: db, services (pure rules), handlers (HTTP), socket, fixtures, scenarios
+  lib/           domain/ (money, NFT, wallet and URL rules; pure) and ui/ (hooks and the announcer); utils.ts is shadcn's
+  guards/        tests that fail when an architecture or testing rule is broken
+e2e/             Playwright specs, the private-API list and shared helpers
+scripts/         spec check and Lighthouse runner
+reports/         Lighthouse HTML and JSON, with the tool versions and conditions
+docs/            statement, requirements, design decisions
+```
+
+Dependency direction: `routes` and `features` use `api`, `session`, `realtime` and `lib`; `mocks` import none of them (a guard enforces it) and only `main.tsx` loads `mocks`.
 
 ## 1. Domain
 

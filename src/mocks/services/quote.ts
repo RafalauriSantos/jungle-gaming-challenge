@@ -1,5 +1,5 @@
 import type { Quote, QuoteChange, QuoteIssue, QuoteLine } from '@/api/types'
-import { addEth, mulEth, scaleEth, subEth, sumEth } from '@/lib/eth'
+import { addEth, mulEth, scaleEth, subEth, sumEth } from '@/lib/domain/eth'
 import type { Db, StoredQuote } from '../db'
 import { COUPONS, NETWORK_FEES, QUOTE_TTL_MS } from '../fixtures/commerce'
 import { fail } from '../failure'

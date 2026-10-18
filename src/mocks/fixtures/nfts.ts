@@ -1,6 +1,6 @@
 import { COLLECTIONS, EDITION_TIERS, NETWORKS, type Edition, type Nft } from '@/api/types'
-import { centiToEth } from '@/lib/eth'
-import { tokenIdOf } from '@/lib/nft'
+import { centiToEth } from '@/lib/domain/eth'
+import { tokenIdOf } from '@/lib/domain/nft'
 
 const NAMES = [
   'Emerald Ape',

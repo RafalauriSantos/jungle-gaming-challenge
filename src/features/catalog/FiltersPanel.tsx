@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { COLLECTIONS, NETWORKS, type NftListParams, type NftListResponse } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { centiToEth, ethToCenti, formatEth } from '@/lib/eth'
+import { centiToEth, ethToCenti, formatEth } from '@/lib/domain/eth'
 import { cn } from '@/lib/utils'
 import { COLLECTION_LABELS, NETWORK_LABELS } from './search'
 
