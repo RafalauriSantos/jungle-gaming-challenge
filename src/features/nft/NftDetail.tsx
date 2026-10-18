@@ -12,7 +12,7 @@ import { useBuy } from './useBuy'
 
 function DetailSkeleton() {
   return (
-    <div aria-busy="true" role="status" aria-label="Carregando NFT" className="mx-auto grid max-w-[1232px] gap-8 px-4 py-6 md:min-h-[1400px] md:grid-cols-[100px_444px_1fr] md:content-start">
+    <div aria-busy="true" role="status" aria-label="Carregando NFT" className="mx-auto grid max-w-[1232px] gap-8 px-4 py-6 lg:min-h-[1400px] md:grid-cols-[100px_444px_1fr] md:content-start">
       <Skeleton className="hidden h-[448px] md:block" />
       <Skeleton className="aspect-square w-full md:size-[444px]" />
       <div className="flex flex-col gap-4">

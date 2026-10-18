@@ -1,6 +1,6 @@
 # Lighthouse report
 
-Command: `pnpm build && pnpm preview --port 4173`, then `node scripts/lighthouse.mjs --runs 3 --out reports/lighthouse/local`. The script runs Lighthouse 3 times for each of home (`/`) and detail (`/nfts/nft-004`), on the mobile profile (Lighthouse default: simulated slow 4G at 1.6 Mbps, 150 ms RTT, CPU 4x slower) and on the desktop preset, and reports the median. HTML and JSON of every run are in `local/`; `local/summary.md` has the table with the tool versions and conditions. `public/` holds the same run against the deployed URL, taken from the build CI published.
+Command: `pnpm build && pnpm preview --port 4173`, then `node scripts/lighthouse.mjs --runs 3 --out reports/lighthouse/local`. The script runs Lighthouse 3 times for each of home (`/`) and detail (`/nfts/nft-004`), on the mobile profile (Lighthouse default: simulated slow 4G at 1.6 Mbps, 150 ms RTT, CPU 4x slower) and on the desktop preset, and reports the median. HTML and JSON of every run are in `local/`; `local/summary.md` has the table with the tool versions and conditions. The same run against the deployed URL (`public/`) is added after the deploy of this build (PERF-6); until it exists, the audited build is the local build of the same commit.
 
 ## Result (median of 3, local optimized build)
 
@@ -26,4 +26,4 @@ Every target is met (performance ≥ 90, accessibility ≥ 95, best practices �
 
 ## What was not done to raise the score
 
-No audit flag, test-only build or special page. The audited build is the one CI publishes (see `public/`).
+No audit flag, test-only build or special page. The audited build is the one CI publishes; the public-URL run confirms it once added.
