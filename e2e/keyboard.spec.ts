@@ -55,7 +55,7 @@ test('A11Y-1#1: sign in, choose an edition, buy and pay, with the keyboard only'
   await page.keyboard.press('Enter')
   const dialog = page.getByRole('dialog', { name: 'Revise seu pedido' })
   await expect(dialog).toBeVisible()
-  expect(await insideDialog(page)).toBe(true)
+  await expect.poll(() => insideDialog(page)).toBe(true)
   await tabTo(page, dialog.getByRole('button', { name: 'Enviar pedido' }))
   await page.keyboard.press('Enter')
   await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
@@ -100,10 +100,10 @@ test('A11Y-2#1: the filters sheet on mobile takes focus in and gives it back', a
   await page.keyboard.press('Enter')
   const sheet = page.getByRole('dialog')
   await expect(sheet).toBeVisible()
-  expect(await insideDialog(page)).toBe(true)
+  await expect.poll(() => insideDialog(page)).toBe(true)
   for (let i = 0; i < 20; i++) {
     await page.keyboard.press('Tab')
-    expect(await insideDialog(page)).toBe(true)
+    await expect.poll(() => insideDialog(page)).toBe(true)
   }
   await page.keyboard.press('Escape')
   await expect(sheet).toHaveCount(0)
