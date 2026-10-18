@@ -42,7 +42,7 @@ export function CartMobile({ m, empty }: { m: CartModel; empty: boolean }) {
               <li key={line.lineId} className="relative h-[100px] overflow-hidden rounded-[14px] bg-surface-card shadow-[0_6px_20px_rgba(10,6,4,0.45)]">
                 <img src={line.image} alt={`Arte do NFT ${line.name}`} width={100} height={100} className="absolute left-0 top-0 size-[100px] object-cover" />
                 <p className="absolute left-[109px] top-[13px] right-4 truncate text-[15px] font-bold leading-4">{line.name}</p>
-                <p className="absolute left-[109px] top-[35px] text-sm leading-4 text-text-secondary">Edição: {line.tier}</p>
+                <p className="absolute left-[109px] top-[35px] text-sm leading-4 text-text-secondary"><span className="max-[359px]:sr-only">Edição: </span>{line.tier}</p>
                 <p className="absolute left-[109px] top-[69px] text-lg font-bold leading-4 text-text-accent">
                   <span className="sr-only">Total da linha </span>
                   {formatEth(line.lineTotal)}

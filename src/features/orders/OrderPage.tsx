@@ -169,12 +169,10 @@ export function OrderPage({ id }: { id: string }) {
       <div aria-hidden className="h-px bg-primary" />
       <dl className="flex h-[65px] items-center justify-between px-9 py-1 text-text-secondary">
         {meta.map(([label, value, bold], i) => (
-          <div key={label} className="contents">
-            {i > 0 && <span aria-hidden className="h-[31px] w-px bg-primary" />}
-            <div className="flex flex-col">
-              <dt className={bold ? 'text-sm font-bold leading-4' : 'text-sm leading-4'}>{label}</dt>
-              <dd className="text-[15px]">{value}</dd>
-            </div>
+          // The divider is a border of the group: only dt and dd may sit inside a dl group.
+          <div key={label} className={i > 0 ? 'flex h-[31px] flex-col border-l border-primary pl-6' : 'flex flex-col'}>
+            <dt className={bold ? 'text-sm font-bold leading-4' : 'text-sm leading-4'}>{label}</dt>
+            <dd className="text-[15px]">{value}</dd>
           </div>
         ))}
       </dl>

@@ -26,7 +26,8 @@ const send = (page: Page, method: string, path: string, opts: { token?: string; 
   ) as Promise<Reply>
 
 async function login(page: Page) {
-  const { body } = await send(page, 'POST', '/api/auth/login', { body: { email: ANA.email, password: ANA.password } })
+  const { status, body } = await send(page, 'POST', '/api/auth/login', { body: { email: ANA.email, password: ANA.password } })
+  expect(status).toBe(200)
   return body.session.token as string
 }
 
@@ -41,7 +42,9 @@ test('API-12#1: every resource of the contract answers with its documented succe
 
   await call('GET', '/api/auth/session', 200)
   expect((await send(page, 'GET', '/api/nfts')).status).toBe(200)
-  const nft = (await send(page, 'GET', '/api/nfts/nft-004')).body
+  const detail = await send(page, 'GET', '/api/nfts/nft-004')
+  expect(detail.status).toBe(200)
+  const nft = detail.body
   const edition = nft.editions.find((e: { available: number }) => e.available >= 2).id as string
 
   await call('GET', '/api/favorites', 200)
