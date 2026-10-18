@@ -9,13 +9,13 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      include: ['src/lib/eth.ts', 'src/lib/wallet-rules.ts', 'src/mocks/services/**', 'src/realtime/**', 'src/features/cart/visitorCart.ts'],
+      include: ['src/lib/domain/eth.ts', 'src/lib/domain/wallet-rules.ts', 'src/mocks/services/**', 'src/realtime/**', 'src/features/cart/visitorCart.ts'],
       exclude: ['**/*.test.ts'],
       thresholds: {
         'src/mocks/services/**': { lines: 95, functions: 95, branches: 88 },
         'src/realtime/**': { lines: 90, functions: 85, branches: 78 },
-        'src/lib/eth.ts': { lines: 95, branches: 88 },
-        'src/lib/wallet-rules.ts': { lines: 95, branches: 90 },
+        'src/lib/domain/eth.ts': { lines: 95, branches: 88 },
+        'src/lib/domain/wallet-rules.ts': { lines: 95, branches: 90 },
       },
     },
   },

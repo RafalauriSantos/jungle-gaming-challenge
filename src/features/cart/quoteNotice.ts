@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Quote } from '@/api/types'
-import { announce } from '@/lib/announce'
-import { formatEth } from '@/lib/eth'
+import { announce } from '@/lib/ui/announce'
+import { formatEth } from '@/lib/domain/eth'
 
 /** What changed under the user's feet between two quotes of the same cart: a price, or less stock. */
 export function describeChanges(before: Quote, now: Quote): string[] {

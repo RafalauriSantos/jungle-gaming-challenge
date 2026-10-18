@@ -1,5 +1,5 @@
 import type { Provider, Wallet, WalletInput, Wallets } from '@/api/types'
-import { validateWallet } from '@/lib/wallet-rules'
+import { validateWallet } from '@/lib/domain/wallet-rules'
 import type { Db } from '../db'
 import { fail } from '../failure'
 

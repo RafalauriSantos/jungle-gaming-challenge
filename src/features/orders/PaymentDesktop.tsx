@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { NETWORK_LABELS } from '@/features/catalog/search'
 import { fromWallet, PROVIDER_LABELS, WalletFields } from '@/features/wallets/WalletFields'
-import { formatEth } from '@/lib/eth'
+import { formatEth } from '@/lib/domain/eth'
 import { cn } from '@/lib/utils'
 import { ConnectRow, Notices } from './PaymentParts'
 import type { PaymentModel } from './paymentModel'

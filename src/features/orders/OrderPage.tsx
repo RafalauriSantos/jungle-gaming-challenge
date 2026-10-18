@@ -9,7 +9,7 @@ import thankYou from '@/assets/icons/thank-you.svg'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PROVIDER_LABELS } from '@/features/wallets/WalletFields'
-import { formatEth } from '@/lib/eth'
+import { formatEth } from '@/lib/domain/eth'
 import { useUser } from '@/session/store'
 import { clearAttempt } from './attempt'
 
