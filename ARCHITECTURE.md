@@ -344,7 +344,7 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 - Cart and detail use the phone layout up to 1023 px, since the Figma has only 414 and 1440 frames.
 - Lighthouse performance on mobile is limited by the payload the statement forces (the mock layer ships in the public build); see the report.
 
-**Inert controls (UI-4).** Each carries `title="Em breve"` or is `disabled` / `aria-disabled`: header nav "Mercado/Criadores/Aprenda" (`Header.tsx`), "Esqueceu a senha?" and social buttons (`AuthForms.tsx`, `SocialButtons.tsx`), newsletter form (`Footer.tsx`), blog cards (`Blog.tsx`), reviews tab and "Ver no Etherscan" (`DetailDesktop.tsx`, `OrderPage.tsx`).
+**Inert controls (UI-4).** Each carries `title="Em breve"` or is `disabled` / `aria-disabled`: header nav "Mercado/Criadores/Aprenda" (`Header.tsx`), "Esqueceu a senha?" and social buttons (`AuthForms.tsx`, `SocialButtons.tsx`), newsletter form (`Footer.tsx`), blog cards (`Blog.tsx`), reviews tab and "Ver no Etherscan" (`DetailDesktop.tsx`, `OrderPage.tsx`), and the five account-menu entries Atividade, Lista de interesse, Ofertas, Arquivos baixados and Suporte (`AccountShell.tsx`, `aria-disabled` with `title="Em breve"`).
 
 **UX decisions.** Authorization is enforced in handlers (D-29); the review dialog before sending an order; a quote change asks for a new confirmation; a pending order is recovered by the server list after login; the visitor cart merges once; messages announce changes with `role="status"`; each screen has loading, error with retry, empty and success states (`design-decisions.md`, "Screen states").
 

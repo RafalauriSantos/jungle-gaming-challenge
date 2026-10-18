@@ -64,3 +64,18 @@ test('API-5#1: the cart and the payment say they failed and recover on retry', a
     await expect(page.getByRole('heading', { name: ready }).first()).toBeVisible()
   }
 })
+
+test('API-5#1: the cart and the payment show a loading state, then their content', async ({ page }) => {
+  await signIn(page)
+  await page.goto('/nfts/nft-004')
+  await page.getByRole('radio', { name: 'Edição 1/10' }).click()
+  await page.getByRole('button', { name: /comprar/i }).first().click()
+  await expect(page).toHaveURL('/carrinho')
+  await page.goto('/carrinho?scenario=slow')
+  await expect(page.getByLabel('Carregando itens').or(page.getByRole('status', { name: 'Carregando resumo' })).first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: /^Carrinho( de NFTs)?$/ }).first()).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByLabel('Carregando itens')).toHaveCount(0, { timeout: 15_000 })
+  await page.goto('/pagamento?scenario=slow')
+  await expect(page.getByLabel('Carregando carteiras').or(page.getByRole('status', { name: 'Carregando resumo' })).first()).toBeVisible()
+  await expect(page.getByLabel('Carregando carteiras')).toHaveCount(0, { timeout: 15_000 })
+})
