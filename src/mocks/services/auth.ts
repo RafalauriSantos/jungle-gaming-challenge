@@ -17,7 +17,11 @@ function startSession(db: Db, userId: string) {
   return { token, expiresAt: new Date(expiresAt).toISOString() }
 }
 
-export async function signup(db: Db, input: SignupInput): Promise<AuthResponse> {
+// A body that misses a field is a validation error, not a crash.
+const text = (value: unknown) => (typeof value === 'string' ? value : '')
+
+export async function signup(db: Db, raw: SignupInput): Promise<AuthResponse> {
+  const input: SignupInput = { username: text(raw.username), email: text(raw.email), password: text(raw.password), confirmPassword: text(raw.confirmPassword) }
   const fields: Record<string, string> = {}
   if (!USERNAME.test(input.username)) fields.username = 'Use de 3 a 24 letras, números, ponto, hífen ou sublinhado.'
   if (!EMAIL.test(input.email)) fields.email = 'Informe um e-mail válido.'
@@ -42,7 +46,12 @@ export async function signup(db: Db, input: SignupInput): Promise<AuthResponse> 
   return { user: toUser(user), session: startSession(db, id) }
 }
 
-export async function login(db: Db, input: LoginInput): Promise<AuthResponse> {
+export async function login(db: Db, raw: LoginInput): Promise<AuthResponse> {
+  const input: LoginInput = { email: text(raw.email), password: text(raw.password) }
+  const missing: Record<string, string> = {}
+  if (!input.email.trim()) missing.email = 'Informe seu e-mail.'
+  if (!input.password) missing.password = 'Informe sua senha.'
+  if (Object.keys(missing).length) throw fail(422, 'validation', 'Revise os campos destacados.', missing)
   const user = db.state.users.find((u) => u.email === input.email.trim().toLowerCase())
   // Hash even for an unknown e-mail so both failures cost the same and read the same.
   const hash = await hashPassword(input.password, user?.salt ?? 'unknown')
