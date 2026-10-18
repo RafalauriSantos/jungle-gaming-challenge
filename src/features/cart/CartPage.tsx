@@ -11,7 +11,7 @@ import { useCoupon } from './useCoupon'
 import { useCart, useQuote, useRemoveItem, useSetQuantity } from './useCart'
 
 export function CartPage() {
-  const desktop = useMediaQuery('(min-width: 768px)')
+  const desktop = useMediaQuery('(min-width: 1024px)')
   const cart = useCart()
   const [coupon, setCoupon] = useCoupon()
   const quote = useQuote(cart.data?.version, coupon)

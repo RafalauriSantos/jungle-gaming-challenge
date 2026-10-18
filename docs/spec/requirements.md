@@ -197,7 +197,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | ID | M | Kind | Src | Requirement | Verify | Status | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | UI-1 | each | req | §8 | Each screen follows the Figma frame (type, color, spacing, proportions, images) at desktop and mobile as drawn. Accept: a per-screen checklist is ticked against the frame; intended desktop/mobile differences are kept | manual | part | Home only |
-| UI-2 | each | req | §8 | Each screen works at 390, 768 and 1440. Accept: no horizontal overflow and no lost content at the three widths | test | part | No 768 project |
+| UI-2 | each | req | §8 | Each screen works at 390, 768 and 1440. Accept: no horizontal overflow and no lost content at the three widths | test | done | `e2e/responsive.spec.ts`: 10 screens at 390, 768, 1440 with no horizontal overflow. Cart and detail use the phone layout up to 1023 px (the Figma has only 414 and 1440 frames) |
 | UI-3 | each | req | §8 | Data components show skeletons with shimmer: catalog, detail, cart summary. Accept: dimensions equal the loaded content; no layout shift; animation off under reduced motion | test | done | Catalog skeleton |
 | UI-4 | each | req | §3 | Out-of-scope actions never look functional. Accept: each inert control is labelled "Em breve" or disabled | manual | part | |
 | UI-5 | M6 | req | §8 | Asset swaps and accessibility changes versus the Figma are documented. Accept: listed in `ARCHITECTURE.md` | manual | todo | |
@@ -208,7 +208,7 @@ The **Requirement** cell ends with `Accept:` and numbered-by-position assertions
 | A11Y-4 | each | req | §8 | Relevant images have text alternatives. Accept: NFT art has alt text; decorative images are hidden | test | done | `e2e/a11y.spec.ts`: axe `image-alt` is clean on every screen |
 | A11Y-5 | each | req | §8 | Readable contrast and states not by color alone. Accept: selected, error and sold-out carry text or icon | manual | part | |
 | A11Y-6 | M3 | req | §8 | Mutations and real-time changes are announced. Accept: a `role="status"` message appears for cart, favorite and event changes | test | done | |
-| A11Y-7 | each | req | §8 | No horizontal overflow; no loss at zoom. Accept: UI-2 plus 200% zoom keeps content | test | part | |
+| A11Y-7 | each | req | §8 | No horizontal overflow; no loss at zoom. Accept: UI-2 plus 200% zoom keeps content | test | done | `e2e/responsive.spec.ts`: same screens at 720 (200% of 1440) and 320 (reflow width), no overflow, main area and footer text kept |
 | A11Y-8 | M5 | opt | none | An axe scan finds no serious or critical issue per screen. Accept: zero violations | test | done | `e2e/a11y.spec.ts`: axe wcag2a/aa/21a/21aa, zero serious or critical issues, every screen on both projects |
 | TEST-1 | M5 | req | §9 | The 12 scenarios of §9 pass. Accept: each maps to the rows in `design-decisions.md` appendix | test | part | Appendix A maps all 12 scenarios; `spec:check` lists them (9/13 rows fully done). Open: E11 (A11Y-1..3, A11Y-8) and E12 (API-5); they close with the accessibility and states passes |
 | TEST-2 | M0 | req | §9 | Main flows run on Chromium at desktop and mobile. Accept: both projects run in CI | config | done | `ci.yml` runs `desktop` and `mobile` in `e2e`, `preview-e2e` and `smoke`; all green in run 39062239102 |

@@ -31,7 +31,7 @@ export function WalletFields({ idPrefix, values, errors, set, readOnly }: Props)
   const id = (key: string) => `${idPrefix}-${key}`
   const text = (key: keyof Values, label: string, opts: { placeholder?: string; required?: boolean; type?: string; autoComplete?: string; hideLabel?: boolean } = {}) => (
     <Field data-invalid={errors[key] ? true : undefined} className="gap-0">
-      <FieldLabel htmlFor={id(key)} className={cn(LABEL, opts.hideLabel && 'sr-only')}>
+      <FieldLabel htmlFor={id(key)} className={cn(LABEL, opts.hideLabel && 'sr-only w-px!')}>
         {label}
         {opts.required !== false && <span aria-hidden className={STAR}>*</span>}
       </FieldLabel>
