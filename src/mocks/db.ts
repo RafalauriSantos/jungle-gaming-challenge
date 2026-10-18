@@ -68,7 +68,7 @@ export interface MockState {
 
 const STORAGE_KEY = 'kurio.mock.db'
 /** Raise it when the fixture catalog changes, so browsers that saved an older one pick up the new one without losing their other state. */
-const CATALOG_VERSION = 2
+const CATALOG_VERSION = 3
 
 function initialState(generation: number): MockState {
   return structuredClone({
