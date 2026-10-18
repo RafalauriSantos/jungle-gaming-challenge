@@ -117,3 +117,19 @@ test('the network can be chosen by keyboard', async ({ page }) => {
   await page.keyboard.press('Enter')
   await expect(trigger).not.toContainText('Selecione uma rede')
 })
+
+test('the ENS name field sits on the same line as the other fields, with its ".eth" tag at the same height', async ({ page }) => {
+  await signIn(page)
+  await page.goto('/carteiras')
+  const form = principal(page)
+  await expect(form.getByLabel('Nome ENS')).toBeVisible()
+  const tops = async (label: string) => (await form.getByLabel(label).first().boundingBox())!
+  const email = await tops('E-mail')
+  const ens = await tops('Nome ENS')
+  const tag = (await form.getByText('.eth', { exact: true }).boundingBox())!
+  const isDesktop = (page.viewportSize()?.width ?? 0) >= 768
+  if (isDesktop) expect(Math.abs(ens.y - email.y), 'ENS input and E-mail input start at the same height').toBeLessThanOrEqual(1) // two columns: the same row
+  expect(ens.height).toBe(email.height)
+  expect(tag.y).toBeCloseTo(ens.y, 0)
+  expect(tag.height).toBeCloseTo(ens.height, 0)
+})
