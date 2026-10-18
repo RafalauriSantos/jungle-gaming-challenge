@@ -174,3 +174,21 @@ test('CAT-6#2: on desktop the card shows cart, favorite and view buttons on hove
   await view.click()
   await expect(page).toHaveURL(/\/nfts\/nft-050$/)
 })
+
+test('CAT-6#2: a card that cannot be added says why on the card, and offers the way out', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The hover buttons are the desktop card')
+  await signIn(page)
+  await page.goto('/')
+  const cards = page.getByTestId('nft-card')
+  await cards.nth(0).hover() // Ethereum
+  await cards.nth(0).getByRole('button', { name: /Adicionar .* ao carrinho/ }).click()
+  await expect(page.getByRole('link', { name: /Carrinho, 1 itens/ })).toBeVisible()
+  // A Polygon listing from the generated ones, found by search, cannot join an Ethereum cart.
+  await (await searchField(page)).fill('Neon Vessel #275')
+  const polygon = cards.filter({ hasText: 'Neon Vessel #275' })
+  await polygon.hover()
+  await polygon.getByRole('button', { name: /Adicionar .* ao carrinho/ }).click()
+  await expect(polygon.getByRole('status')).toContainText('outra rede')
+  await polygon.getByRole('button', { name: 'Esvaziar carrinho e adicionar' }).click()
+  await expect(polygon.getByRole('status')).toContainText('Adicionado ao carrinho')
+})

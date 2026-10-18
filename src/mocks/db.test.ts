@@ -12,6 +12,20 @@ describe('mock database', () => {
     expect(new Set(db.state.nfts.map((n) => n.network)).size).toBe(3)
   })
 
+  it('MOCK-5#2: a state saved with an older catalog gets the current catalog and keeps the rest', () => {
+    const storage = memoryStorage()
+    const first = createDb(storage)
+    first.state.nfts = first.state.nfts.slice(0, 48) // what browsers saved before the catalog grew
+    first.state.sessions.push({ token: 'tok_keep', userId: 'u_ana', expiresAt: 1 })
+    delete (first.state as { catalogVersion?: number }).catalogVersion
+    first.save()
+
+    const reopened = createDb(storage)
+
+    expect(reopened.state.nfts).toHaveLength(57)
+    expect(reopened.state.sessions.map((s) => s.token)).toEqual(['tok_keep'])
+  })
+
   it('hands out the same ids in the same order on every run', () => {
     const a = createDb(memoryStorage())
     const b = createDb(memoryStorage())
