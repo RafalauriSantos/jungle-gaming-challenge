@@ -14,7 +14,7 @@ describe('the twelve scenarios of the statement', () => {
     // Only what a test is called counts: a requirement named in a comment or an import proves nothing.
     const titles = walk('e2e')
       .filter((f) => f.endsWith('.spec.ts'))
-      .flatMap((f) => [...read(f).matchAll(/\btest\(\s*([`'"])(.*?)\1\s*,/g)].map((m) => m[2]))
+      .flatMap((f) => [...read(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').matchAll(/\btest\(\s*([`'"])(.*?)\1\s*,/g)].map((m) => m[2]))
       .join('\n')
     const rows = read('docs/spec/design-decisions.md').split('## Appendix A')[1]!.split('\n').filter((l) => /^\| E\d+ \|/.test(l))
     expect(rows).toHaveLength(12)

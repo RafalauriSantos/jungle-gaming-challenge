@@ -65,5 +65,7 @@ test('A11Y-8#1 A11Y-3#1: the order confirmation has no serious or critical acces
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
   await page.getByRole('dialog', { name: 'Revise seu pedido' }).getByRole('button', { name: 'Enviar pedido' }).click()
   await expect(page).toHaveURL(/\/pedido\//)
+  // The order stays pending for a moment: scan the confirmed receipt, not the pending card.
+  await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
   expect(await scan(page)).toEqual([])
 })
