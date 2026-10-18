@@ -1,5 +1,5 @@
 import { Link, useRouter } from '@tanstack/react-router'
-import { ArrowLeft, EllipsisVertical, Wallet as WalletIcon } from 'lucide-react'
+import { ChevronLeft, EllipsisVertical, Wallet as WalletIcon } from 'lucide-react'
 import type { Provider } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -23,7 +23,7 @@ export function PaymentMobile({ m }: { m: PaymentModel }) {
       <div className="flex flex-col gap-4">
         <div className="flex h-11 items-center gap-6">
           <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="size-[35px] rounded-full border-border-soft bg-surface-card">
-            <ArrowLeft aria-hidden className="size-4 text-text-accent" />
+            <ChevronLeft aria-hidden className="size-4 text-text-accent" />
           </Button>
           <h1 className="text-xl font-bold leading-4">Pagamento com carteira</h1>
         </div>

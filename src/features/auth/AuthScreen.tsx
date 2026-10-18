@@ -43,7 +43,7 @@ export function AuthScreen({ mode, redirect, reason }: Props) {
         </div>
         <p className="mt-10 text-center text-text-secondary">
           {copy.switchText}{' '}
-          <Link to={copy.to} search={{ redirect }} className="underline">
+          <Link to={copy.to} search={{ redirect }} className="md:underline">
             {copy.switchLink}
           </Link>
         </p>

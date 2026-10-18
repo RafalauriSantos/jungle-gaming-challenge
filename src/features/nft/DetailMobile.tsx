@@ -1,5 +1,5 @@
 import { useRouter } from '@tanstack/react-router'
-import { ArrowLeft, ShoppingBag, Star } from 'lucide-react'
+import { ChevronLeft, ShoppingCart, Star } from 'lucide-react'
 import type { Nft } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { FavoriteButton } from '@/features/favorites/FavoriteButton'
@@ -16,7 +16,7 @@ export function DetailMobile({ nft, buy }: { nft: Nft; buy: Buy }) {
       <div className="relative mb-[-114px] h-[506px] shrink-0 bg-gradient-to-br from-surface-card from-[12%] to-surface-raised px-7 pt-6">
         <div className="flex items-center justify-between">
           <Button type="button" variant="outline" size="icon" aria-label="Voltar" onClick={() => router.history.back()} className="size-[35px] rounded-full border-border bg-surface-raised">
-            <ArrowLeft aria-hidden className="size-4 text-text-accent" />
+            <ChevronLeft aria-hidden className="size-4 text-text-accent" />
           </Button>
           <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="size-[35px] rounded-full border border-border bg-surface-raised text-text-accent" />
         </div>
@@ -69,7 +69,7 @@ export function DetailMobile({ nft, buy }: { nft: Nft; buy: Buy }) {
             onClick={buy.addToCart}
             className="grid size-[60px] place-items-center rounded-[40px] border border-border bg-surface-raised disabled:opacity-50"
           >
-            <ShoppingBag aria-hidden className="size-5 text-text-accent" />
+            <ShoppingCart aria-hidden className="size-5 text-text-accent" />
           </button>
         </div>
       </div>
