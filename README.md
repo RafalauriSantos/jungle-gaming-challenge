@@ -1,127 +1,138 @@
-# Kurio — NFT marketplace (Jungle Gaming frontend challenge)
+# Kurio — marketplace de NFTs
 
-A React single-page app for browsing, favoriting and buying NFTs. There is no real backend: **MSW** plays the whole API
-(REST and Socket.IO), in development, in tests and in the published build.
+Desafio de front-end da Jungle Gaming. Um app React para descobrir, favoritar e comprar NFTs, com versões desktop e mobile.
+Não há backend real: o **MSW** simula toda a API (REST e Socket.IO), em desenvolvimento, nos testes e no site publicado.
 
-- Live site: https://jungle-gaming-challenge.pages.dev
-- Statement: [`docs/ENUNCIADO.md`](docs/ENUNCIADO.md) · Design and rules: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Requirements and milestones: [`docs/spec`](docs/spec/README.md)
+| | |
+| --- | --- |
+| **Site publicado** | https://jungle-gaming-challenge.pages.dev |
+| **Rodar localmente** | `pnpm install` e `pnpm dev` (http://localhost:5173) |
+| **Conta de teste** | `ana@kurio.test` / `Colecionar#2026` |
+| **Verificar tudo** | `pnpm verify` e `pnpm test:e2e` |
 
-The interface is in Portuguese (pt-BR), as in the Figma. Code, comments and docs are in English.
+## Resumo
 
-## Stack
+- **Entregue:** catálogo com busca, filtros, ordenação e paginação; detalhe do NFT; favoritos; carrinho; checkout com carteiras, cupons e recibo; conta, perfil e carteiras; atualizações em tempo real (Socket.IO) de preço, disponibilidade e pedido.
+- **Qualidade:** 169 testes unitários e mais de 280 testes E2E (Playwright, desktop 1440 e mobile 390). Cada requisito marcado como feito tem um teste que o nomeia ([`docs/spec/traceability.md`](docs/spec/traceability.md)).
+- **Lighthouse** (site publicado, mediana de 3 rodadas): acessibilidade, boas práticas e SEO em 100 em todas as páginas; desempenho 99 no desktop. **No mobile o desempenho é 82 (home) e 80 (detalhe), abaixo da meta de 90**: a página só desenha depois de baixar o JavaScript que inclui o backend simulado. O relatório com as causas e o que foi testado está em [`reports/lighthouse/`](reports/lighthouse/README.md).
+- **Publicação:** só o pipeline do GitHub Actions publica em produção, e só depois de a verificação, o E2E no build e o E2E na cópia de teste passarem. Depois da promoção, um smoke test confere a produção.
 
-React 19, TypeScript (strict), Vite, TanStack Router and Query, Axios, `socket.io-client`, Tailwind v4, shadcn/ui (Base UI),
-MSW with `@mswjs/socket.io-binding`, Vitest, Playwright, Lighthouse.
+**Limites conhecidos**
+
+- O Figma usado é uma cópia do original, que não pôde ser lido; a fidelidade ao original não foi conferida.
+- Só o Chromium é testado.
+- As taxas em ETH de Polygon e Solana são constantes inventadas (o Figma mostra só Ethereum).
+- O filtro de preço tem uma alça (o máximo); campos de preço exato não foram feitos.
+- Opcionais não feitos: chips de filtros ativos, ENS exigido só na Ethereum, ícones do rodapé e consistência de textos de marca e contato.
+- Os 4 desenhos do Figma são os únicos originais; os outros 53 são variações de cor deles, feitas por [`docs/assets/derive-artwork.py`](docs/assets/derive-artwork.py).
+
+A interface é em português (pt-BR), como no Figma. Código, comentários e documentação técnica são em inglês.
+
+**Índice:** [Setup](#setup) · [Comandos](#comandos) · [Cenários do mock](#cenários-do-mock) · [Reproduzir os fluxos de falha](#reproduzir-os-fluxos-de-falha) · [Testes](#testes) · [Mais documentação](#mais-documentação)
 
 ## Setup
 
-Requirements: Node 22 and pnpm 10. The `pnpm` commands run the TypeScript scripts in `scripts/` with `tsx`.
+Requisitos: Node 22 e pnpm 10.
 
 ```bash
 pnpm install
-pnpm dev          # dev server with the mocks on, http://localhost:5173
+pnpm exec playwright install chromium   # só para os testes E2E
+pnpm dev                                # servidor de desenvolvimento com os mocks ligados
 ```
 
-### Environment variables
+**Variáveis de ambiente** (copie `.env.example` para `.env`; o repositório já traz os padrões):
 
-Copy `.env.example` to `.env` (the repository already has the defaults).
-
-| Variable | Default | Meaning |
+| Variável | Padrão | Significado |
 | --- | --- | --- |
-| `VITE_ENABLE_MOCKS` | `true` | Starts the MSW worker. It is `true` in the published build too. With `false` the app has no backend to talk to |
-| `VITE_REALTIME_URL` | `wss://realtime.kurio.mock` | Address of the Socket.IO server. It is a fictional host: MSW intercepts it |
+| `VITE_ENABLE_MOCKS` | `true` | Liga o worker do MSW. Fica `true` também no site publicado. Com `false` o app não tem backend |
+| `VITE_REALTIME_URL` | `wss://realtime.kurio.mock` | Endereço do servidor Socket.IO. É um host fictício: o MSW o intercepta |
 
-### Fictional credentials
+**Credenciais fictícias**
 
-| E-mail | Password | Notes |
+| E-mail | Senha | Observações |
 | --- | --- | --- |
-| `ana@kurio.test` | `Colecionar#2026` | Two saved wallets (as in the Figma payment frame) |
-| `bruno@kurio.test` | `Colecionar#2027` | No wallets |
+| `ana@kurio.test` | `Colecionar#2026` | Duas carteiras salvas (como no quadro de pagamento do Figma) |
+| `bruno@kurio.test` | `Colecionar#2027` | Sem carteiras |
 
-Coupon codes: `KURIO10` (10%), `LANCAMENTO5` (5%), `EXPIRADO` (known but expired). Any other code is invalid.
+Cupons: `KURIO10` (10%), `LANCAMENTO5` (5%), `EXPIRADO` (conhecido, mas expirado). Qualquer outro código é inválido.
 
-## Commands
+## Comandos
 
-| Command | What it does |
+| Comando | O que faz |
 | --- | --- |
-| `pnpm dev` | Development server with mocks |
-| `pnpm build` | Generates the routes, type-checks and builds `dist/` |
-| `pnpm preview` | Serves `dist/` at http://localhost:4173 (run `pnpm build` first) |
-| `pnpm typecheck` | Route generation and `tsc -b` |
+| `pnpm dev` | Servidor de desenvolvimento com os mocks |
+| `pnpm build` | Gera as rotas, verifica os tipos e compila para `dist/` |
+| `pnpm preview` | Serve `dist/` em http://localhost:4173 (rode `pnpm build` antes) |
+| `pnpm typecheck` | Geração de rotas e `tsc -b` |
 | `pnpm lint` | oxlint |
-| `pnpm test:unit` / `pnpm test:coverage` | Vitest; the second enforces coverage floors on the business rules |
-| `pnpm test:e2e` | Playwright, Chromium, desktop (1440) and mobile (390); builds and serves the app itself |
-| `pnpm spec:check` | Checks that every requirement marked done has a test, and that this README lists every scenario |
-| `pnpm verify` | typecheck, lint, unit tests with coverage, build and `spec:check`. Run it before saying a change is done |
-| `pnpm lighthouse` | Lighthouse runner, see `scripts/lighthouse.ts` (`--url`, `--runs`, `--out`) |
+| `pnpm test:unit` / `pnpm test:coverage` | Vitest; o segundo exige cobertura mínima nas regras de negócio |
+| `pnpm test:e2e` | Playwright em Chromium, desktop (1440) e mobile (390); compila e serve o app sozinho |
+| `pnpm spec:check` | Confere que todo requisito feito tem teste e que este README lista todos os cenários |
+| `pnpm verify` | typecheck, lint, testes unitários com cobertura, build e `spec:check` |
+| `pnpm lighthouse` | Auditoria Lighthouse (`--url`, `--runs`, `--out`); veja `scripts/lighthouse.ts` |
 
-Run the E2E suite against a deployed site with `BASE_URL=https://jungle-gaming-challenge.pages.dev pnpm test:e2e`.
+Para rodar o E2E contra o site publicado: `BASE_URL=https://jungle-gaming-challenge.pages.dev pnpm test:e2e`.
 
-## Mock scenarios
+## Cenários do mock
 
-Every scenario is deterministic. Pick one in any of these ways:
+Todo cenário é determinístico. Escolha um de três jeitos:
 
-1. **URL:** add `?scenario=<name>` to any page, for example `/?scenario=http-5xx`. The parameter is read once and removed from the address.
-2. **Demo panel:** the **Demo** button at the bottom-left of every page lists the scenarios.
-3. **Console:** `window.__mock.setScenario('<name>')`.
+1. **URL:** acrescente `?scenario=<nome>` a qualquer página, por exemplo `/?scenario=http-5xx`. O parâmetro é lido uma vez e removido do endereço.
+2. **Painel Demo:** o botão **Demo**, no canto inferior esquerdo de toda página, lista os cenários.
+3. **Console:** `window.__mock.setScenario('<nome>')`.
 
-**Reset:** `?reset=1` (combinable with `?scenario=`), or **Resetar estado** in the Demo panel, or `window.__mock.reset()`.
-It restores the seeded data (users, wallets, carts, favorites, orders, idempotency keys) and clears the app's local storage and queued events.
-A scenario stays active until you change it or reset.
+**Reset:** `?reset=1` (combina com `?scenario=`), ou **Resetar estado** no painel Demo, ou `window.__mock.reset()`.
+Isso restaura os dados iniciais (usuários, carteiras, carrinhos, favoritos, pedidos, chaves de idempotência) e limpa o armazenamento local e os eventos na fila. Um cenário continua ativo até você trocá-lo ou fazer o reset.
+
+<details>
+<summary>Tabela dos 17 cenários</summary>
 
 <!-- scenarios:start -->
-| Requirement | Scenario | How to activate | What to observe |
+| Requisito | Cenário | Como ativar | O que observar |
 | --- | --- | --- | --- |
-| `MOCK-S01` | success (default) | `?scenario=success` | Every flow works: browse, sign in, add to cart, pay, receipt |
-| `MOCK-S02` | empty result | `?scenario=empty` | The catalog shows "Nenhum NFT encontrado com esses filtros." and a "Limpar filtros" button |
-| `MOCK-S03` | variable latency | `?scenario=slow` | Each API call waits 1.8 s, 3.2 s, 0.9 s, 2.4 s in turn; skeletons fill the space and the layout does not move |
-| `MOCK-S04` | out-of-order responses | `?scenario=out-of-order` | Answers take 1.8 s, 0.5 s, 0.1 s in turn. Change the filter or sort quickly: the screen ends on the last choice, older answers are dropped |
-| `MOCK-S05` | connection failure | `?scenario=offline` | Requests fail at the connection. The catalog shows "Não foi possível carregar os NFTs." with "Tentar novamente"; switch to `success` and retry to recover |
-| `MOCK-S06` | HTTP 4xx | `?scenario=http-4xx` | Every API call answers `400`. The matching error message shows, no retry loop |
-| `MOCK-S07` | HTTP 5xx | `?scenario=http-5xx` | Every API call answers `503`. Reads are retried twice, then an error with "Tentar novamente" shows. A favorite toggled now rolls back and the failure is announced |
-| `MOCK-S08` | expired session | `?scenario=session-expired` | Private calls answer `401 session_expired`. The app goes to the sign-in page with a notice and returns to where you were after signing in again |
-| `MOCK-S09` | unauthorized access | `?scenario=unauthorized` | Private calls answer `403`. The page explains that access is not allowed |
-| `MOCK-S10` | sign-up conflict | `?scenario=signup-conflict` (optional) | Needs no switch: sign up with `ana@kurio.test` or the username `ana` and the field shows "already registered". The scenario name only marks it in the Demo panel |
-| `MOCK-S11` | invalid coupon | `?scenario=coupon-invalid` | In the cart, every code is reported invalid |
-| `MOCK-S12` | expired coupon | `?scenario=coupon-expired` | In the cart, every code is reported expired |
-| `MOCK-S13` | price changed during purchase | `?scenario=price-changed` | Add an item, open the payment and confirm. Just before the order is created the first item gets 0.1 ETH more (once, with a `nft.updated` event). The new total must be confirmed; no order exists until then |
-| `MOCK-S14` | edition sold out during purchase | `?scenario=sold-out` | Same moment as above, but the edition of the first line runs out (once). The quote lists the issue and the checkout is blocked |
-| `MOCK-S15` | timeout after the order is created | `?scenario=order-timeout` | The order is created but the answer is lost. The app resends with the same `Idempotency-Key` and ends with exactly one order |
-| `MOCK-S16` | payment confirmed | `?scenario=payment-confirmed` | The default outcome: a pending screen, then the receipt about 2 s later through `order.updated` |
-| `MOCK-S17` | payment refused | `?scenario=payment-refused` | The pending screen turns into a refusal; the cart is kept and a new attempt can be made |
-| — | wallet connection refused | `?scenario=wallet-refused` | In the payment step, connecting a wallet app is refused with a message and can be tried again |
+| `MOCK-S01` | sucesso (padrão) | `?scenario=success` | Tudo funciona: navegar, entrar, adicionar ao carrinho, pagar, recibo |
+| `MOCK-S02` | resultado vazio | `?scenario=empty` | O catálogo mostra "Nenhum NFT encontrado com esses filtros." e o botão "Limpar filtros" |
+| `MOCK-S03` | latência variável | `?scenario=slow` | Cada chamada espera 1,8 s, 3,2 s, 0,9 s, 2,4 s em sequência; os esqueletos ocupam o espaço e o layout não se move |
+| `MOCK-S04` | respostas fora de ordem | `?scenario=out-of-order` | As respostas levam 1,8 s, 0,5 s, 0,1 s em sequência. Troque filtro ou ordem rápido: a tela termina na última escolha e as respostas antigas são descartadas |
+| `MOCK-S05` | falha de conexão | `?scenario=offline` | As requisições falham na conexão. O catálogo mostra "Não foi possível carregar os NFTs." com "Tentar novamente"; volte para `success` e tente de novo para recuperar |
+| `MOCK-S06` | HTTP 4xx | `?scenario=http-4xx` | Toda chamada responde `400`. A mensagem de erro correspondente aparece, sem laço de repetição |
+| `MOCK-S07` | HTTP 5xx | `?scenario=http-5xx` | Toda chamada responde `503`. As leituras são repetidas duas vezes e depois aparece o erro com "Tentar novamente". Um favorito marcado agora é desfeito e a falha é anunciada |
+| `MOCK-S08` | sessão expirada | `?scenario=session-expired` | As chamadas privadas respondem `401 session_expired`. O app vai para o login com um aviso e volta ao ponto em que você estava depois de entrar de novo |
+| `MOCK-S09` | acesso não autorizado | `?scenario=unauthorized` | As chamadas privadas respondem `403`. A página explica que o acesso não é permitido |
+| `MOCK-S10` | conflito no cadastro | `?scenario=signup-conflict` (opcional) | Não precisa trocar de cenário: cadastre-se com `ana@kurio.test` ou o usuário `ana` e o campo mostra "já cadastrado". O nome do cenário só o marca no painel Demo |
+| `MOCK-S11` | cupom inválido | `?scenario=coupon-invalid` | No carrinho, todo código é informado como inválido |
+| `MOCK-S12` | cupom expirado | `?scenario=coupon-expired` | No carrinho, todo código é informado como expirado |
+| `MOCK-S13` | preço muda durante a compra | `?scenario=price-changed` | Adicione um item, abra o pagamento e confirme. Logo antes de o pedido ser criado, o primeiro item sobe 0,1 ETH (uma vez, com um evento `nft.updated`). O novo total precisa ser confirmado; nenhum pedido existe até lá |
+| `MOCK-S14` | edição esgota durante a compra | `?scenario=sold-out` | Mesmo momento, mas a edição da primeira linha esgota (uma vez). A cotação lista o problema e o checkout é bloqueado |
+| `MOCK-S15` | timeout após criar o pedido | `?scenario=order-timeout` | O pedido é criado mas a resposta se perde. O app reenvia com a mesma `Idempotency-Key` e termina com exatamente um pedido |
+| `MOCK-S16` | pagamento confirmado | `?scenario=payment-confirmed` | O resultado padrão: uma tela de pendente e, cerca de 2 s depois, o recibo via `order.updated` |
+| `MOCK-S17` | pagamento recusado | `?scenario=payment-refused` | A tela de pendente vira uma recusa; o carrinho é mantido e dá para tentar de novo |
+| — | conexão da carteira recusada | `?scenario=wallet-refused` | No pagamento, a conexão com o app de carteira é recusada com uma mensagem e pode ser tentada de novo |
 <!-- scenarios:end -->
 
-Real-time events (`nft.updated`, `order.updated`) go through the real `socket.io-client`. `window.__mock`
-can also drop the connection, resend an event, send an older version of an NFT, or move the mock clock; the controls are listed in
-[`src/mocks/control.ts`](src/mocks/control.ts). Transport and its limits are described in [`ARCHITECTURE.md`](ARCHITECTURE.md) §5.
+</details>
 
-### Reproducing the failure flows
+Os eventos em tempo real (`nft.updated`, `order.updated`) passam pelo `socket.io-client` de verdade. O `window.__mock` também pode derrubar a conexão, reenviar um evento, enviar uma versão antiga de um NFT ou avançar o relógio do mock; os controles estão em [`src/mocks/control.ts`](src/mocks/control.ts). O transporte e seus limites estão em [`ARCHITECTURE.md`](ARCHITECTURE.md) §5.
 
-| Flow | Steps |
+## Reproduzir os fluxos de falha
+
+| Fluxo | Passos |
 | --- | --- |
-| Payment refused, then retried | `/?reset=1&scenario=payment-refused`, sign in as Ana, buy an NFT, see the refusal, switch to `success`, try again |
-| Timeout with recovery | `/?reset=1&scenario=order-timeout`, buy an NFT; the receipt arrives and `window.__mock.orders()` is `1` |
-| Price changes during checkout | `/?reset=1&scenario=price-changed`, add an NFT, confirm the payment, accept the new total |
-| Expired session in checkout | Open the payment, then `window.__mock.advance(31 * 60 * 1000)` and confirm: you return to the payment after signing in, with your choices kept |
-| Connection drop with a pending order | Buy an NFT, run `window.__mock.dropConnections()`, reload: the pending order is found and ends confirmed or refused |
+| Pagamento recusado e nova tentativa | `/?reset=1&scenario=payment-refused`, entre como Ana, compre um NFT, veja a recusa, mude para `success` e tente de novo |
+| Timeout com recuperação | `/?reset=1&scenario=order-timeout`, compre um NFT; o recibo chega e `window.__mock.orders()` é `1` |
+| Preço muda durante o checkout | `/?reset=1&scenario=price-changed`, adicione um NFT, confirme o pagamento e aceite o novo total |
+| Sessão expira no checkout | Abra o pagamento, rode `window.__mock.advance(31 * 60 * 1000)` e confirme: você volta ao pagamento depois de entrar, com as escolhas mantidas |
+| Conexão cai com pedido pendente | Compre um NFT, rode `window.__mock.dropConnections()` e recarregue: o pedido pendente é encontrado e termina confirmado ou recusado |
 
-## Tests
+## Testes
 
-- **Unit (Vitest):** money math, the version gate, mock services, session rules. Coverage floors apply to these.
-- **E2E (Playwright):** the flows of the statement §9 on Chromium at 1440 and 390 wide. A requirement is only `done` when a test names it (`ID#k` in the title); `pnpm spec:check` enforces it and writes [`docs/spec/traceability.md`](docs/spec/traceability.md).
-- **Reports and traces:** each run writes an HTML report (`playwright-report/`, open it with `pnpm exec playwright show-report`) and keeps a trace of every failed test in `test-results/` (`pnpm exec playwright show-trace <trace.zip>`). CI uploads both as artifacts of each run for 14 days.
-- **Lighthouse:** [`reports/lighthouse/`](reports/lighthouse) has the full audit (3 runs per page and profile, median, home and detail, mobile and desktop) with the HTML and JSON of every run. Measured on the deployed site: desktop scores 99 on both pages and every other category is 100; mobile performance is 82 on home and 80 on detail, and [the report](reports/lighthouse/README.md) explains the gap.
+- **Unitários (Vitest):** conta de dinheiro, controle de versão, serviços do mock, regras de sessão.
+- **E2E (Playwright):** os fluxos do enunciado (§9) em Chromium, 1440 e 390 de largura. Um requisito só é `done` quando um teste o nomeia (`ID#k` no título); o `pnpm spec:check` garante isso e escreve [`docs/spec/traceability.md`](docs/spec/traceability.md).
+- **Relatórios e traces:** cada execução gera um relatório HTML (`playwright-report/`, abra com `pnpm exec playwright show-report`) e guarda o trace de cada teste que falhou em `test-results/` (`pnpm exec playwright show-trace <trace.zip>`). A CI anexa os dois a cada execução por 14 dias.
+- **Lighthouse:** 3 rodadas por página e perfil (home e detalhe, mobile e desktop), com HTML e JSON de cada uma, versões das ferramentas e condições, em [`reports/lighthouse/`](reports/lighthouse).
 
-## Pipeline and deploy
+## Mais documentação
 
-`.github/workflows/ci.yml` runs on every push and pull request: `verify` → `e2e` → `preview` → `preview-e2e` → `promote` → `smoke`.
-The build that passed the tests is the build that is published, first as a test copy and, if the suite passes there too, to production.
-Production is never published by hand. `main` only accepts changes through a pull request with the checks green.
-Details, secrets and rollback: [`ARCHITECTURE.md`](ARCHITECTURE.md) §9.
-
-## Known limits
-
-- The Figma used is a copy of the original, which could not be read; fidelity to the original was not checked.
-- Browsers other than Chromium are not tested.
-- The ETH fees for Polygon and Solana are invented constants (the Figma shows Ethereum only).
+- [`ARCHITECTURE.md`](ARCHITECTURE.md): contratos REST e de eventos, política de sessão, estado do carrinho, cache, reconciliação REST e Socket.IO, decisões de UX, desvios do Figma e o pipeline de publicação (§9).
+- [`docs/spec`](docs/spec/README.md): requisitos, marcos e rastreabilidade.
+- [`docs/ENUNCIADO.md`](docs/ENUNCIADO.md): o enunciado.
