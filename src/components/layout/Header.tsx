@@ -26,7 +26,7 @@ function SoonItem({ label }: { label: string }) {
   }, [shown])
   return (
     <span className="relative">
-      <button type="button" onClick={() => setShown(true)} className={NAV_ITEM}>
+      <button type="button" title="Em breve" onClick={() => setShown(true)} className={NAV_ITEM}>
         {label}
       </button>
       {shown && (

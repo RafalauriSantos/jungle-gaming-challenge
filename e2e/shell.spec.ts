@@ -46,6 +46,7 @@ test('UI-4#1: the header items that open nothing yet answer the click with "Em b
   await nav.getByRole('link', { name: 'Mercado' }).click()
   await expect(page).toHaveURL('/')
   for (const item of ['Criadores', 'Aprenda']) {
+    await expect(nav.getByRole('button', { name: item })).toHaveAccessibleDescription('Em breve') // announced before the click
     await nav.getByRole('button', { name: item }).click()
     await expect(nav.getByRole('status').filter({ hasText: 'Em breve' }).last()).toBeVisible()
   }
