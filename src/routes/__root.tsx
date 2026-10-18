@@ -11,20 +11,20 @@ const standalone = (path: string) => path.startsWith('/nfts/') || STANDALONE_ON_
 function Root() {
   const alone = useRouterState({ select: (s) => standalone(s.location.pathname) })
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-primary focus:p-2 focus:text-ink">
         Ir para o conteúdo
       </a>
       <Announcer />
       <Header />
-      <div id="conteudo" className="pt-4 md:pt-0">
+      <div id="conteudo" className="flex-1 pt-4 md:pt-0">
         <Outlet />
       </div>
       <div className={alone ? 'max-md:hidden' : undefined}>
         <Footer />
         <MobileTabBar />
       </div>
-    </>
+    </div>
   )
 }
 

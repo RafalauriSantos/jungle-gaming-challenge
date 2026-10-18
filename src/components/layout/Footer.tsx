@@ -19,7 +19,7 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="mx-auto w-full max-w-[1232px] px-4 pb-24 md:pb-6">
+    <footer className="mx-auto w-full max-w-[1232px] px-4 pb-32 md:pb-6">
       <div className="hidden bg-surface-card p-8 md:grid md:grid-cols-3 md:gap-6 lg:grid-cols-[265px_266px_265px_1fr] lg:gap-0">
         {FEATURES.map(([letter, title, text]) => (
           <section key={title} className="flex flex-col gap-3 border-primary px-4 lg:border-r">
