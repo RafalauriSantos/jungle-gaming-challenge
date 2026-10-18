@@ -37,7 +37,7 @@ test('CAT-4#1: empty result offers to clear filters', async ({ page }) => {
   await expect(page.getByTestId('nft-card')).toHaveCount(9)
 })
 
-test('CAT-1#4: invalid URL params are ignored', async ({ page }) => {
+test('API-1#1 CAT-1#4: invalid URL params are ignored', async ({ page }) => {
   await page.goto('/?sort=hack&collection=nope&page=-3')
   await expect(page.getByTestId('nft-card')).toHaveCount(9)
 })

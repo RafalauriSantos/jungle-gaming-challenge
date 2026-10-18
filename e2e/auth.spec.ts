@@ -65,7 +65,7 @@ test('AUTH-2#1: wrong credentials show an error and stay on the form', async ({ 
   await expect(page).toHaveURL(/\/entrar/)
 })
 
-test('ROUTE-3#1 ROUTE-3#2 AUTH-2#2: a private page sends visitors to login and back', async ({ page }) => {
+test('API-1#1 ROUTE-3#1 ROUTE-3#2 AUTH-2#2: a private page sends visitors to login and back', async ({ page }) => {
   await page.goto('/carrinho')
   await expect(page).toHaveURL(/\/entrar\?redirect=%2Fcarrinho/)
   await signIn(page, ANA, page.url())
