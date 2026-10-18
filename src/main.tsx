@@ -2,6 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { holdRequestsUntil } from './api/client'
 import { createQueryClient } from './api/query-client'
 import { RouteError } from './components/layout/RouteError'
 import './index.css'
@@ -29,7 +30,7 @@ async function enableMocks() {
     location.replace(location.pathname + search + location.hash)
     await new Promise<never>(() => {})
   }
-  if (search !== location.search) history.replaceState(null, '', location.pathname + search + location.hash)
+  if (search !== location.search) router.history.replace(location.pathname + search + location.hash)
   const { worker } = await import('./mocks/browser')
   // The service worker still answers every request; only its console chatter is off in the published build.
   await worker.start({ quiet: import.meta.env.PROD })
@@ -40,8 +41,10 @@ async function enableMocks() {
   mountMockPanel()
 }
 
-await enableMocks()
-void connectRealtime(queryClient)
+// The screen is drawn at once; requests and the socket wait for the mock backend to be up.
+const mocksReady = enableMocks()
+holdRequestsUntil(mocksReady)
+void mocksReady.then(() => connectRealtime(queryClient))
 
 // A refused token ends the session and sends the user to login, remembering where they were.
 onSessionLost((code) => {

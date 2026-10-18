@@ -4,6 +4,18 @@ import type { ErrorBody } from './types'
 
 export const api = axios.create({ baseURL: '/api', timeout: 10_000 })
 
+// The first screen is drawn while the mock backend is still starting; requests wait for it here, at the transport,
+// and nowhere else. With a real backend there is nothing to wait for.
+let ready: Promise<unknown> = Promise.resolve()
+export const holdRequestsUntil = (gate: Promise<unknown>) => {
+  ready = gate
+}
+const transport = axios.getAdapter(api.defaults.adapter)
+api.defaults.adapter = async (config) => {
+  await ready
+  return transport(config)
+}
+
 api.interceptors.request.use(
   (config) => {
     const token = getToken()
