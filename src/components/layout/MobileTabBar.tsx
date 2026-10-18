@@ -8,7 +8,7 @@ const BAR = 'M282.85 0C269.09 0 256.87 8.2 251.02 20.65C243.26 37.17 226.46 48.6
 
 export function MobileTabBar() {
   return (
-    <nav aria-label="Principal" className="fixed inset-x-0 bottom-0 z-40 mx-auto h-[95px] max-w-[414px] md:hidden">
+    <nav aria-label="Principal" className="fixed inset-x-0 -bottom-[15px] z-40 mx-auto h-[95px] max-w-[414px] md:hidden">
       <svg aria-hidden viewBox="0 0 414 95" preserveAspectRatio="none" className="absolute inset-0 size-full drop-shadow-[0_-10px_15px_rgba(10,6,4,0.45)]">
         <path d={BAR} className="fill-surface-card" />
       </svg>
