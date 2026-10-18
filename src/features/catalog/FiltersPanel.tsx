@@ -90,6 +90,7 @@ export function FiltersPanel({ search, data, onChange }: Props) {
         <div className="flex flex-col gap-3 pl-3">
           <Slider
             aria-label="Faixa de preço em ETH"
+            thumbLabels={['Preço mínimo em ETH', 'Preço máximo em ETH']}
             min={ethToCenti(range.min)}
             max={ethToCenti(range.max)}
             step={1}
