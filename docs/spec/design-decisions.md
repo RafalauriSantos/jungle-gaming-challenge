@@ -124,3 +124,19 @@ Each screen is compared with its Figma frame before it is changed, and a baselin
 | 2026-10-17 | Desktop profile | `Body` (70386:263) in `Desktop / Perfil do Colecionador` (9:1238) | Matches: 310 px account menu with the 6 px active mark, one form with the five fields (name, username, e-mail, ENS name, wallet nickname), the avatar row ("Alterar", "Remover"), the password block with show/hide toggles, and a single "Salvar" that saves the data and, when the password fields are filled, the password too | "Nome ENS" and "Apelido da carteira" are now real profile fields (validated; a new account starts with its username and "Principal"); the menu's inert items are dimmed and labelled "Em breve". Mobile has no frame: the same form is fluid under the menu (D-12) |
 | 2026-10-17 | Desktop wallets | `Desktop / Carteiras` (9:1670) | Compared: same fields and order as the payment form; the label is "Apelido da carteira" here while the payment frame says "Nome de usuário" for the same slot (a Figma inconsistency; "Apelido da carteira" is kept) | The "Adicionar" link of the principal wallet is not drawn (D-31) |
 | 2026-10-17 | Footer and mobile tab bar | `Footer` (70491:1286); `Tab Bar` (70395:245) | Footer columns on the frame's positions (265 px features, 124 px link gaps, the brand band's explicit two-line text); the tab bar is the frame's card with the round notch, the 65 px gradient button and filled icons | The footer's links are plain text (out of scope); the newsletter field is disabled (no sign-up flow); the notch's dark ring around the button is not drawn |
+
+## Screen states (API-5)
+
+Queries do not refetch on window focus (`query-client.ts`), so a background refresh is a real-time event, a mutation or a quote recalculation, never a reload of the screen. In all of them the old content stays on screen: no skeleton comes back.
+
+| Screen | Loading | Error + retry | Empty | Background refresh |
+| --- | --- | --- | --- | --- |
+| Home / catalog | `network.spec.ts` MOCK-S03 | `network.spec.ts` MOCK-S05..S07 | MOCK-S02 | list dims with `aria-busy` while a new search loads |
+| NFT detail | `states.spec.ts` | `states.spec.ts` | n/a (a missing NFT is a 404 page) | price and stock events update in place (`events.spec.ts`, `realtime.spec.ts`) |
+| Cart | `states.spec.ts` (items and summary) | `states.spec.ts` | `states.spec.ts` | summary keeps its numbers with `aria-busy` while updating (`CartDesktop.tsx`, `CartMobile.tsx`; no dedicated test) |
+| Payment | `states.spec.ts` | `states.spec.ts` | `states.spec.ts` (no items, no wallet) | quote recalculates with `aria-busy`; a changed price asks for a new confirmation (`events.spec.ts` MOCK-S13) |
+| Order | `states.spec.ts` | `states.spec.ts` (403, 404, other) | n/a | status moves by event (`events.spec.ts` RT-5, `recovery.spec.ts`) |
+| Favorites | `states.spec.ts` | `states.spec.ts` | `states.spec.ts` | optimistic toggle with rollback (`favorites.spec.ts`) |
+| Profile | `states.spec.ts` | `states.spec.ts` | n/a (always a profile) | saving keeps the form on screen (`ProfileScreen.tsx`; no dedicated test) |
+| Wallets | `states.spec.ts` | `states.spec.ts` | `wallets.spec.ts` (no secondary wallet) | list updates after add or remove (`wallets.spec.ts`) |
+| Login / sign-up | n/a (no server read) | `auth.spec.ts` (field and form errors) | n/a | n/a |
