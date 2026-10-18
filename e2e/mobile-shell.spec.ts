@@ -41,3 +41,10 @@ test('the controls of the phone screens have a touch target of at least 40 x 40 
     expect(small, path).toEqual([])
   }
 })
+
+test('the sign-in page fits the screen, with nothing to scroll', async ({ page }) => {
+  await page.goto('/entrar')
+  await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
+  const { scrollHeight, innerHeight } = await page.evaluate(() => ({ scrollHeight: document.documentElement.scrollHeight, innerHeight: window.innerHeight }))
+  expect(scrollHeight).toBeLessThanOrEqual(innerHeight)
+})

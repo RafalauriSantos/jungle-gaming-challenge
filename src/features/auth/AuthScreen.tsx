@@ -33,7 +33,7 @@ export function AuthScreen({ mode, redirect, reason }: Props) {
 
   if (!desktop) {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-md flex-col px-7 pb-10 pt-28">
+      <main className="mx-auto -mt-4 flex min-h-dvh max-w-md flex-col px-7 pb-10 pt-28">
         <p aria-hidden className="text-center text-[28px] font-bold tracking-[0.2em]">KURIO</p>
         <h1 className="mb-8 mt-20 text-center text-xl font-bold">{copy.mobileTitle}</h1>
         {notice}
@@ -70,7 +70,7 @@ export function AuthScreen({ mode, redirect, reason }: Props) {
         <DialogContent
           showCloseButton={false}
           initialFocus={() => document.getElementById(mode === 'login' ? 'login-email' : 'signup-username')}
-          className="w-[500px] gap-0 rounded-none bg-surface-card p-0 ring-0 sm:max-w-[500px]"
+          className="max-h-[calc(100dvh-2rem)] w-[500px] gap-0 overflow-y-auto rounded-none bg-surface-card p-0 ring-0 sm:max-w-[500px]"
         >
           <div className="flex flex-col items-center gap-10 px-12 pt-12">
             <div className="flex items-center gap-2">
