@@ -134,3 +134,17 @@ test('CAT-8#1 CAT-8#2: previous appears from page 2 and page links keep the othe
   await expect(page).not.toHaveURL(/page=/)
   await expect(page.getByRole('link', { name: 'Página anterior' })).toHaveCount(0)
 })
+
+test('CAT-1#1: choosing a listing or a sort keeps the reading position instead of jumping to the top', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('nft-card').first()).toBeVisible()
+  const tab = page.getByRole('button', { name: 'Novos lançamentos' })
+  await tab.scrollIntoViewIfNeeded()
+  await page.evaluate(() => window.scrollBy(0, 150))
+  const before = await page.evaluate(() => window.scrollY)
+  expect(before).toBeGreaterThan(100)
+  await tab.click()
+  await expect(page).toHaveURL(/feed=new/)
+  await expect(tab).toHaveAttribute('aria-pressed', 'true')
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(before - 60)
+})

@@ -14,7 +14,8 @@ function Home() {
     <CatalogPage
       search={search}
       // Any filter change goes back to page 1.
-      onChange={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch, page: undefined }) })}
+      // The reader stays where they are: a filter, a listing or a sort changes the cards, not the position.
+      onChange={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch, page: undefined }), resetScroll: false })}
       onReset={() => navigate({ search: {} })}
     />
   )
