@@ -337,6 +337,7 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 
 **Known limitations**
 
+- The catalog has 57 NFTs but only the four artworks of the Figma file (`public/nfts/art-1..4.webp`): they repeat, as they do in the frames themselves. What varies is the data the filters and pages need (collection, network, price, stock, sold-out, rare, previous price), not the image.
 - Token ID is per NFT, not per unit, as the Figma shows.
 - The mock does not support cookies (see section 7); sessions use a bearer header.
 - Fees for Polygon and Solana are invented mock values; there is no valid-referral-code list (4 to 12 letters or digits); Solana address validation is a format check only.
