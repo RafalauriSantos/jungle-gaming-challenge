@@ -85,7 +85,7 @@ export function WalletFields({ idPrefix, values, errors, set, readOnly }: Props)
         {choice('walletType', 'Tipo de carteira', 'Selecione uma carteira', PROVIDERS.map((p) => [p, PROVIDER_LABELS[p]] as const))}
         {text('referralCode', 'Código de indicação')}
         {text('email', 'E-mail', { type: 'email', autoComplete: 'email' })}
-        <Field data-invalid={errors.ensName ? true : undefined}>
+        <Field data-invalid={errors.ensName ? true : undefined} className="gap-0">
           <FieldLabel htmlFor={id('ensName')} className={LABEL}>
             Nome ENS
             {ethereum && <span aria-hidden className={STAR}>*</span>}
@@ -95,6 +95,7 @@ export function WalletFields({ idPrefix, values, errors, set, readOnly }: Props)
             <Input
               id={id('ensName')}
               name="ensName"
+              className={CONTROL}
               value={values.ensName}
               onChange={(e) => set('ensName')(e.target.value)}
               required={ethereum}
