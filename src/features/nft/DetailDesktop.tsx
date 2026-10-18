@@ -58,7 +58,9 @@ export function DetailDesktop({ nft, buy }: { nft: Nft; buy: Buy }) {
           </div>
         </div>
 
-        <section aria-labelledby="nft-title" className="flex min-h-[448px] min-w-0 flex-1 flex-col justify-between">
+        {/* The frame spreads these blocks over the 448 px of the image; when the text is longer than the frame's, the column
+            grows instead and every block keeps at least 24 px from the next (the old layout had them touching). */}
+        <section aria-labelledby="nft-title" className="flex min-h-[448px] min-w-0 flex-1 flex-col justify-between gap-6">
           <div className="flex flex-col gap-3">
             <h1 id="nft-title" className="text-[28px] font-bold">{nft.name}</h1>
             <div className="flex items-center justify-between">
@@ -81,16 +83,18 @@ export function DetailDesktop({ nft, buy }: { nft: Nft; buy: Buy }) {
 
           <EditionPills nft={nft} buy={buy} />
 
-          <div className="flex items-start justify-between">
-            <Stepper variant="large" label={`Quantidade de ${nft.name}`} value={buy.quantity} max={Math.max(1, buy.edition.available)} onChange={buy.setQuantity} disabled={buy.soldOut} />
-            <div className="flex items-center gap-2">
-              <Button type="button" disabled={buy.soldOut || buy.adding} onClick={buy.buyNow} className="h-10 w-[130px] rounded-md text-sm font-bold">
-                COMPRAR
-              </Button>
-              <FavoriteButton nftId={nft.id} name={nft.name} className="h-10 w-[130px] rounded-md border-primary text-sm font-medium text-text-accent" />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <Stepper variant="large" label={`Quantidade de ${nft.name}`} value={buy.quantity} max={Math.max(1, buy.edition.available)} onChange={buy.setQuantity} disabled={buy.soldOut} />
+              <div className="flex items-center gap-2">
+                <Button type="button" disabled={buy.soldOut || buy.adding} onClick={buy.buyNow} className="h-10 w-[130px] rounded-md text-sm font-bold">
+                  COMPRAR
+                </Button>
+                <FavoriteButton nftId={nft.id} name={nft.name} className="h-10 w-[130px] rounded-md border-primary text-sm font-medium text-text-accent" />
+              </div>
             </div>
+            <BuyMessage buy={buy} />
           </div>
-          <BuyMessage buy={buy} />
 
           <div className="flex flex-col gap-3">
             <dl className="flex flex-col gap-3 text-[15px] text-tone">

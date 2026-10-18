@@ -22,21 +22,21 @@ export function EditionPills({ nft, buy }: { nft: Nft; buy: Buy }) {
   return (
     <fieldset className="flex flex-col gap-3">
       <legend className="mb-3 text-[15px] font-bold leading-4">Edição:</legend>
-      <RadioGroup value={buy.editionId} onValueChange={(v) => buy.chooseEdition(v as string)} className="flex w-auto flex-wrap items-center gap-1.5" aria-label="Edição">
+      <RadioGroup value={buy.editionId} onValueChange={(v) => buy.chooseEdition(v as string)} className="flex w-auto flex-wrap items-center gap-2" aria-label="Edição">
         {nft.editions.map((e) => (
           <RadioGroupItem
             key={e.id}
             value={e.id}
             aria-label={`Edição ${e.tier}${e.status === 'sold_out' ? ', esgotada' : ''}`}
             className={cn(
-              'h-7 w-auto min-w-9 shrink-0 rounded-full border-border px-2 text-sm text-text-secondary data-checked:border-primary data-checked:!bg-transparent data-checked:font-medium data-checked:!text-text-accent',
+              'h-7 w-auto min-w-12 shrink-0 justify-center rounded-full border-border px-3 text-sm text-text-secondary data-checked:border-primary data-checked:!bg-transparent data-checked:font-medium data-checked:!text-text-accent',
               e.status === 'sold_out' && 'line-through',
             )}
           >
             {e.tier}
           </RadioGroupItem>
         ))}
-        <span className="flex h-7 items-center rounded-full border border-border px-2 text-sm text-text-secondary">{buy.edition.status === 'open' ? 'ABERTA' : 'ESGOTADA'}</span>
+        <span className="flex h-7 items-center rounded-full border border-border px-3 text-sm text-text-secondary">{buy.edition.status === 'open' ? 'ABERTA' : 'ESGOTADA'}</span>
       </RadioGroup>
       <p className="text-xs text-text-secondary">{buy.soldOut ? 'Esta edição está esgotada.' : `Restam ${buy.edition.available} de ${buy.edition.supply}.`}</p>
     </fieldset>

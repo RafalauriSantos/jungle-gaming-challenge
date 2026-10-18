@@ -34,18 +34,18 @@ interface Spec {
 
 /**
  * The first page of the Figma home (Desktop / Início, product grid): the names, numbers and prices the frame shows,
- * in its order. They are the newest listings, so the default sort ("recent") starts with them; every edition is open.
+ * in its order. Four of them carry the artworks the Figma places; the rest, like every generated item, have an artwork of their own (see `docs/assets/derive-artwork.py`). They are the newest listings, so the default sort ("recent") starts with them; every edition is open.
  */
 const FIGMA_FIRST_PAGE: Spec[] = [
   { baseName: 'Emerald Ape', number: 42, price: '1.19', image: '/nfts/art-1.webp' },
   { baseName: 'Sage Nomad', number: 9, price: '1.69', image: '/nfts/art-2.webp' },
   { baseName: 'Neon Vessel', number: 552, price: '1.99', previousPrice: '2.29', rare: true, image: '/nfts/art-3.webp' },
-  { baseName: 'Cosmic Bloom', number: 118, price: '1.29', image: '/nfts/art-2.webp' },
+  { baseName: 'Cosmic Bloom', number: 118, price: '1.29', image: '/nfts/art-53.webp' },
   { baseName: 'Violet Nomad', number: 314, price: '1.39', image: '/nfts/art-4.webp' },
-  { baseName: 'Ivory Baron', number: 88, price: '1.79', image: '/nfts/art-3.webp' },
-  { baseName: 'Golden Beat', number: 207, price: '0.99', image: '/nfts/art-1.webp' },
-  { baseName: 'Golden Frequency', number: 71, price: '0.59', image: '/nfts/art-2.webp' },
-  { baseName: 'Golden Signal', number: 160, price: '0.39', image: '/nfts/art-4.webp' },
+  { baseName: 'Ivory Baron', number: 88, price: '1.79', image: '/nfts/art-54.webp' },
+  { baseName: 'Golden Beat', number: 207, price: '0.99', image: '/nfts/art-55.webp' },
+  { baseName: 'Golden Frequency', number: 71, price: '0.59', image: '/nfts/art-56.webp' },
+  { baseName: 'Golden Signal', number: 160, price: '0.39', image: '/nfts/art-57.webp' },
 ]
 
 const build = (i: number, spec?: Spec): Nft => {
@@ -73,7 +73,7 @@ const build = (i: number, spec?: Spec): Nft => {
     network,
     price: spec?.price ?? centiToEth(centi),
     previousPrice: spec ? spec.previousPrice : i % 7 === 2 ? centiToEth(Number((BigInt(centi) * 115n) / 100n)) : undefined,
-    image: spec?.image ?? `/nfts/art-${(i % 4) + 1}.webp`,
+    image: spec?.image ?? `/nfts/art-${i + 5}.webp`,
     rare,
     listedAt: new Date(spec ? BASE_DAY + (FIGMA_FIRST_PAGE.length - FIGMA_FIRST_PAGE.indexOf(spec)) * 86_400_000 : BASE_DAY - i * 86_400_000).toISOString(),
     popularity: (i * 31) % 100,
