@@ -1,5 +1,5 @@
 import { PROVIDERS, type Order, type Wallet, type WalletInput, type WalletRef } from '@/api/types'
-import { validateWallet } from '@/lib/wallet-rules'
+import { validateWallet } from '@/lib/domain/wallet-rules'
 import type { StoredOrder } from '../db'
 import { nftEvent, orderEvent } from '../events'
 import { fail } from '../failure'

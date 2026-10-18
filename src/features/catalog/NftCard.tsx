@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import type { Nft } from '@/api/types'
 import { FavoriteButton } from '@/features/favorites/FavoriteButton'
 import { useBuy } from '@/features/nft/useBuy'
-import { announce } from '@/lib/announce'
-import { formatEth } from '@/lib/eth'
-import { totalAvailable } from '@/lib/nft'
+import { announce } from '@/lib/ui/announce'
+import { formatEth } from '@/lib/domain/eth'
+import { totalAvailable } from '@/lib/domain/nft'
 
 const ACTION = 'grid size-9 place-items-center rounded-full border border-border bg-ink/80 text-text-accent outline-none transition-colors hover:bg-surface-raised focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50'
 

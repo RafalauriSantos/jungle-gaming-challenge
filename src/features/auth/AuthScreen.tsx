@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { CatalogPage } from '@/features/catalog/CatalogPage'
-import { useMediaQuery } from '@/lib/useMediaQuery'
+import { useMediaQuery } from '@/lib/ui/useMediaQuery'
 import { LoginForm, SignupForm } from './AuthForms'
 import { SocialButtons } from './SocialButtons'
 

@@ -1,4 +1,4 @@
-import { parseEth } from '@/lib/eth'
+import { parseEth } from '@/lib/domain/eth'
 import {
   COLLECTIONS,
   FEEDS,
@@ -46,7 +46,7 @@ const pickList = <T extends string>(value: unknown, allowed: readonly T[]) => {
   const items = (Array.isArray(value) ? value : []).filter((v): v is T => allowed.includes(v))
   return items.length ? items : undefined
 }
-// Prices are decimal text (the router keeps the typed digits, see `src/lib/search-params.ts`): digits with at most 18
+// Prices are decimal text (the router keeps the typed digits, see `src/lib/domain/search-params.ts`): digits with at most 18
 // decimals, the same rule as the money code, or the parameter is ignored. A number would have lost precision already.
 const AMOUNT = /^\d+(\.\d{1,18})?$/
 const pickDecimal = (v: unknown) => {

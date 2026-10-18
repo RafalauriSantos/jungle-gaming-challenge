@@ -1,6 +1,6 @@
 # Lighthouse report
 
-Command: `pnpm build && pnpm preview --port 4173`, then `node scripts/lighthouse.mjs --runs 3 --out reports/lighthouse/local`. The script runs Lighthouse 3 times for each of home (`/`) and detail (`/nfts/nft-004`), on the mobile profile (Lighthouse default: simulated slow 4G at 1.6 Mbps, 150 ms RTT, CPU 4x slower) and on the desktop preset, and reports the median. HTML and JSON of every run are in `local/`; `local/summary.md` has the table with the tool versions and conditions. The deployed site is audited in `public/`; the earlier local run is in `local/`.
+Command: `pnpm build && pnpm preview --port 4173`, then `pnpm lighthouse --runs 3 --out reports/lighthouse/local`. The script runs Lighthouse 3 times for each of home (`/`) and detail (`/nfts/nft-004`), on the mobile profile (Lighthouse default: simulated slow 4G at 1.6 Mbps, 150 ms RTT, CPU 4x slower) and on the desktop preset, and reports the median. HTML and JSON of every run are in `local/`; `local/summary.md` has the table with the tool versions and conditions. The deployed site is audited in `public/`; the earlier local run is in `local/`.
 
 ## Result (median of 3, the deployed site)
 

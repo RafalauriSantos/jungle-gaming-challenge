@@ -6,7 +6,7 @@ import { addItem, getCart, mergeVisitorCart, removeItem, setQuantity } from '../
 import { createOrder, getOrder, listPendingOrders } from '../services/orders'
 import { createQuote, getQuote } from '../services/quote'
 import { connectWallet } from '../services/wallets'
-import { addEth } from '@/lib/eth'
+import { addEth } from '@/lib/domain/eth'
 import { nftEvent } from '../events'
 import { callerOf, respond } from './respond'
 

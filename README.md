@@ -15,7 +15,7 @@ MSW with `@mswjs/socket.io-binding`, Vitest, Playwright, Lighthouse.
 
 ## Setup
 
-Requirements: Node 22 and pnpm 10.
+Requirements: Node 22 and pnpm 10. The `pnpm` commands run the TypeScript scripts in `scripts/` with `tsx`.
 
 ```bash
 pnpm install
@@ -53,7 +53,7 @@ Coupon codes: `KURIO10` (10%), `LANCAMENTO5` (5%), `EXPIRADO` (known but expired
 | `pnpm test:e2e` | Playwright, Chromium, desktop (1440) and mobile (390); builds and serves the app itself |
 | `pnpm spec:check` | Checks that every requirement marked done has a test, and that this README lists every scenario |
 | `pnpm verify` | typecheck, lint, unit tests with coverage, build and `spec:check`. Run it before saying a change is done |
-| `pnpm lighthouse` | Lighthouse runner, see `scripts/lighthouse.mjs` (`--url`, `--runs`, `--out`) |
+| `pnpm lighthouse` | Lighthouse runner, see `scripts/lighthouse.ts` (`--url`, `--runs`, `--out`) |
 
 Run the E2E suite against a deployed site with `BASE_URL=https://jungle-gaming-challenge.pages.dev pnpm test:e2e`.
 
