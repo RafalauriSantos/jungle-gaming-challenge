@@ -64,7 +64,7 @@ Compartilhar no detalhe (LinkedIn, e-mail, Twitter) abre os sites reais com o li
 Campos de preço exato no filtro, chips dos filtros ativos, esconder o campo ENS nas redes que não são Ethereum (hoje ele só deixa de ser obrigatório), ícones no lugar das letras do rodapé e a padronização dos textos de marca e contato.
 
 ### Testes
-- Os testes rodam só no Chromium (desktop 1440 e celular 390, mais larguras de 320 a 1920). Safari e Firefox não são testados.
+- Os testes rodam só no Chromium: desktop 1440 e celular 390 para tudo, tablet 768 para os fluxos principais (catálogo, detalhe, login, favoritos, carrinho e compra), mais larguras de 320 a 1920 para o layout. Safari e Firefox não são testados.
 - A acessibilidade é verificada com axe e testes de teclado; não houve teste manual com leitor de tela.
 
 A interface é em português (pt-BR), como no Figma. Código, comentários e documentação técnica são em inglês.
@@ -107,7 +107,7 @@ Cupons: `KURIO10` (10%), `LANCAMENTO5` (5%), `EXPIRADO` (conhecido, mas expirado
 | `pnpm typecheck` | Geração de rotas e `tsc -b` |
 | `pnpm lint` | oxlint |
 | `pnpm test:unit` / `pnpm test:coverage` | Vitest; o segundo exige cobertura mínima nas regras de negócio |
-| `pnpm test:e2e` | Playwright em Chromium, desktop (1440) e mobile (390); compila e serve o app sozinho |
+| `pnpm test:e2e` | Playwright em Chromium, desktop (1440), mobile (390) e tablet (768, fluxos principais); compila e serve o app sozinho |
 | `pnpm spec:check` | Confere que todo requisito feito tem teste e que este README lista todos os cenários |
 | `pnpm verify` | typecheck, lint, testes unitários com cobertura, build e `spec:check` |
 | `pnpm lighthouse` | Auditoria Lighthouse (`--url`, `--runs`, `--out`); veja `scripts/lighthouse.ts` |
@@ -168,7 +168,7 @@ Os eventos em tempo real (`nft.updated`, `order.updated`) passam pelo `socket.io
 ## Testes
 
 - **Unitários (Vitest):** conta de dinheiro, controle de versão, serviços do mock, regras de sessão.
-- **E2E (Playwright):** os fluxos do enunciado (§9) em Chromium, 1440 e 390 de largura. Um requisito só é `done` quando um teste o nomeia (`ID#k` no título); o `pnpm spec:check` garante isso e escreve [`docs/spec/traceability.md`](docs/spec/traceability.md).
+- **E2E (Playwright):** os fluxos do enunciado (§9) em Chromium, 1440 e 390 de largura, e os fluxos principais também em 768 (tablet). Um requisito só é `done` quando um teste o nomeia (`ID#k` no título); o `pnpm spec:check` garante isso e escreve [`docs/spec/traceability.md`](docs/spec/traceability.md).
 - **Relatórios e traces:** cada execução gera um relatório HTML (`playwright-report/`, abra com `pnpm exec playwright show-report`) e guarda o trace de cada teste que falhou em `test-results/` (`pnpm exec playwright show-trace <trace.zip>`). A CI anexa os dois a cada execução por 14 dias.
 - **Lighthouse:** 3 rodadas por página e perfil (home e detalhe, mobile e desktop), com HTML e JSON de cada uma, versões das ferramentas e condições, em [`reports/lighthouse/`](reports/lighthouse).
 
