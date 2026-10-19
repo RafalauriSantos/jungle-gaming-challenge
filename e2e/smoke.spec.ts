@@ -76,3 +76,13 @@ test('ASSET-1#1: no request leaves the app origin', async ({ page, baseURL }) =>
   await page.waitForLoadState('networkidle')
   expect(foreign).toEqual([])
 })
+
+test('the page names its icons, and the server sends them', async ({ page, request }) => {
+  await page.goto('/')
+  for (const [selector, type] of [['link[rel="icon"]', 'image/svg+xml'], ['link[rel="apple-touch-icon"]', 'image/png']] as const) {
+    const href = await page.locator(selector).getAttribute('href')
+    const response = await request.get(href!)
+    expect(response.status(), href!).toBe(200)
+    expect(response.headers()['content-type'], href!).toContain(type)
+  }
+})
