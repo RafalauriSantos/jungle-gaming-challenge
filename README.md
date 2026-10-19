@@ -17,18 +17,59 @@ Não há backend real: o **MSW** simula toda a API (REST e Socket.IO), em desenv
 - **Lighthouse** (site publicado, mediana de 3 rodadas): acessibilidade, boas práticas e SEO em 100 em todas as páginas; desempenho 99 no desktop. **No mobile o desempenho é 82 (home) e 80 (detalhe), abaixo da meta de 90**: a página só desenha depois de baixar o JavaScript que inclui o backend simulado. O relatório com as causas e o que foi testado está em [`reports/lighthouse/`](reports/lighthouse/README.md).
 - **Publicação:** só o pipeline do GitHub Actions publica em produção, e só depois de a verificação, o E2E no build e o E2E na cópia de teste passarem. Depois da promoção, um smoke test confere a produção.
 
-**Limites conhecidos**
+**O que não funciona:** veja [Limitações](#limitações) logo abaixo. Está tudo listado, inclusive o que pode parecer defeito mas é regra de negócio.
 
+## Limitações
+
+### Fora do escopo do desafio (não funciona, de propósito)
+O enunciado deixa fora blockchain, extensões de carteira e pagamentos reais, e as páginas editoriais, de suporte, atividade, ofertas e downloads. Na tela, esses controles aparecem como no Figma, mas não simulam sucesso: ficam desativados ou respondem "Em breve".
+
+| Onde | O que acontece |
+| --- | --- |
+| Cabeçalho: **Criadores** e **Aprenda** | Mostram "Em breve". (**Mercado** funciona: leva ao catálogo.) |
+| Login: **Esqueceu a senha?**, **Continuar com Google/Facebook** | Desativados |
+| Conta: **Atividade**, **Lista de interesse**, **Ofertas**, **Arquivos baixados**, **Suporte** | Itens do menu inativos; só **Dados do perfil** e **Carteiras** abrem |
+| Detalhe: aba **Avaliações de colecionadores** | Inativa (só o rótulo, como no Figma) |
+| Página inicial: cards do **blog** | Mostram "Em breve" |
+| Rodapé: **newsletter**, colunas de links, ícones de redes sociais | Formulário desativado; links e ícones são só texto |
+| Recibo: **Ver no Etherscan** | Desativado (a transação é simulada) |
+| Carteiras (MetaMask, WalletConnect, Coinbase) | Conexão simulada; nenhuma extensão real é usada |
+
+Compartilhar no detalhe (LinkedIn, e-mail, Twitter) abre os sites reais com o link da página.
+
+### Consequências do backend simulado
+- **Precisa de service worker.** Todo o backend roda no navegador (MSW). Onde o navegador bloqueia service workers (navegação privada do Firefox, alguns navegadores dentro de apps, políticas corporativas), os dados não carregam: o catálogo mostra "Não foi possível carregar os NFTs.". Use Chrome, Edge ou Firefox em janela normal.
+- **Os dados ficam no seu navegador** (`localStorage`). Outro navegador ou aparelho não vê o mesmo carrinho, favoritos ou pedidos. Limpar os dados do site, ou usar `?reset=1`, volta tudo ao estado inicial.
+- **O tempo real é gerado pelo próprio mock** (cenários e painel Demo), não por outros usuários.
+- **Valores inventados:** as taxas de Polygon e Solana; o código de indicação e o endereço Solana são validados só pelo formato; os únicos cupons são `KURIO10`, `LANCAMENTO5` e `EXPIRADO`.
+
+### Regras de negócio que podem parecer defeito
+- **Um carrinho por rede.** Adicionar um NFT de outra rede pede para esvaziar o carrinho (a carteira e a taxa são de uma rede só).
+- **Quantidade limitada ao estoque da edição.** A edição 1/1 tem uma unidade; 1/10 e 1/50 aceitam mais.
+- **O preço do detalhe é unitário.** O total com a quantidade aparece no carrinho.
+- **Um pedido pendente por usuário**, para não haver pedido duplicado.
+- **O filtro de preço define o máximo.** O mínimo só pela URL (`minPrice`).
+- **Visitante** monta o carrinho sem login, mas favoritar e pagar pedem login.
+
+### Metas não atingidas
+- **Desempenho no Lighthouse mobile abaixo de 90.** As outras categorias estão em 100 e o desktop em 99, mas no mobile a página só desenha depois de baixar o JavaScript, que inclui o backend simulado exigido no site publicado. Números, causas e o que foi tentado: [`reports/lighthouse/`](reports/lighthouse/README.md).
+
+### Visual e design
 - O Figma usado é uma cópia do original, que não pôde ser lido; a fidelidade ao original não foi conferida.
-- Só o Chromium é testado.
-- As taxas em ETH de Polygon e Solana são constantes inventadas (o Figma mostra só Ethereum).
-- O filtro de preço tem uma alça (o máximo); campos de preço exato não foram feitos.
-- Opcionais não feitos: chips de filtros ativos, ENS exigido só na Ethereum, ícones do rodapé e consistência de textos de marca e contato.
-- Os 4 desenhos do Figma são os únicos originais; os outros 53 são variações de cor deles, feitas por [`docs/assets/derive-artwork.py`](docs/assets/derive-artwork.py).
+- Só 4 artes são do Figma; as outras 53 são variações de cor delas ([`docs/assets/derive-artwork.py`](docs/assets/derive-artwork.py)). A galeria do detalhe repete a imagem do NFT.
+- Carrinho e detalhe usam o layout de celular até 1023 px (o Figma só tem quadros de 414 e 1440 px).
+- Os desvios do Figma estão listados, um a um, no [`ARCHITECTURE.md`](ARCHITECTURE.md) §8.
+
+### Opcionais não feitos
+Campos de preço exato no filtro, chips dos filtros ativos, esconder o campo ENS nas redes que não são Ethereum (hoje ele só deixa de ser obrigatório), ícones no lugar das letras do rodapé e a padronização dos textos de marca e contato.
+
+### Testes
+- Os testes rodam só no Chromium (desktop 1440 e celular 390, mais larguras de 320 a 1920). Safari e Firefox não são testados.
+- A acessibilidade é verificada com axe e testes de teclado; não houve teste manual com leitor de tela.
 
 A interface é em português (pt-BR), como no Figma. Código, comentários e documentação técnica são em inglês.
 
-**Índice:** [Setup](#setup) · [Comandos](#comandos) · [Cenários do mock](#cenários-do-mock) · [Reproduzir os fluxos de falha](#reproduzir-os-fluxos-de-falha) · [Testes](#testes) · [Mais documentação](#mais-documentação)
+**Índice:** [Limitações](#limitações) · [Setup](#setup) · [Comandos](#comandos) · [Cenários do mock](#cenários-do-mock) · [Reproduzir os fluxos de falha](#reproduzir-os-fluxos-de-falha) · [Testes](#testes) · [Mais documentação](#mais-documentação)
 
 ## Setup
 
