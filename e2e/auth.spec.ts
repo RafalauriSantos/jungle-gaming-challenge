@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { PRIVATE_API } from './private-api'
 import { ANA, authRoot, signIn } from './support'
 
-const desktopOnly = (name: string) => name === 'desktop'
+const desktopOnly = (name: string) => name !== 'mobile' // the header and the sign-in modal exist from the tablet width up
 
 test('AUTH-1#1: empty and invalid sign-up fields show field errors', async ({ page }) => {
   await page.goto('/cadastrar')
