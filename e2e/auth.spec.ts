@@ -116,8 +116,17 @@ test('the sign-in modal traps focus and Escape leaves it', async ({ page }, info
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
   await expect(dialog.getByLabel('E-mail')).toBeFocused()
-  for (let i = 0; i < 12; i++) await page.keyboard.press('Tab')
-  expect(await page.evaluate(() => !!document.activeElement?.closest('[role=dialog]'))).toBe(true)
+  // At the end of the cycle the focus passes through a guard element next to the dialog, which sends it back to the first control on the
+  // next animation frame (Base UI's FloatingFocusManager). A second Tab inside that frame would start from the guard, which no person
+  // can do, so each Tab waits for the focus to settle, as a keyboard user's would, and then the focus must be inside the dialog.
+  for (let i = 0; i < 12; i++) {
+    await page.keyboard.press('Tab')
+    const settled = await page.waitForFunction(() => {
+      const active = document.activeElement
+      return active && !active.hasAttribute('data-base-ui-focus-guard') ? (active.closest('[role=dialog]') ? 'inside' : `outside: ${active.tagName} ${active.textContent?.trim().slice(0, 30)}`) : false
+    })
+    expect(await settled.jsonValue(), `Tab ${i + 1}`).toBe('inside')
+  }
   await page.keyboard.press('Escape')
   await expect(page).toHaveURL('/')
 })
