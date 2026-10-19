@@ -57,7 +57,8 @@ test('UI-4#1: Mercado goes to the catalog, and the items that open nothing yet a
   for (const item of ['Criadores', 'Aprenda']) {
     await expect(nav.getByRole('button', { name: item })).toHaveAccessibleDescription('Em breve') // announced before the click
     await nav.getByRole('button', { name: item }).click()
-    await expect(nav.getByRole('status')).toHaveText(`${item}: em breve`)
+    await expect(nav.getByRole('status')).toHaveText(`${item}: Em breve`) // what a screen reader announces
+    await expect(nav.getByRole('status').getByText('Em breve', { exact: true })).toBeVisible() // what is drawn: the name is not repeated
     await expect(nav.getByRole('status')).toHaveCount(1) // the previous answer is gone
   }
 })

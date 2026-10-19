@@ -78,7 +78,7 @@ Para rodar o E2E contra o site publicado: `BASE_URL=https://jungle-gaming-challe
 Todo cenário é determinístico. Escolha um de três jeitos:
 
 1. **URL:** acrescente `?scenario=<nome>` a qualquer página, por exemplo `/?scenario=http-5xx`. O parâmetro é lido uma vez e removido do endereço.
-2. **Painel Demo:** o botão **Demo**, no canto inferior esquerdo de toda página, lista os cenários.
+2. **Painel Demo:** a pequena seta na borda esquerda de toda página (nome "Demo"; ao passar o mouse, a dica explica) abre o painel com os cenários.
 3. **Console:** `window.__mock.setScenario('<nome>')`.
 
 **Reset:** `?reset=1` (combina com `?scenario=`), ou **Resetar estado** no painel Demo, ou `window.__mock.reset()`.
