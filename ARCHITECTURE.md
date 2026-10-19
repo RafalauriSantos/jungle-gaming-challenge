@@ -367,11 +367,11 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 - Wallet apps are simulated (`POST /wallet-connections`); there is no real extension, chain or transaction. "Ver no Etherscan" is a disabled button.
 - The mock backend runs in the page: state lives in `localStorage` and resets with `?reset=1`; two browsers do not share state.
 - One network per cart and one pending order per user (D-21, D-22). The "Usar outra carteira?" wallet is valid for that order only.
-- The reviews tab, social sign-in, "Esqueceu a senha?", the newsletter form and the nav items "Mercado", "Criadores" and "Aprenda" are out of scope and shown inert (below).
+- The reviews tab, social sign-in, "Esqueceu a senha?", the newsletter form and the nav items "Criadores" and "Aprenda" are out of scope and shown inert (below); "Mercado" goes to the catalog.
 - Cart and detail use the phone layout up to 1023 px, since the Figma has only 414 and 1440 frames.
 - Lighthouse performance on mobile is limited by the payload the statement forces (the mock layer ships in the public build); see the report.
 
-**Inert controls (UI-4).** Each carries `title="Em breve"` or is `disabled` / `aria-disabled`: header nav "Mercado/Criadores/Aprenda" (`Header.tsx`), "Esqueceu a senha?" and social buttons (`AuthForms.tsx`, `SocialButtons.tsx`), newsletter form (`Footer.tsx`), blog cards (`Blog.tsx`), reviews tab and "Ver no Etherscan" (`DetailDesktop.tsx`, `OrderPage.tsx`), and the five account-menu entries Atividade, Lista de interesse, Ofertas, Arquivos baixados and Suporte (`AccountShell.tsx`, `aria-disabled` with `title="Em breve"`).
+**Inert controls (UI-4).** Each carries `title="Em breve"` or is `disabled` / `aria-disabled`: header nav "Criadores/Aprenda" (`Header.tsx`), "Esqueceu a senha?" and social buttons (`AuthForms.tsx`, `SocialButtons.tsx`), newsletter form (`Footer.tsx`), blog cards (`Blog.tsx`), reviews tab and "Ver no Etherscan" (`DetailDesktop.tsx`, `OrderPage.tsx`), and the five account-menu entries Atividade, Lista de interesse, Ofertas, Arquivos baixados and Suporte (`AccountShell.tsx`, `aria-disabled` with `title="Em breve"`).
 
 **UX decisions.** Authorization is enforced in handlers (D-29); the review dialog before sending an order; a quote change asks for a new confirmation; a pending order is recovered by the server list after login; the visitor cart merges once; messages announce changes with `role="status"`; each screen has loading, error with retry, empty and success states (`design-decisions.md`, "Screen states").
 
@@ -391,7 +391,7 @@ Layers, each calling only the one below: `handlers` (HTTP) and `socket` (events)
 | Wallet list on payment | Not drawn | "Carteira salva" list | Needed to choose between primary and reserve (D-34) |
 | Icons | Figma vectors | Exported SVGs for brand art and the tab bar; `lucide-react` for small UI icons | Same meaning, accessible names added |
 
-**Accessibility changes versus the Figma.** Visible focus rings on every control; names for the two price-slider thumbs; hidden labels (`sr-only`) where the frame shows only a placeholder; `aria-invalid` and `aria-describedby` on every field error; the edition pills are a radio group with text for sold-out editions; `aria-busy` and `role="status"` on loading areas; the heart and cart badge carry text alternatives; focus is trapped and restored in dialogs and sheets. Colors keep the Figma values; axe finds no contrast violation.
+**Accessibility changes versus the Figma.** Visible focus rings on every control; a name for the price slider's single handle; hidden labels (`sr-only`) where the frame shows only a placeholder; `aria-invalid` and `aria-describedby` on every field error; the edition pills are a radio group with text for sold-out editions; `aria-busy` and `role="status"` on loading areas; the heart and cart badge carry text alternatives; focus is trapped and restored in dialogs and sheets. Colors keep the Figma values; axe finds no contrast violation.
 
 ## 9. Operational notes
 
