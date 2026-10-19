@@ -14,7 +14,7 @@ Não há backend real: o **MSW** simula toda a API (REST e Socket.IO), em desenv
 
 - **Entregue:** catálogo com busca, filtros, ordenação e paginação; detalhe do NFT; favoritos; carrinho; checkout com carteiras, cupons e recibo; conta, perfil e carteiras; atualizações em tempo real (Socket.IO) de preço, disponibilidade e pedido.
 - **Qualidade:** 169 testes unitários e mais de 280 testes E2E (Playwright, desktop 1440 e mobile 390). Cada requisito marcado como feito tem um teste que o nomeia ([`docs/spec/traceability.md`](docs/spec/traceability.md)).
-- **Lighthouse** (site publicado, mediana de 3 rodadas): acessibilidade, boas práticas e SEO em 100 em todas as páginas; desempenho 99 no desktop. **No mobile o desempenho é 82 (home) e 80 (detalhe), abaixo da meta de 90**: a página só desenha depois de baixar o JavaScript que inclui o backend simulado. O relatório com as causas e o que foi testado está em [`reports/lighthouse/`](reports/lighthouse/README.md).
+- **Lighthouse** (site publicado, mediana de 3 rodadas): acessibilidade, boas práticas e SEO em 100 em todas as páginas; desempenho 99 no desktop. **No mobile o desempenho é 82 (home) e 80 (detalhe), abaixo da meta de 90**: a primeira pintura espera o JavaScript do app (cerca de 250 KB comprimidos) chegar e rodar; o backend simulado carrega depois, e os dados e a imagem do detalhe esperam por ele. O relatório com as causas e o que foi testado está em [`reports/lighthouse/`](reports/lighthouse/README.md).
 - **Publicação:** só o pipeline do GitHub Actions publica em produção, e só depois de a verificação, o E2E no build e o E2E na cópia de teste passarem. Depois da promoção, um smoke test confere a produção.
 
 **O que não funciona:** veja [Limitações](#limitações) logo abaixo. Está tudo listado, inclusive o que pode parecer defeito mas é regra de negócio.
@@ -52,7 +52,7 @@ Compartilhar no detalhe (LinkedIn, e-mail, Twitter) abre os sites reais com o li
 - **Visitante** monta o carrinho sem login, mas favoritar e pagar pedem login.
 
 ### Metas não atingidas
-- **Desempenho no Lighthouse mobile abaixo de 90.** As outras categorias estão em 100 e o desktop em 99, mas no mobile a página só desenha depois de baixar o JavaScript, que inclui o backend simulado exigido no site publicado. Números, causas e o que foi tentado: [`reports/lighthouse/`](reports/lighthouse/README.md).
+- **Desempenho no Lighthouse mobile abaixo de 90.** As outras categorias estão em 100 e o desktop em 99, mas no mobile a primeira pintura espera o JavaScript do app (cerca de 250 KB comprimidos) chegar e rodar, e os dados e a imagem do detalhe esperam o backend simulado, que é exigido no site publicado e carrega logo depois. Números, causas e o que foi tentado: [`reports/lighthouse/`](reports/lighthouse/README.md).
 
 ### Visual e design
 - O Figma usado é uma cópia do original, que não pôde ser lido; a fidelidade ao original não foi conferida.
