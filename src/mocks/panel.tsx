@@ -57,7 +57,7 @@ function MockPanel() {
         aria-controls="mock-panel"
         data-hint={hint}
         onClick={() => setOpen((o) => !o)}
-        className="touch relative grid place-items-center rounded-r-md border border-l-0 border-border bg-ink px-0.5 py-3 text-text-secondary outline-none transition-colors hover:bg-surface-raised hover:text-text-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:text-text-accent data-[hint=true]:motion-safe:animate-[pulse_1.4s_ease-in-out_2]"
+        className="relative grid place-items-center rounded-r-md after:absolute after:left-0 after:top-1/2 after:size-11 after:-translate-y-1/2 after:content-['']  border border-l-0 border-border bg-ink px-0.5 py-3 text-text-secondary outline-none transition-colors hover:bg-surface-raised hover:text-text-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:text-text-accent data-[hint=true]:motion-safe:animate-[pulse_1.4s_ease-in-out_2]"
       >
         <ChevronRight aria-hidden className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>

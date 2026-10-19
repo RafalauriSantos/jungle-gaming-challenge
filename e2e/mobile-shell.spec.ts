@@ -23,21 +23,34 @@ test('UI-1#2: the copyright line stays at the bottom and clear of the tab bar bu
   }
 })
 
-test('the controls of the phone screens have a touch target of at least 40 x 40 px', async ({ page }) => {
+test('the controls of the phone screens have a touch target of at least 40 x 40 px, inside the screen', async ({ page }) => {
   for (const path of ['/', '/nfts/nft-004', '/entrar', '/carrinho']) {
     await page.goto(path)
     await expect(page.getByRole('main').or(page.getByRole('heading').first()).first()).toBeVisible()
-    const small = await page.evaluate(() =>
-      [...document.querySelectorAll<HTMLElement>('a, button, input:not([type=hidden]), [role=radio], [role=checkbox], [role=slider]')]
-        .filter((e) => {
-          const r = e.getBoundingClientRect()
-          if (r.width <= 1 || r.height <= 1 || e.matches(':disabled') || e.closest('[inert]') || getComputedStyle(e).visibility === 'hidden') return false
-          const after = getComputedStyle(e, '::after')
-          const reach = (box: number, extra: string) => Math.max(box, parseFloat(extra) || 0)
-          return reach(r.width, after.width) < 40 || reach(r.height, after.height) < 40
-        })
-        .map((e) => `${e.tagName.toLowerCase()} "${(e.getAttribute('aria-label') ?? e.textContent ?? '').trim().slice(0, 30)}"`),
-    )
+    await expect(page.getByRole('button', { name: 'Demo' })).toBeVisible() // mounted after the mock starts; list the controls after it
+    const controls = page.locator('a, button, input:not([type=hidden]), [role=radio], [role=checkbox], [role=slider]')
+    const small: string[] = []
+    for (const control of await controls.all()) {
+      if (!(await control.isVisible()) || (await control.isDisabled().catch(() => false))) continue
+      await control.scrollIntoViewIfNeeded()
+      // What a finger can actually hit: a 40 x 40 square, inside the screen, where every sampled point lands on this control.
+      const ok = await control.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        if (r.width <= 1 || r.height <= 1 || el.closest('[inert]')) return true
+        const clamp = (v: number, max: number) => Math.min(Math.max(v, 0), max - 40)
+        const xs = [r.left + r.width / 2 - 20, r.left - 2, r.right - 38].map((x) => clamp(x, innerWidth))
+        const ys = [r.top + r.height / 2 - 20, r.top - 2, r.bottom - 38].map((y) => clamp(y, innerHeight))
+        return xs.some((x) => ys.some((y) => {
+          for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) {
+            if ((i === 0 || i === 4) && (j === 0 || j === 4)) continue // a round control does not take the corners of its square
+            const hit = document.elementFromPoint(x + 1 + i * 9.5, y + 1 + j * 9.5)
+            if (!hit || !el.contains(hit)) return false
+          }
+          return true
+        }))
+      })
+      if (!ok) small.push((await control.getAttribute('aria-label')) ?? (await control.innerText()).trim().slice(0, 30))
+    }
     expect(small, path).toEqual([])
   }
 })
