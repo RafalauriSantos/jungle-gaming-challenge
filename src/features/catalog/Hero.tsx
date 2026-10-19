@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative flex min-h-[190px] items-center overflow-hidden rounded-xl bg-surface-card p-4 md:h-[450px] md:rounded-none md:bg-transparent md:pl-10"
+      className="relative flex min-h-[190px] items-center overflow-hidden rounded-xl bg-surface-card p-4 md:min-h-[450px] lg:h-[450px] md:rounded-none md:bg-transparent md:pl-10"
     >
       <img src={heroBanner} alt="" aria-hidden className="absolute inset-0 size-full object-cover md:hidden" />
       <div className="relative flex w-full items-center justify-between gap-2">

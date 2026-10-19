@@ -34,8 +34,9 @@ export function CatalogPage({ search, onChange: setFilter, onReset }: Props) {
 
   return (
     <main className="mx-auto flex w-full max-w-[1232px] flex-col gap-6 px-6 pb-8 pt-6 md:gap-24 md:px-4 md:pt-6">
-      <div className="flex gap-3 md:hidden">
-        <SearchBox className="flex-1" placeholder="Explorar coleções" />
+      {/* Below 1024 px the filters live in a drawer; from 768 px the search is in the header, so only the drawer's button stays. */}
+      <div className="flex gap-3 md:justify-end lg:hidden">
+        <SearchBox className="flex-1 md:hidden" placeholder="Explorar coleções" />
         <FiltersSheet>{filters}</FiltersSheet>
       </div>
 

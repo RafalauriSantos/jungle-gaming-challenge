@@ -89,9 +89,9 @@ export function NftCard({ nft }: { nft: Nft }) {
           </p>
         </div>
       </Link>
-      {/* The mobile frame draws a heart on the card; the desktop card shows its buttons on hover (D-16). */}
+      {/* The mobile frame draws a heart on the card; the desktop card shows its buttons on hover (D-16). A touch tablet has no hover, so it keeps the heart. */}
       <CardActions nft={nft} soldOut={soldOut} />
-      <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="absolute right-3 top-5 size-[35px] rounded-full border border-border bg-ink/60 text-text-accent md:hidden" />
+      <FavoriteButton nftId={nft.id} name={nft.name} variant="icon" className="absolute right-3 top-5 size-[35px] rounded-full border border-border bg-ink/60 text-text-accent md:[@media(hover:hover)]:hidden" />
     </li>
   )
 }

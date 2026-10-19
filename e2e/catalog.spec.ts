@@ -155,7 +155,7 @@ test('CAT-1#1: choosing a listing or a sort keeps the reading position instead o
 })
 
 test('CAT-6#2: on desktop the card shows cart, favorite and view buttons on hover, and each does its job', async ({ page }) => {
-  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The hover buttons are the desktop card; the phone card keeps its heart')
+  test.skip(!(await page.evaluate(() => matchMedia('(hover: hover)').matches)), 'The hover buttons exist only where a pointer can hover; touch screens keep the heart')
   await signIn(page)
   await page.goto('/')
   const card = page.getByTestId('nft-card').nth(1) // Sage Nomad #009, the card the frame shows on hover
@@ -176,7 +176,7 @@ test('CAT-6#2: on desktop the card shows cart, favorite and view buttons on hove
 })
 
 test('CAT-6#2: a card that cannot be added says why on the card, and offers the way out', async ({ page }) => {
-  test.skip((page.viewportSize()?.width ?? 0) < 768, 'The hover buttons are the desktop card')
+  test.skip(!(await page.evaluate(() => matchMedia('(hover: hover)').matches)), 'The hover buttons exist only where a pointer can hover; touch screens keep the heart')
   await signIn(page)
   await page.goto('/')
   const cards = page.getByTestId('nft-card')
@@ -212,4 +212,26 @@ test('CAT-9#1: the price filter has one handle, which sets the maximum', async (
   const prices = await page.getByTestId('nft-card').evaluateAll((cards) => cards.map((c) => Number(/([\d.,]+) ETH/.exec((c as HTMLElement).innerText)?.[1]?.replace(',', '.'))))
   expect(prices.length).toBeGreaterThan(0)
   for (const price of prices) expect(price).toBeLessThanOrEqual(max + 0.001)
+})
+
+test('on a touch tablet the card keeps its heart, since there is no hover to show the buttons, and favoriting works', async ({ page }) => {
+  const width = page.viewportSize()?.width ?? 0
+  test.skip(width < 768 || (await page.evaluate(() => matchMedia('(hover: hover)').matches)), 'A touch screen of tablet width only')
+  await signIn(page)
+  await page.goto('/')
+  const card = page.getByTestId('nft-card').first()
+  const heart = card.getByRole('button', { name: /^Favoritar / })
+  await expect(heart).toBeVisible()
+  await heart.click()
+  await expect(heart).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('the hero title is whole at every width: nothing of it is cut by the banner', async ({ page }) => {
+  await page.goto('/')
+  const hero = page.getByRole('region', { name: /SEJA DONO/ })
+  const title = hero.getByRole('heading', { level: 1 })
+  await expect(title).toBeVisible()
+  const [box, area] = [(await title.boundingBox())!, (await hero.boundingBox())!]
+  expect(box.y, 'the title starts inside the banner').toBeGreaterThanOrEqual(area.y)
+  expect(box.y + box.height, 'the title ends inside the banner').toBeLessThanOrEqual(area.y + area.height)
 })
