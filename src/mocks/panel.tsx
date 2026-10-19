@@ -29,7 +29,7 @@ function useFirstVisitHint() {
   return hint
 }
 
-/** Lets anyone try a failure scenario or start over, on the deployed demo as well. A tab on the left edge opens it. */
+/** Lets anyone try a failure scenario or start over, on the deployed demo as well. An arrow on the left edge opens it. */
 function MockPanel() {
   const [open, setOpen] = useState(false)
   const [scenario, setScenario] = useState<string>(control.scenario())
@@ -51,17 +51,19 @@ function MockPanel() {
       <button
         ref={tab}
         type="button"
+        aria-label="Demo"
+        title="Demo: trocar cenários do backend simulado"
         aria-expanded={open}
         aria-controls="mock-panel"
         data-hint={hint}
         onClick={() => setOpen((o) => !o)}
-        className="touch relative flex items-center gap-0.5 rounded-r-md border border-l-0 border-border bg-ink px-1 py-2 text-[11px] text-text-secondary outline-none transition-colors hover:bg-surface-raised hover:text-text-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:text-text-accent data-[hint=true]:motion-safe:animate-[pulse_1.4s_ease-in-out_2]"
+        className="relative grid place-items-center rounded-r-md after:absolute after:left-0 after:top-1/2 after:size-11 after:-translate-y-1/2 after:content-['']  border border-l-0 border-border bg-ink px-0.5 py-3 text-text-secondary outline-none transition-colors hover:bg-surface-raised hover:text-text-accent focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:text-text-accent data-[hint=true]:motion-safe:animate-[pulse_1.4s_ease-in-out_2]"
       >
-        <ChevronRight aria-hidden className={`size-3 transition-transform ${open ? 'rotate-180' : ''}`} />
-        <span className="[writing-mode:vertical-rl]">Demo</span>
+        <ChevronRight aria-hidden className={`size-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div id="mock-panel" role="region" aria-label="Painel de demonstração" className="ml-2 w-72 max-w-[calc(100vw-3rem)] rounded-lg border border-border bg-surface-card p-3 text-sm shadow-lg">
+          <p className="mb-1 font-bold">Demo</p>
           <p className="mb-3 text-xs text-text-secondary">Backend simulado (MSW). O cenário vale até você trocá-lo ou resetar.</p>
           <div className="mb-3 flex flex-col gap-1.5">
             <Label htmlFor="mock-scenario">Cenário</Label>

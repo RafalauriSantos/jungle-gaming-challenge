@@ -25,7 +25,9 @@ function SoonItem({ label, shown, onShow }: { label: string; shown: boolean; onS
       </button>
       {shown && (
         <span role="status" className="absolute left-1/2 top-[36px] z-30 -translate-x-1/2 whitespace-nowrap rounded-md border border-primary bg-surface-card px-3 py-1.5 text-sm font-bold text-text-accent shadow-lg">
-          {label}: em breve
+          {/* The status sits under the item that was clicked, so the eye needs no name; a screen reader hears it on its own and does. */}
+          <span className="sr-only">{label}: </span>
+          <span>Em breve</span>
         </span>
       )}
     </span>
